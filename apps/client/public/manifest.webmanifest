@@ -1,0 +1,10 @@
+{
+  "name": "Nooklings: Little Worlds",
+  "short_name": "Nooklings",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#2b2130",
+  "theme_color": "#3b2a40",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

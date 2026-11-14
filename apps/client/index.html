@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#3b2a40" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Nooklings: Little Worlds</title>
+  </head>
+  <body>
+    <div id="app">
+      <nav id="rail" aria-label="Main">
+        <button class="tab active" data-tab="home" aria-label="Home"><span class="ico">⌂</span><span class="lbl">Home</span></button>
+        <button class="tab" data-tab="nookbook" aria-label="Nookbook"><span class="ico">❦</span><span class="lbl">Book</span></button>
+        <button class="tab" data-tab="explore" aria-label="Explore"><span class="ico">✦</span><span class="lbl">Explore</span></button>
+        <button class="tab" data-tab="tasks" aria-label="Tasks"><span class="ico">✓</span><span class="lbl">Tasks</span></button>
+      </nav>
+      <main id="main">
+        <header id="topbar">
+          <div id="home-title"><span id="home-name">Little Cottage</span><span class="lvl">Lv 1</span></div>
+          <div id="resources">
+            <span class="res" title="Buttons (placeholder until Milestone B)">● <b id="res-buttons">0</b></span>
+            <span class="res" title="Wish Stamps (placeholder until Milestone B)">✉ <b id="res-stamps">0</b></span>
+          </div>
+          <div id="top-actions">
+            <button id="build-btn" class="pill">Build</button>
+            <button id="fs-btn" class="pill icon" aria-label="Full screen">⤢</button>
+          </div>
+        </header>
+        <div id="stage-wrap">
+          <div id="stage"></div>
+          <div id="tab-placeholder" hidden>
+            <p class="ph-title"></p>
+            <p class="ph-body"></p>
+          </div>
+          <div id="toast" role="status" aria-live="polite"></div>
+        </div>
+      </main>
+      <aside id="panel" aria-live="polite" hidden></aside>
+    </div>
+    <div id="rotate">
+      <div class="rotate-card">
+        <div class="rotate-phone"></div>
+        <p>Turn your phone sideways to play Nooklings</p>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
