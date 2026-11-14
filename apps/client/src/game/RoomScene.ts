@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { blockedGrid, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
 import type { GameStore } from '../store';
+import { allArt } from '../assets';
 import { drawFurniture, type DrawnItem } from './art';
 import { computeLayout, floorCellAt, wallSlotAt, type RoomLayout } from './layout';
 import { Resident, type ResidentStatus, type World } from './resident';
@@ -41,6 +42,8 @@ export class RoomScene extends Phaser.Scene {
   private drawn = new Map<string, DrawnItem>();
   private ghost: DrawnItem | null = null;
   private residents: Resident[] = [];
+  private claims = new Map<string, string>();
+  private roomImage!: Phaser.GameObjects.Image;
   private blocked: boolean[][] = [];
   private buildMode = false;
   private pending: PendingEdit | null = null;
@@ -68,20 +71,22 @@ export class RoomScene extends Phaser.Scene {
     return this.store.state.rooms[this.roomId]?.placements ?? [];
   }
 
+  preload(): void {
+    for (const [key, path] of Object.entries(allArt())) {
+      if (key.startsWith('char_') || key.startsWith('furn_') || key.startsWith('room_')) this.load.image(key, path);
+    }
+  }
+
   create(): void {
     this.cameras.main.setBackgroundColor(BG);
     this.roomGfx = this.add.graphics().setDepth(0);
+    this.roomImage = this.add.image(0, 0, '__DEFAULT').setOrigin(0, 0).setDepth(1).setVisible(false);
     this.gridGfx = this.add.graphics().setDepth(12);
     this.ghostCells = this.add.graphics().setDepth(13);
     this.layout = computeLayout(this.room, this.scale.width, this.scale.height);
     this.blocked = blockedGrid(this.room, this.placements, this.store.content);
 
-    for (const def of Object.values(this.store.content.residents)) {
-      const start = this.firstFreeNear({ col: 6, row: 4 });
-      const r = new Resident(this, def, start, this.reducedMotion);
-      r.setLayout(this.layout);
-      this.residents.push(r);
-    }
+    this.syncResidents(null);
     this.redrawAll();
 
     this.scale.on('resize', this.onResize, this);
@@ -168,7 +173,15 @@ export class RoomScene extends Phaser.Scene {
   // ---------- internals ----------
 
   private world(): World {
-    return { room: this.room, content: this.store.content, layout: this.layout, placements: this.placements, blocked: this.blocked };
+    return {
+      room: this.room,
+      content: this.store.content,
+      layout: this.layout,
+      placements: this.placements,
+      blocked: this.blocked,
+      claims: this.claims,
+      residentCells: () => this.residents.map((r) => ({ id: r.def.id, cell: r.currentCell })),
+    };
   }
 
   private onResize(size: Phaser.Structs.Size): void {
@@ -178,12 +191,47 @@ export class RoomScene extends Phaser.Scene {
     this.redrawAll();
   }
 
+  /** Residents shown in the room: owned ones in join order, up to the active cap. */
+  private syncResidents(joined: string | null): void {
+    const state = this.store.state;
+    const active = state.residentOrder.slice(0, this.store.content.rules.maxActiveResidents);
+    this.residents = this.residents.filter((r) => {
+      if (active.includes(r.def.id)) return true;
+      r.container.destroy();
+      return false;
+    });
+    active.forEach((id, i) => {
+      const def = this.store.content.residents[id];
+      if (!def) return;
+      let r = this.residents.find((x) => x.def.id === id);
+      if (!r) {
+        const taken = new Set(this.residents.map((x) => `${x.currentCell.col},${x.currentCell.row}`));
+        let start = this.firstFreeNear({ col: 3 + i * 2, row: 3 });
+        for (let c = 0; taken.has(`${start.col},${start.row}`) && c < this.room.cols; c++) start = this.firstFreeNear({ col: c, row: 4 });
+        r = new Resident(this, def, start, this.reducedMotion);
+        r.setLayout(this.layout);
+        this.residents.push(r);
+        if (id === joined) r.enterFrom(this.room.door, this.world(), this.time.now);
+      }
+      r.setDecorated(state.residents[id]?.form === 'decorated');
+    });
+  }
+
   private onStateChanged(events: GameEvent[]): void {
     this.blocked = blockedGrid(this.room, this.placements, this.store.content);
     this.redrawFurniture();
     const now = this.time.now;
-    for (const r of this.residents) r.onLayoutChanged(this.world(), now);
-    if (events.some((e) => e.type === 'placed')) for (const r of this.residents) r.react('♥', now);
+    for (const e of events) if (e.type === 'resident_joined') this.syncResidents(e.residentId);
+    if (events.length === 0) this.syncResidents(null);
+    for (const r of this.residents) {
+      r.setDecorated(this.store.state.residents[r.def.id]?.form === 'decorated');
+      r.onLayoutChanged(this.world(), now);
+    }
+    for (const e of events) {
+      if (e.type === 'placed') for (const r of this.residents) r.react('♥', now);
+      if (e.type === 'played') this.residents.find((r) => r.def.id === e.residentId)?.react(e.bondUp ? '♥♥' : '♥', now);
+      if (e.type === 'form_upgraded') this.residents.find((r) => r.def.id === e.residentId)?.react('✦', now);
+    }
   }
 
   private setPending(edit: PendingEdit): void {
@@ -256,6 +304,11 @@ export class RoomScene extends Phaser.Scene {
     g.clear();
     const frame = Math.max(6, l.cw * 0.18);
     g.fillStyle(0x6d4b33, 1).fillRoundedRect(l.ox - frame, l.wallTop - frame, l.width + frame * 2, l.wallH + l.floorH + frame * 2, 10);
+    if (this.textures.exists('room_living_background')) {
+      this.roomImage.setTexture('room_living_background').setPosition(l.ox, l.wallTop).setDisplaySize(l.width, l.wallH + l.floorH).setVisible(true);
+      return;
+    }
+    this.roomImage.setVisible(false);
     g.fillStyle(0xf4e3c8, 1).fillRect(l.ox, l.wallTop, l.width, l.wallH);
     g.fillStyle(0xecd6b6, 1);
     for (let c = 0; c < room.cols * 2; c += 2) g.fillRect(l.ox + (c + 0.5) * (l.cw / 2), l.wallTop, l.cw / 4, l.wallH * 0.68);

@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { adjacentFreeCells, findPath, isFree, type Cell, type Content, type Placement, type ResidentDef, type RoomDef } from '@nooklings/core';
-import { drawSnug, furnitureDepth, seatPoint } from './art';
+import { charKey, type Pose } from '../assets';
+import { drawResident, furnitureDepth, seatPoint } from './art';
 import { footPoint, type RoomLayout } from './layout';
 
 export interface World {
@@ -9,6 +10,10 @@ export interface World {
   layout: RoomLayout;
   placements: readonly Placement[];
   blocked: boolean[][];
+  /** Shared reservations so residents don't pick the same spot: key -> resident id. */
+  claims: Map<string, string>;
+  /** Where every resident currently stands. */
+  residentCells: () => Array<{ id: string; cell: Cell }>;
 }
 
 export type ResidentStatus = 'Idle' | 'Walking' | 'Sleeping' | 'Sitting';
@@ -43,6 +48,11 @@ function randBetween(a: number, b: number): number {
 export class Resident {
   readonly container: Phaser.GameObjects.Container;
   private readonly body: Phaser.GameObjects.Graphics;
+  private readonly sprite: Phaser.GameObjects.Image;
+  private decorated = false;
+  private happyUntil = 0;
+  private stepT = 0;
+  private shownKey: string | null = null;
   private readonly emote: Phaser.GameObjects.Text;
   private cell: Cell;
   /** Position in cell units while walking (fractional between cells). */
@@ -54,6 +64,7 @@ export class Resident {
   private emoteUntil = 0;
   private zTimer = 0;
   private size = 40;
+  private claimKeys: string[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -66,7 +77,8 @@ export class Resident {
     this.body = scene.add.graphics();
     this.emote = scene.add.text(0, 0, '', { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffffff', stroke: '#4a2333', strokeThickness: 4 });
     this.emote.setOrigin(0.5, 1).setVisible(false);
-    this.container = scene.add.container(0, 0, [this.body, this.emote]);
+    this.sprite = scene.add.image(0, 0, '__DEFAULT').setOrigin(0.5, 1).setVisible(false);
+    this.container = scene.add.container(0, 0, [this.body, this.sprite, this.emote]);
     this.mode = { kind: 'idle', until: 0 };
   }
 
@@ -93,9 +105,34 @@ export class Resident {
     this.redraw();
   }
 
+  setDecorated(on: boolean): void {
+    if (this.decorated === on) return;
+    this.decorated = on;
+    this.redraw();
+  }
+
+  /** Walk in through the doorway to a free spot (used when a new resident joins). */
+  enterFrom(door: Cell, world: World, now: number): void {
+    this.cell = { ...door };
+    this.pos = { c: door.col, r: door.row };
+    const target = { col: Math.min(world.room.cols - 2, Math.max(1, door.col - 3)), row: Math.min(world.room.rows - 1, door.row + 2) };
+    let best: Cell[] | null = null;
+    for (let r = 0; r < world.room.rows && !best; r++) {
+      for (let c = 0; c < world.room.cols; c++) {
+        const cell = { col: (target.col + c) % world.room.cols, row: (target.row + r) % world.room.rows };
+        if (!isFree(world.blocked, cell)) continue;
+        const path = findPath(world.blocked, this.cell, cell);
+        if (path && path.length > 0) { best = path; break; }
+      }
+    }
+    this.mode = best ? { kind: 'walk', path: best, seg: 0 } : { kind: 'idle', until: now + 500 };
+    this.react('!', now);
+  }
+
   react(symbol: string, now: number): void {
     this.emote.setText(symbol).setVisible(true).setAlpha(1);
     this.emoteUntil = now + 1600;
+    this.happyUntil = now + 1200;
     if (this.mode.kind === 'idle') this.mode = { kind: 'idle', until: now + 1200 };
   }
 
@@ -223,6 +260,7 @@ export class Resident {
     }
     this.container.setPosition(x, y).setDepth(depth);
     this.body.setScale(this.facing, 1);
+    this.updateSprite(mode.kind === 'walk', dt, now);
     if (this.emote.visible && now > this.emoteUntil) this.emote.setVisible(false);
   }
 
@@ -233,7 +271,34 @@ export class Resident {
   }
 
   private redraw(): void {
-    drawSnug(this.body, this.size, this.pose);
+    drawResident(this.body, this.def, this.size, this.pose, this.decorated);
+    this.shownKey = null;
+    this.updateSprite(false, 0, 0);
+  }
+
+  /** Uses production art when it exists, otherwise the placeholder drawing. */
+  private updateSprite(walking: boolean, dt: number, now: number): void {
+    const idleKey = charKey(this.def.id, 'idle', false);
+    if (!idleKey || !this.scene.textures.exists(idleKey)) {
+      this.sprite.setVisible(false);
+      this.body.setVisible(true);
+      return;
+    }
+    this.stepT += dt;
+    let pose: Pose = 'idle';
+    if (this.pose === 'sleep') pose = 'sleep';
+    else if (this.pose === 'sit') pose = 'sit';
+    else if (now < this.happyUntil) pose = 'happy';
+    else if (walking) pose = Math.floor(this.stepT * 4) % 2 === 0 ? 'walk' : 'idle';
+    const key = charKey(this.def.id, pose, this.decorated) ?? idleKey;
+    if (key !== this.shownKey && this.scene.textures.exists(key)) {
+      this.sprite.setTexture(key);
+      this.shownKey = key;
+    }
+    const base = this.scene.textures.get(idleKey).getSourceImage() as { height: number };
+    const scale = (this.size * 1.12) / Math.max(1, base.height);
+    this.sprite.setScale(scale * this.facing, scale).setVisible(true);
+    this.body.setVisible(false);
   }
 
   private floatZ(): void {
@@ -248,7 +313,23 @@ export class Resident {
     this.scene.tweens.add({ targets: z, y: z.y - this.size * 0.6, x: z.x + this.size * 0.2, alpha: 0, duration: 1600, onComplete: () => z.destroy() });
   }
 
+  private claim(world: World, key: string): void {
+    world.claims.set(key, this.def.id);
+    this.claimKeys.push(key);
+  }
+
+  private releaseClaims(world: World): void {
+    for (const k of this.claimKeys) if (world.claims.get(k) === this.def.id) world.claims.delete(k);
+    this.claimKeys = [];
+  }
+
+  private takenByOther(world: World, key: string): boolean {
+    const owner = world.claims.get(key);
+    return owner !== undefined && owner !== this.def.id;
+  }
+
   private chooseNext(world: World, now: number): void {
+    this.releaseClaims(world);
     const choice = weightedPick(this.def.behaviour);
     if (choice === 'rest' && this.tryRest(world, now)) return;
     if (choice === 'wander' || choice === 'rest') {
@@ -258,10 +339,13 @@ export class Resident {
   }
 
   private tryWander(world: World): boolean {
+    const others = new Set(world.residentCells().filter((x) => x.id !== this.def.id).map((x) => `${x.cell.col},${x.cell.row}`));
     const options: Cell[] = [];
     for (let r = 0; r < world.room.rows; r++) {
       for (let c = 0; c < world.room.cols; c++) {
         const d = Math.abs(c - this.cell.col) + Math.abs(r - this.cell.row);
+        const key = `${c},${r}`;
+        if (others.has(key) || this.takenByOther(world, `cell:${key}`)) continue;
         if (d >= 2 && d <= 7 && isFree(world.blocked, { col: c, row: r })) options.push({ col: c, row: r });
       }
     }
@@ -269,6 +353,7 @@ export class Resident {
       const target = options.splice(Math.floor(Math.random() * options.length), 1)[0]!;
       const path = findPath(world.blocked, this.cell, target);
       if (path && path.length > 0) {
+        this.claim(world, `cell:${target.col},${target.row}`);
         this.mode = { kind: 'walk', path, seg: 0 };
         return true;
       }
@@ -279,7 +364,7 @@ export class Resident {
   private tryRest(world: World, now: number): boolean {
     const spots = world.placements
       .map((p) => ({ p, def: world.content.furniture[p.defId] }))
-      .filter((x): x is { p: Placement; def: NonNullable<typeof x.def> } => !!x.def?.rest)
+      .filter((x): x is { p: Placement; def: NonNullable<typeof x.def> } => !!x.def?.rest && !this.takenByOther(world, `rest:${x.p.uid}`))
       .sort((a, b) => Number(b.def.rest === this.def.favouriteRest) - Number(a.def.rest === this.def.favouriteRest));
     for (const { p, def } of spots) {
       const near = adjacentFreeCells(world.blocked, def, p.col, p.row);
@@ -289,6 +374,7 @@ export class Resident {
         if (path && (!best || path.length < best.length)) best = path;
       }
       if (best) {
+        this.claim(world, `rest:${p.uid}`);
         this.mode = best.length === 0 ? { kind: 'walk', path: [], seg: 0, restOn: p.uid } : { kind: 'walk', path: best, seg: 0, restOn: p.uid };
         void now;
         return true;
@@ -339,6 +425,7 @@ export class Resident {
   }
 
   private snapToFree(world: World): void {
+    this.releaseClaims(world);
     this.setPose('stand');
     this.cell = this.nearestFree(world);
     this.pos = { c: this.cell.col, r: this.cell.row };

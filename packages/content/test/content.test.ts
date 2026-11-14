@@ -3,7 +3,7 @@ import { content } from '@nooklings/content';
 import { newGame, validatePlacement, type Placement } from '@nooklings/core';
 
 describe('content definitions', () => {
-  it('uses only the allowed footprints', () => {
+  it('uses only the allowed footprints and positive tags', () => {
     const allowed = new Set(['1x1', '2x1', '1x2', '2x2']);
     for (const def of Object.values(content.furniture)) {
       expect(allowed.has(`${def.w}x${def.h}`), def.id).toBe(true);
@@ -22,6 +22,7 @@ describe('content definitions', () => {
 
   it('starter references exist and the starter layout is valid', () => {
     for (const id of Object.keys(content.starter.inventory)) expect(content.furniture[id], id).toBeDefined();
+    for (const id of content.starter.residents) expect(content.residents[id], id).toBeDefined();
     for (const [roomId, list] of Object.entries(content.starter.placements)) {
       const room = content.rooms[roomId]!;
       const placed: Placement[] = [];
@@ -31,5 +32,33 @@ describe('content definitions', () => {
       });
     }
     expect(Object.keys(newGame(content).rooms)).toEqual(Object.keys(content.rooms));
+  });
+
+  it('lists the ten First Residents with the approved rarities', () => {
+    const roster = Object.values(content.residents).filter((r) => r.series === 'first_residents');
+    expect(roster.map((r) => `${r.name}:${r.rarity}`)).toEqual([
+      'Snug:Common', 'Tinker:Common', 'Mischi:Common', 'Glim:Common', 'Bloomi:Common', 'Mopey:Common',
+      'Pippo:Rare', 'Hush:Rare', 'Patcha:Epic', 'Luma:Secret',
+    ]);
+  });
+
+  it('every cross-reference points at something that exists', () => {
+    for (const r of Object.values(content.recipes)) expect(content.furniture[r.furnitureId], r.id).toBeDefined();
+    for (const i of Object.values(content.invitations)) {
+      expect(content.residents[i.residentId]).toBeDefined();
+      expect(content.rooms[i.roomId]).toBeDefined();
+    }
+    for (const p of Object.values(content.parcels)) {
+      for (const f of p.furniture) expect(content.furniture[f], f).toBeDefined();
+      if (p.guaranteedFirst) expect(content.residents[p.guaranteedFirst]).toBeDefined();
+      expect(content.levels.some((l) => l.unlocks.includes(p.requiresUnlock))).toBe(true);
+    }
+    const ids = content.tasks.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const t of content.tasks) {
+      const c = t.condition;
+      if (c.kind === 'placed') for (const f of c.furnitureIds) expect(content.furniture[f], f).toBeDefined();
+      if (c.kind === 'owns_resident' || c.kind === 'form') expect(content.residents[c.residentId]).toBeDefined();
+    }
   });
 });

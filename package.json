@@ -8,11 +8,12 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @nooklings/client",
-    "build": "npm run build -w @nooklings/client",
+    "dev": "npm run assets && npm run dev -w @nooklings/client",
+    "build": "npm run assets && npm run build -w @nooklings/client",
     "preview": "npm run preview -w @nooklings/client",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "assets": "node tools/build-asset-manifest.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

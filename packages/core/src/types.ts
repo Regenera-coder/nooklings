@@ -7,6 +7,9 @@ export interface Cell {
   row: number;
 }
 
+export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread';
+export type Cost = Partial<Record<Currency, number>>;
+
 export interface FurnitureDef {
   id: string;
   name: string;
@@ -31,6 +34,106 @@ export interface RoomDef {
   door: Cell;
 }
 
+export type Rarity = 'Common' | 'Rare' | 'Epic' | 'Secret';
+export type ResidentActivity = 'idle' | 'wander' | 'rest';
+export type Form = 'original' | 'decorated';
+
+export interface ResidentDef {
+  id: string;
+  name: string;
+  rarity: Rarity;
+  series: string;
+  tagline: string;
+  mood: string;
+  story: string;
+  /** Atmosphere tags this resident loves. Shown as favourite decor. */
+  favouriteTags: string[];
+  /** Home Level at which this resident can first join (handover section 10). */
+  joinLevel: number;
+  /** How to work toward this resident, shown on the missing silhouette. */
+  hint: string;
+  /** Relative weights for choosing the next activity. Data-first, PROPOSED values. */
+  behaviour: Record<ResidentActivity, number>;
+  favouriteRest: 'sleep' | 'sit';
+  /** Walking speed in cells per second. */
+  speed: number;
+  /** Placeholder colours until production art arrives. */
+  palette: { body: string; accent: string };
+}
+
+export interface LevelDef {
+  level: number;
+  hearts: number;
+  unlocks: string[];
+  label: string;
+}
+
+export interface RecipeDef {
+  id: string;
+  furnitureId: string;
+  cost: Cost;
+  requiresLevel: number;
+}
+
+export interface InvitationDef {
+  residentId: string;
+  requiresLevel: number;
+  roomId: string;
+  atmosphere: Record<string, number>;
+  /** Short welcome step: a small gift, paid when sending the invitation. */
+  welcomeGift: Cost;
+  welcomeText: string;
+}
+
+export type TaskCondition =
+  | { kind: 'placed'; roomId: string; furnitureIds: string[] }
+  | { kind: 'owns_resident'; residentId: string }
+  | { kind: 'parcels_opened'; count: number }
+  | { kind: 'flag'; flag: string }
+  | { kind: 'bond_level'; level: number }
+  | { kind: 'form'; residentId: string; form: Form };
+
+export interface TaskDef {
+  id: string;
+  title: string;
+  description: string;
+  condition: TaskCondition;
+  reward: Cost & { hearts?: number };
+  /** Where the "Go" button sends the player. */
+  goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations';
+}
+
+export interface ParcelPoolDef {
+  id: string;
+  name: string;
+  cost: Cost;
+  requiresUnlock: string;
+  /** Chance of a character draw versus a furniture draw. PROPOSED. */
+  categoryWeights: { character: number; furniture: number };
+  /** Character rarity weights, handover section 8 (provisional). */
+  rarityWeights: Record<Rarity, number>;
+  series: string;
+  furniture: string[];
+  /** The very first parcel ever opened always gives this resident (tutorial). */
+  guaranteedFirst?: string;
+  duplicateThread: number;
+}
+
+export interface BondDef {
+  /** Bond XP needed to reach level 1..5. */
+  thresholds: number[];
+  playCooldownMs: number;
+  playReward: Cost;
+  heartsPerBondLevel: number;
+}
+
+export interface FormUpgradeDef {
+  form: Form;
+  requiresBond: number;
+  cost: Cost;
+  hearts: number;
+}
+
 export interface Placement {
   uid: string;
   defId: string;
@@ -43,39 +146,69 @@ export interface RoomState {
   placements: Placement[];
 }
 
+export interface OwnedResident {
+  bondXp: number;
+  form: Form;
+  /** Timestamp (ms) of the last Play. Supplied by the caller; the server will supply it later. */
+  lastPlayAt: number;
+}
+
+export interface ParcelRecord {
+  n: number;
+  poolId: string;
+  kind: 'resident' | 'furniture';
+  id: string;
+  duplicate: boolean;
+  guaranteed: boolean;
+}
+
 export interface GameState {
   version: number;
   homeName: string;
   rooms: Record<string, RoomState>;
   /** Stored (unplaced) furniture counts by definition id. */
   inventory: Record<string, number>;
+  wallet: Record<Currency, number>;
+  hearts: number;
+  residents: Record<string, OwnedResident>;
+  /** Join order, for display. */
+  residentOrder: string[];
+  claimedTasks: string[];
+  craftedRecipes: string[];
+  flags: string[];
+  parcelsOpened: number;
+  parcelLog: ParcelRecord[];
+  /** Parcel random state. Moves to the server in Milestone D so it can't be predicted. */
+  rngState: number;
   nextUid: number;
   /** Recently applied command ids, so a replayed command cannot apply twice. */
   appliedCommandIds: string[];
-}
-
-export type ResidentActivity = 'idle' | 'wander' | 'rest';
-
-export interface ResidentDef {
-  id: string;
-  name: string;
-  rarity: 'Common' | 'Rare' | 'Epic' | 'Secret';
-  tagline: string;
-  /** Relative weights for choosing the next activity. Data-first, PROPOSED values. */
-  behaviour: Record<ResidentActivity, number>;
-  /** Which furniture interaction this resident prefers when resting. */
-  favouriteRest: 'sleep' | 'sit';
-  /** Walking speed in cells per second. */
-  speed: number;
 }
 
 export interface Content {
   rooms: Record<string, RoomDef>;
   furniture: Record<string, FurnitureDef>;
   residents: Record<string, ResidentDef>;
+  levels: LevelDef[];
+  recipes: Record<string, RecipeDef>;
+  invitations: Record<string, InvitationDef>;
+  tasks: TaskDef[];
+  parcels: Record<string, ParcelPoolDef>;
+  bond: BondDef;
+  formUpgrades: FormUpgradeDef[];
+  /** Hearts and caps used by the progress rules. PROPOSED values. */
+  rules: {
+    heartsPerNewResident: number;
+    heartsPerFirstCraft: number;
+    maxCopiesCounted: number;
+    maxActiveResidents: number;
+  };
   starter: {
     homeName: string;
     inventory: Record<string, number>;
+    wallet: Partial<Record<Currency, number>>;
+    residents: string[];
+    rngSeed: number;
     placements: Record<string, Array<Omit<Placement, 'uid'>>>;
   };
 }

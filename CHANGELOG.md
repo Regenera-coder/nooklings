@@ -2,6 +2,35 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.2.0 — Milestone B vertical slice (14 Nov 2026), local only, not deployed
+
+### Implemented
+- First play session from the handover, start to finish: meet Snug → place lamp and rug → Snug reacts → craft a Workbench → invite Tinker → guaranteed first parcel reveals Mischi → Nookbook → free play.
+- Currencies: Buttons, Wood, Fabric, Wish Stamps, Mending Thread. Buttons and Wish Stamps in the top bar; tap Buttons for the full list.
+- Home Hearts and Home Levels 1–3 (Level 2 unlocks crafting, Level 3 unlocks Mystery Parcels), with a progress bar in the top bar and a level-up message.
+- Crafting in the Build panel: Workbench, Potted Fern, Side Table, Picture Frame, Toy Chest.
+- Seven tutorial tasks that unlock one at a time, with rewards and a Go button that takes you to the right screen.
+- Room atmosphere from furniture tags, with a variety rule (only two copies of the same item count).
+- Deterministic invitation for Tinker: Home Level 2, Crafty 2 and Warm 2 in the Living Room, plus a welcome gift of 2 Wood. When met, Tinker always joins and walks in through the door.
+- Mystery Parcels in Explore: cost 1 Wish Stamp, first parcel clearly shown as guaranteed Mischi, exact odds shown, reveal animation, recent results. Only characters at or below your Home Level can appear; furniture is also in the pool; duplicates give 5 Mending Thread.
+- Nookbook: Series 1 with all ten First Residents, progress 3/10, All/Owned/Missing filters, silhouettes and hints for missing characters, completion-cabinet note.
+- Character page: portrait, rarity, mood, favourite decor, Bond hearts and progress, form, home room, story, Play and Upgrade.
+- Bonding: Play with a resident (30-second rest between plays) for Bond XP and Buttons; Bond 2 unlocks the Decorated form (60 Buttons + 3 Fabric).
+- Up to four residents live in the room; each reserves its own bed, seat and walking target so they don't stack.
+- Tab badges for claimable tasks, an openable parcel and unseen residents.
+- Art pipeline: `tools/import_art.py` cleans ChatGPT images (white background removal, trimming, resizing) and the game uses them automatically, falling back to placeholders for anything missing.
+- Save format version 2 with migration from Milestone A saves.
+- 43 automated tests, including a full first-session playthrough, no circular gates, parcel odds checked against 4,000 opens, replay protection on parcels, and save/reload at every step.
+
+### Placeholder
+- All art is still simple shapes until the ChatGPT images arrive in Drive.
+- Every number (prices, rewards, hearts, odds, cooldown) is a proposal, not balanced.
+- The parcel random state lives in the save until the server takes it over in Milestone D.
+
+### Planned
+- Milestone C: Home Levels 4–10, the other seven residents' paths, Sunroom and Yard, more crafting, expeditions.
+- Milestone D: Google sign-in, server-side rules and parcel draws, cloud save, reconnect handling.
+
 ## 0.1.0 — Milestone A (14 Nov 2026), local only, not deployed
 
 ### Implemented

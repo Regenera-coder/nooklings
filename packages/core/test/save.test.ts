@@ -6,7 +6,7 @@ const R = LIVING_ROOM_ID;
 
 describe('save', () => {
   it('round-trips a played state exactly', () => {
-    const res = applyCommand(newGame(content), { id: 'c1', type: 'place', roomId: R, defId: 'workbench', col: 7, row: 4 }, content);
+    const res = applyCommand(newGame(content), { id: 'c1', type: 'place', roomId: R, defId: 'cozy_sofa', col: 7, row: 4 }, content);
     if (!res.ok) throw new Error(res.error);
     expect(deserialize(serialize(res.state), content)).toEqual(res.state);
   });
@@ -18,6 +18,25 @@ describe('save', () => {
     expect(state.appliedCommandIds).toEqual([]);
     expect(state.homeName).toBe('Old Nook');
     expect(state.rooms[R]!.placements).toHaveLength(1);
+  });
+
+  it('migrates a Milestone A (version 1) save and keeps the room', () => {
+    const v1 = {
+      version: 1, homeName: 'Little Cottage', nextUid: 4, appliedCommandIds: ['a'],
+      inventory: { cozy_sofa: 1, workbench: 1 },
+      rooms: { [R]: { placements: [
+        { uid: 'f1', defId: 'cloud_bed', col: 1, row: 1, flipped: false },
+        { uid: 'f2', defId: 'star_rug', col: 5, row: 2, flipped: false },
+        { uid: 'f3', defId: 'round_window', col: 4, row: 0, flipped: false },
+      ] } },
+    };
+    const state = deserialize(JSON.stringify(v1), content);
+    expect(state.version).toBe(SAVE_VERSION);
+    expect(state.rooms[R]!.placements.map((p) => p.defId)).toEqual(['cloud_bed', 'star_rug', 'round_window']);
+    expect(Object.keys(state.residents)).toEqual(['snug']);
+    expect(state.wallet.buttons).toBe(content.starter.wallet.buttons);
+    expect(state.hearts).toBe(0);
+    expect(state.inventory).toEqual({ cozy_sofa: 1, workbench: 1 });
   });
 
   it('refuses saves from a newer build and broken JSON', () => {
@@ -42,5 +61,16 @@ describe('save', () => {
     expect(state.rooms[R]!.placements.map((p) => p.uid)).toEqual(['f1']);
     expect(state.inventory).toEqual({ floor_lamp: 2 });
     expect(state.nextUid).toBe(2);
+  });
+
+  it('drops unknown residents and clamps bad numbers', () => {
+    const raw = JSON.parse(serialize(newGame(content)));
+    raw.residents.ghost = { bondXp: 3, form: 'decorated', lastPlayAt: 0 };
+    raw.wallet.buttons = -40;
+    raw.hearts = 'lots';
+    const state = deserialize(JSON.stringify(raw), content);
+    expect(state.residents.ghost).toBeUndefined();
+    expect(state.wallet.buttons).toBe(0);
+    expect(state.hearts).toBe(0);
   });
 });

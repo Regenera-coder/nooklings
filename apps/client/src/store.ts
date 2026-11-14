@@ -45,7 +45,7 @@ export class GameStore {
     return this.current;
   }
 
-  dispatch(input: CommandInput): { ok: true } | { ok: false; error: CommandError } {
+  dispatch(input: CommandInput): { ok: true; events: GameEvent[] } | { ok: false; error: CommandError } {
     const cmd = { ...input, id: newId() } as Command;
     const res = applyCommand(this.current, cmd, this.content);
     if (!res.ok) return res;
@@ -54,7 +54,7 @@ export class GameStore {
       this.saves.save(serialize(res.state));
       for (const l of this.listeners) l(res.state, res.events);
     }
-    return { ok: true };
+    return { ok: true, events: res.events };
   }
 
   subscribe(listener: Listener): () => void {

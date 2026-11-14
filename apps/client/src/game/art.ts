@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import type { FurnitureDef, Placement } from '@nooklings/core';
+import type { FurnitureDef, Placement, ResidentDef } from '@nooklings/core';
 import type { RoomLayout } from './layout';
 
 /**
@@ -55,6 +55,8 @@ export function drawFurniture(
   p: Pick<Placement, 'col' | 'row' | 'flipped'>,
   l: RoomLayout,
 ): DrawnItem {
+  const imageKey = `furn_${def.id}`;
+  if (scene.textures.exists(imageKey)) return drawFurnitureImage(scene, def, p, l, imageKey);
   const g = scene.add.graphics();
   const c = scene.add.container(0, 0, [g]);
   const { cw, ch } = l;
@@ -230,9 +232,42 @@ export function drawFurniture(
   };
 }
 
+/** Production furniture art: trimmed image scaled to the item's footprint width. */
+function drawFurnitureImage(
+  scene: Phaser.Scene,
+  def: FurnitureDef,
+  p: Pick<Placement, 'col' | 'row' | 'flipped'>,
+  l: RoomLayout,
+  key: string,
+): DrawnItem {
+  const img = scene.add.image(0, 0, key);
+  const c = scene.add.container(0, 0, [img]);
+  const targetW = def.w * l.cw * (def.layer === 'rug' ? 1 : 0.94);
+  img.setScale(targetW / img.width);
+  img.setFlipX(p.flipped);
+  const w = img.displayWidth;
+  const h = img.displayHeight;
+  if (def.layer === 'wall') {
+    const cx = l.ox + (p.col + def.w / 2) * l.cw;
+    const cy = l.wallTop + l.wallH * 0.48;
+    c.setPosition(cx, cy);
+    return { container: c, bounds: { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }, depth: 5 };
+  }
+  const cx = l.ox + (p.col + def.w / 2) * l.cw;
+  if (def.layer === 'rug') {
+    const cy = l.floorTop + (p.row + def.h / 2) * l.ch;
+    img.setDisplaySize(def.w * l.cw, def.h * l.ch * 1.05);
+    c.setPosition(cx, cy);
+    return { container: c, bounds: { x0: cx - (def.w * l.cw) / 2, y0: cy - (def.h * l.ch) / 2, x1: cx + (def.w * l.cw) / 2, y1: cy + (def.h * l.ch) / 2 }, depth: furnitureDepth(def, p, l) };
+  }
+  const fy = l.floorTop + (p.row + def.h) * l.ch - l.ch * 0.12;
+  img.setOrigin(0.5, 1);
+  c.setPosition(cx, fy);
+  return { container: c, bounds: { x0: cx - w / 2, y0: fy - h, x1: cx + w / 2, y1: fy }, depth: furnitureDepth(def, p, l) };
+}
+
 /** Placeholder Snug: cream plush body, long floppy ears, lavender star nightcap, closed eyes. */
-export function drawSnug(g: G, s: number, pose: 'stand' | 'sleep' | 'sit'): void {
-  g.clear();
+function drawSnug(g: G, s: number, pose: 'stand' | 'sleep' | 'sit'): void {
   const cream = 0xf6ead7;
   const creamDark = 0xe6d3b8;
   const cap = 0xa99ad6;
@@ -259,4 +294,100 @@ export function drawSnug(g: G, s: number, pose: 'stand' | 'sleep' | 'sit'): void
   if (!lie) {
     g.fillStyle(0xffffff, 1).fillCircle(-s * 0.06, -s * 0.26, s * 0.1).fillCircle(s * 0.07, -s * 0.24, s * 0.09).fillCircle(0, -s * 0.31, s * 0.09);
   }
+}
+
+export type DrawPose = 'stand' | 'sleep' | 'sit';
+
+const hex = (c: string) => Number.parseInt(c.replace('#', ''), 16);
+
+/** Placeholder Tinker: round warm-brown maker, cap with ear flaps, big brass goggles, tool belt. */
+function drawTinker(g: G, s: number, pose: DrawPose): void {
+  const lie = pose === 'sleep';
+  const sq = lie ? 0.8 : 1;
+  const brown = 0xa87a55;
+  g.fillStyle(0x000000, 0.18).fillEllipse(0, 0, s * 0.6, s * 0.14);
+  g.fillStyle(0x6f7f4a, 1).fillEllipse(0, -s * 0.24 * sq, s * 0.56, s * 0.46 * sq);
+  g.fillStyle(0x6d4b33, 1).fillRect(-s * 0.27, -s * 0.18 * sq, s * 0.54, s * 0.07);
+  g.fillStyle(0xc9a227, 1).fillRect(-s * 0.04, -s * 0.18 * sq, s * 0.08, s * 0.07);
+  g.fillStyle(0x7a5236, 1).fillEllipse(-s * 0.27, -s * 0.55 * sq, s * 0.14, s * 0.24 * sq).fillEllipse(s * 0.27, -s * 0.55 * sq, s * 0.14, s * 0.24 * sq);
+  g.fillStyle(brown, 1).fillCircle(0, -s * 0.6 * sq, s * 0.27);
+  g.fillStyle(0x7a5236, 1).fillEllipse(0, -s * 0.78 * sq, s * 0.56, s * 0.24);
+  g.fillStyle(0xc9a227, 1).fillCircle(-s * 0.1, -s * 0.8 * sq, s * 0.09).fillCircle(s * 0.1, -s * 0.8 * sq, s * 0.09);
+  g.fillStyle(0xdff0ff, 1).fillCircle(-s * 0.1, -s * 0.8 * sq, s * 0.055).fillCircle(s * 0.1, -s * 0.8 * sq, s * 0.055);
+  g.fillStyle(0xf3e3cf, 1).fillEllipse(0, -s * 0.52 * sq, s * 0.34, s * 0.24 * sq);
+  if (lie) {
+    g.lineStyle(Math.max(1.5, s * 0.03), 0x3d2b3a, 1);
+    for (const ex of [-s * 0.08, s * 0.08]) { g.beginPath(); g.arc(ex, -s * 0.55 * sq, s * 0.04, 0.15 * Math.PI, 0.85 * Math.PI); g.strokePath(); }
+  } else {
+    g.fillStyle(0x3d2b3a, 1).fillCircle(-s * 0.08, -s * 0.55, s * 0.045).fillCircle(s * 0.08, -s * 0.55, s * 0.045);
+    g.fillStyle(0xffffff, 1).fillCircle(-s * 0.065, -s * 0.565, s * 0.015).fillCircle(s * 0.095, -s * 0.565, s * 0.015);
+  }
+  g.fillStyle(0xf2a0b0, 0.7).fillEllipse(-s * 0.16, -s * 0.48 * sq, s * 0.07, s * 0.04).fillEllipse(s * 0.16, -s * 0.48 * sq, s * 0.07, s * 0.04);
+  if (!lie) g.fillStyle(0x9aa3ad, 1).fillRoundedRect(s * 0.2, -s * 0.36, s * 0.06, s * 0.2, 2);
+}
+
+/** Placeholder Mischi: rosy-pink impish fox-like creature, huge pointed ears, bat wings, striped scarf. */
+function drawMischi(g: G, s: number, pose: DrawPose): void {
+  const lie = pose === 'sleep';
+  const sq = lie ? 0.8 : 1;
+  const pink = 0xf29bb0;
+  g.fillStyle(0x000000, 0.18).fillEllipse(0, 0, s * 0.56, s * 0.14);
+  g.fillStyle(pink, 1).fillEllipse(-s * 0.3, -s * 0.18 * sq, s * 0.28, s * 0.14);
+  g.fillStyle(0x8a4f8f, 1)
+    .fillTriangle(-s * 0.18, -s * 0.32 * sq, -s * 0.44, -s * 0.46 * sq, -s * 0.34, -s * 0.22 * sq)
+    .fillTriangle(s * 0.18, -s * 0.32 * sq, s * 0.44, -s * 0.46 * sq, s * 0.34, -s * 0.22 * sq);
+  g.fillStyle(pink, 1).fillEllipse(0, -s * 0.22 * sq, s * 0.44, s * 0.4 * sq);
+  g.fillStyle(pink, 1)
+    .fillTriangle(-s * 0.26, -s * 0.66 * sq, -s * 0.36, -s * 1.1 * sq, -s * 0.06, -s * 0.78 * sq)
+    .fillTriangle(s * 0.26, -s * 0.66 * sq, s * 0.36, -s * 1.1 * sq, s * 0.06, -s * 0.78 * sq);
+  g.fillStyle(0xfad3dc, 1)
+    .fillTriangle(-s * 0.24, -s * 0.7 * sq, -s * 0.31, -s * 0.98 * sq, -s * 0.12, -s * 0.78 * sq)
+    .fillTriangle(s * 0.24, -s * 0.7 * sq, s * 0.31, -s * 0.98 * sq, s * 0.12, -s * 0.78 * sq);
+  g.fillStyle(pink, 1).fillCircle(0, -s * 0.58 * sq, s * 0.25);
+  g.fillStyle(0xffffff, 1).fillRect(-s * 0.2, -s * 0.38 * sq, s * 0.4, s * 0.08);
+  g.fillStyle(0xd94f5c, 1);
+  for (let i = 0; i < 4; i++) g.fillRect(-s * 0.2 + i * s * 0.1, -s * 0.38 * sq, s * 0.05, s * 0.08);
+  g.fillStyle(0xf6f0e6, 1).fillCircle(s * 0.12, -s * 0.8 * sq, s * 0.06);
+  if (lie) {
+    g.lineStyle(Math.max(1.5, s * 0.03), 0x3d2b3a, 1);
+    for (const ex of [-s * 0.09, s * 0.09]) { g.beginPath(); g.arc(ex, -s * 0.58 * sq, s * 0.045, 0.15 * Math.PI, 0.85 * Math.PI); g.strokePath(); }
+  } else {
+    g.fillStyle(0x3d2b3a, 1).fillCircle(-s * 0.09, -s * 0.6, s * 0.04);
+    g.lineStyle(Math.max(1.5, s * 0.03), 0x3d2b3a, 1);
+    g.beginPath(); g.arc(s * 0.09, -s * 0.6, s * 0.04, 1.1 * Math.PI, 1.9 * Math.PI); g.strokePath();
+    g.beginPath(); g.arc(0, -s * 0.5, s * 0.06, 0.1 * Math.PI, 0.9 * Math.PI); g.strokePath();
+  }
+  g.fillStyle(0xd94f5c, 0.5).fillEllipse(-s * 0.16, -s * 0.5 * sq, s * 0.07, s * 0.04).fillEllipse(s * 0.16, -s * 0.5 * sq, s * 0.07, s * 0.04);
+}
+
+function drawGeneric(g: G, s: number, pose: DrawPose, def: ResidentDef): void {
+  const sq = pose === 'sleep' ? 0.8 : 1;
+  g.fillStyle(0x000000, 0.18).fillEllipse(0, 0, s * 0.56, s * 0.14);
+  g.fillStyle(hex(def.palette.body), 1).fillEllipse(0, -s * 0.24 * sq, s * 0.5, s * 0.44 * sq).fillCircle(0, -s * 0.58 * sq, s * 0.25);
+  g.fillStyle(hex(def.palette.accent), 1).fillCircle(0, -s * 0.84 * sq, s * 0.08);
+  g.fillStyle(0x3d2b3a, 1).fillCircle(-s * 0.08, -s * 0.58 * sq, s * 0.04).fillCircle(s * 0.08, -s * 0.58 * sq, s * 0.04);
+}
+
+/** Decorated form overlay: a little star-dotted cape and a gold charm, drawn behind/over the base. */
+function drawDecoration(g: G, s: number, pose: DrawPose): void {
+  const sq = pose === 'sleep' ? 0.8 : 1;
+  g.fillStyle(0xfff2b8, 1);
+  for (const [x, y] of [[-0.22, -0.2], [0.24, -0.26], [0, -0.1]] as const) {
+    const cx = x * s;
+    const cy = y * s * sq;
+    const r = s * 0.06;
+    g.fillTriangle(cx, cy - r, cx - r * 0.8, cy + r * 0.6, cx + r * 0.8, cy + r * 0.6);
+    g.fillTriangle(cx, cy + r, cx - r * 0.8, cy - r * 0.6, cx + r * 0.8, cy - r * 0.6);
+  }
+  g.fillStyle(0xe8c46a, 1).fillCircle(0, -s * 0.36 * sq, s * 0.05);
+}
+
+/** Draws any resident's placeholder art into a Graphics object, feet at (0, 0). */
+export function drawResident(g: G, def: ResidentDef, s: number, pose: DrawPose, decorated: boolean): void {
+  g.clear();
+  if (def.id === 'snug') drawSnug(g, s, pose);
+  else if (def.id === 'tinker') drawTinker(g, s, pose);
+  else if (def.id === 'mischi') drawMischi(g, s, pose);
+  else drawGeneric(g, s, pose, def);
+  if (decorated) drawDecoration(g, s, pose);
 }

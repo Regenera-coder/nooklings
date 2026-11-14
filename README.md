@@ -14,6 +14,8 @@ npm run typecheck
 npm run build      # production bundle in apps/client/dist (not deployed anywhere)
 ```
 
+To add ChatGPT art: download the PNGs from the Drive folder "03 ART INBOX — Milestone B", then run `python3 tools/import_art.py <download-folder>`.
+
 To try it on a phone on the same Wi-Fi: `npm run dev -- --host`, then open the network URL and turn the phone sideways.
 
 ## Layout

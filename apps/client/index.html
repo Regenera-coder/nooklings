@@ -13,17 +13,21 @@
   <body>
     <div id="app">
       <nav id="rail" aria-label="Main">
-        <button class="tab active" data-tab="home" aria-label="Home"><span class="ico">⌂</span><span class="lbl">Home</span></button>
-        <button class="tab" data-tab="nookbook" aria-label="Nookbook"><span class="ico">❦</span><span class="lbl">Book</span></button>
-        <button class="tab" data-tab="explore" aria-label="Explore"><span class="ico">✦</span><span class="lbl">Explore</span></button>
-        <button class="tab" data-tab="tasks" aria-label="Tasks"><span class="ico">✓</span><span class="lbl">Tasks</span></button>
+        <button class="tab active" data-tab="home" aria-label="Home"><span class="ico">⌂</span><span class="lbl">Home</span><i class="badge" hidden></i></button>
+        <button class="tab" data-tab="nookbook" aria-label="Nookbook"><span class="ico">❦</span><span class="lbl">Book</span><i class="badge" hidden></i></button>
+        <button class="tab" data-tab="explore" aria-label="Explore"><span class="ico">✦</span><span class="lbl">Explore</span><i class="badge" hidden></i></button>
+        <button class="tab" data-tab="tasks" aria-label="Tasks"><span class="ico">✓</span><span class="lbl">Tasks</span><i class="badge" hidden></i></button>
       </nav>
       <main id="main">
         <header id="topbar">
-          <div id="home-title"><span id="home-name">Little Cottage</span><span class="lvl">Lv 1</span></div>
+          <div id="home-title">
+            <span id="home-name">Little Cottage</span>
+            <span class="lvl" id="lvl">Lv 1</span>
+            <span class="hearts" title="Home Hearts"><span class="hearts-bar"><span id="hearts-fill"></span></span><span id="hearts-text">0/10</span></span>
+          </div>
           <div id="resources">
-            <span class="res" title="Buttons (placeholder until Milestone B)">● <b id="res-buttons">0</b></span>
-            <span class="res" title="Wish Stamps (placeholder until Milestone B)">✉ <b id="res-stamps">0</b></span>
+            <button class="res" id="res-buttons-btn" aria-label="Buttons"><span class="res-ico" data-icon="buttons">●</span><b id="res-buttons">0</b></button>
+            <button class="res" id="res-stamps-btn" aria-label="Wish Stamps"><span class="res-ico" data-icon="wish_stamp">✉</span><b id="res-stamps">0</b></button>
           </div>
           <div id="top-actions">
             <button id="build-btn" class="pill">Build</button>
@@ -32,10 +36,8 @@
         </header>
         <div id="stage-wrap">
           <div id="stage"></div>
-          <div id="tab-placeholder" hidden>
-            <p class="ph-title"></p>
-            <p class="ph-body"></p>
-          </div>
+          <section id="page" hidden></section>
+          <div id="reveal" hidden></div>
           <div id="toast" role="status" aria-live="polite"></div>
         </div>
       </main>
