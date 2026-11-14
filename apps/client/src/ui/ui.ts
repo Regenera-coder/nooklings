@@ -140,9 +140,35 @@ export class GameUI {
         span.append(img);
       }
     }
+    this.applyInterfaceArt();
     window.setInterval(() => this.tick(), 1000);
     this.renderTop();
     this.renderBadges();
+  }
+
+  /** Swaps in ChatGPT interface art where it exists: tab icons and stitched panels/buttons. */
+  private applyInterfaceArt(): void {
+    for (const b of document.querySelectorAll<HTMLElement>('#rail .tab')) {
+      const url = artUrl(`icon_tab_${b.dataset.tab}`);
+      const ico = b.querySelector('.ico');
+      if (!url || !ico) continue;
+      ico.textContent = '';
+      const img = el('img', 'tab-img');
+      img.src = url;
+      img.alt = '';
+      ico.append(img);
+    }
+    const root = document.documentElement;
+    const pairs: Array<[string, string]> = [['--ui-panel', 'ui_panel'], ['--ui-button', 'ui_button'], ['--ui-button-primary', 'ui_button_primary']];
+    let any = false;
+    for (const [v, key] of pairs) {
+      const url = artUrl(key);
+      if (url) {
+        root.style.setProperty(v, `url("${url}")`);
+        any = true;
+      }
+    }
+    document.body.classList.toggle('ui-art', any);
   }
 
   // ---------- navigation ----------
@@ -709,7 +735,20 @@ export class GameUI {
       shaking.append(img);
     } else shaking.append(el('div', 'parcel-box'));
     r.append(shaking);
-    window.setTimeout(() => this.showResult(opened), reduced ? 50 : 950);
+    const openUrl = artUrl('parcel_open');
+    if (openUrl && !reduced) {
+      window.setTimeout(() => {
+        shaking.replaceChildren();
+        shaking.classList.add('opened');
+        const img = el('img');
+        img.src = openUrl;
+        img.alt = '';
+        shaking.append(img);
+      }, 950);
+      window.setTimeout(() => this.showResult(opened), 1550);
+    } else {
+      window.setTimeout(() => this.showResult(opened), reduced ? 50 : 950);
+    }
   }
 
   private showResult(e: Extract<GameEvent, { type: 'parcel_opened' }>): void {

@@ -51,8 +51,9 @@ export class Resident {
   private readonly sprite: Phaser.GameObjects.Image;
   private decorated = false;
   private happyUntil = 0;
-  private stepT = 0;
   private shownKey: string | null = null;
+  /** -1 when the sleep pose must be mirrored so the head rests on the bed's pillow end. */
+  private restFlip = 1;
   private readonly emote: Phaser.GameObjects.Text;
   private cell: Cell;
   /** Position in cell units while walking (fractional between cells). */
@@ -199,6 +200,9 @@ export class Resident {
             const def = p ? world.content.furniture[p.defId] : undefined;
             const type = def?.rest ?? 'sit';
             this.mode = { kind: 'rest', uid: this.mode.uid, type, until: now + (type === 'sleep' ? randBetween(7000, 11000) : randBetween(4000, 6500)) };
+            const bed = world.placements.find((q) => q.uid === (this.mode as { uid: string }).uid);
+            // Sleep art has the head on the right; the bed's pillow is on the left unless the bed is flipped.
+            this.restFlip = bed?.flipped ? 1 : -1;
             this.setPose(type === 'sleep' ? 'sleep' : 'sit');
           } else {
             if (this.mode.to) {
@@ -233,7 +237,7 @@ export class Resident {
     if (mode.kind === 'rest' || mode.kind === 'hop') {
       const p = world.placements.find((q) => q.uid === mode.uid);
       const def = p ? world.content.furniture[p.defId] : undefined;
-      const seat = p && def ? seatPoint(def, p, l) : footPoint(l, this.cell.col, this.cell.row);
+      const seat = p && def ? seatPoint(this.scene, def, p, l) : footPoint(l, this.cell.col, this.cell.row);
       const furnDepth = p && def ? furnitureDepth(def, p, l) : 0;
       if (mode.kind === 'hop') {
         const t = Math.min(1, mode.t);
@@ -276,30 +280,39 @@ export class Resident {
     this.updateSprite(false, 0, 0);
   }
 
-  /** Uses production art when it exists, otherwise the placeholder drawing. */
-  private updateSprite(walking: boolean, dt: number, now: number): void {
+  /**
+   * Uses production art when it exists, otherwise the placeholder drawing.
+   * Poses are single static images: walking shows the walk pose with a small bob,
+   * flipped when moving left. Front-facing poses (idle, happy, sit) are never flipped,
+   * so accessories stay on their side. Sleeping faces the bed's pillow end.
+   */
+  private updateSprite(walking: boolean, _dt: number, now: number): void {
     const idleKey = charKey(this.def.id, 'idle', false);
     if (!idleKey || !this.scene.textures.exists(idleKey)) {
       this.sprite.setVisible(false);
       this.body.setVisible(true);
       return;
     }
-    this.stepT += dt;
     let pose: Pose = 'idle';
     if (this.pose === 'sleep') pose = 'sleep';
     else if (this.pose === 'sit') pose = 'sit';
     else if (now < this.happyUntil) pose = 'happy';
-    else if (walking) pose = Math.floor(this.stepT * 4) % 2 === 0 ? 'walk' : 'idle';
+    else if (walking) pose = 'walk';
     const key = charKey(this.def.id, pose, this.decorated) ?? idleKey;
     if (key !== this.shownKey && this.scene.textures.exists(key)) {
       this.sprite.setTexture(key);
       this.shownKey = key;
     }
-    const base = this.scene.textures.get(idleKey).getSourceImage() as { height: number };
-    const scale = (this.size * 1.12) / Math.max(1, base.height);
-    this.sprite.setScale(scale * this.facing, scale).setVisible(true);
+    // Every pose image shares one canvas: feet at 96% down, standing height = 80% of the canvas.
+    const src = this.scene.textures.get(key).getSourceImage() as { height: number };
+    const scale = (this.size * 1.12) / (Math.max(1, src.height) * 0.8);
+    let flip = 1;
+    if (pose === 'walk') flip = this.facing;
+    if (pose === 'sleep') flip = this.restFlip;
+    this.sprite.setOrigin(0.5, 0.96).setScale(scale * flip, scale).setVisible(true);
     this.body.setVisible(false);
   }
+
 
   private floatZ(): void {
     const z = this.scene.add.text(this.container.x + this.size * 0.2, this.container.y - this.size * 0.9, 'z', {

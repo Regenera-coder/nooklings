@@ -2,6 +2,19 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.2.1 — Milestone B production art (15 Nov 2026), local only, not deployed
+
+### Implemented
+- All 53 ChatGPT art pieces from the Milestone B brief are in the game: Snug, Tinker and Mischi (idle, walk, sit, sleep, happy, portrait, Decorated), the Living Room background (v2), 13 furniture items, 10 tab and resource icons, the stitched panel and buttons, and the closed and opened parcel.
+- `tools/import_art.py` rewritten for real generated art: inventory against the brief, newest version wins, sparkle-proof measuring, normalization to the brief's canvas sizes, a shared foot anchor and one scale per character, and half-size game copies.
+- Residents use the art with feet anchored to the floor; walking flips for leftward movement; sleeping faces the bed's pillow; seat heights come from the furniture images.
+- Furniture art fitted to footprints, with height caps for wall and tall items.
+- Tab icons, currency icons, stitched panel, cards and buttons (nine-slice), and a two-stage parcel opening (shake, then burst open).
+- Art review: `docs/art-review-milestone-b.md`.
+
+### Placeholder
+- Decorated forms only have an idle pose, so decorated residents sit and sleep in their original outfit (see the art review).
+
 ## 0.2.0 — Milestone B vertical slice (14 Nov 2026), local only, not deployed
 
 ### Implemented

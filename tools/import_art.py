@@ -1,109 +1,281 @@
-"""Import ChatGPT art from a download folder into the game.
+"""Import ChatGPT source art into the game.
 
-Usage:  python3 tools/import_art.py <folder-with-pngs>
+Usage:  python3 tools/import_art.py <folder-with-source-pngs> [--report report.md]
 
-For each image named per the art brief (char_*, furn_*, room_*, ui_*, icon_*, parcel_*):
-  - keeps only the highest _vN version of each name
-  - if the image has no real transparency, removes a plain white background that
-    touches the edges (flood fill from the border, so white inside the art stays)
-  - trims empty margins (not for room backgrounds, panels or buttons)
-  - downsizes so the longest side is at most 1024 px (room background: 2400 px)
-  - writes the result to apps/client/public/assets/<name>.png
-Then rebuilds the asset manifest. Prints a short report of anything that looks wrong.
+Source images are generated, so their pixel sizes, margins and framing vary. This script:
+  1. Inventories the folder against the art brief (missing, unknown and superseded files).
+  2. Picks the highest _vN version of each name (e.g. room_living_background_v2).
+  3. Removes a plain white background if an image has no real transparency.
+  4. Measures the art ignoring small detached specks (sparkles), so they don't
+     change the scale or the foot position.
+  5. Normalizes everything to the brief's canvas sizes with fixed anchors
+     (written to art/normalized/, not committed):
+       - character poses: 1024x1024, feet on the bottom-centre with a 4% margin,
+         one scale per character so every pose matches the standing height
+       - portraits, furniture, parcels: 1024x1024, centred / bottom-centred
+       - icons 256x256, panel 512x512, buttons 512x160, room 2400x1040,
+         master turnarounds 2048x1024
+  6. Writes smaller game copies to apps/client/public/assets/ plus anchors.json
+     (where the feet sit in each character image), then rebuilds the manifest.
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
-from collections import deque
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "apps" / "client" / "public" / "assets"
-PREFIXES = ("char_", "furn_", "room_", "ui_", "icon_", "parcel_")
-NO_TRIM = ("room_", "ui_panel", "ui_button")
-WHITE_TOLERANCE = 18  # how far from pure white still counts as background
+NORMALIZED = ROOT / "art" / "normalized"
+GAME = ROOT / "apps" / "client" / "public" / "assets"
+
+CHARACTERS = ["snug", "tinker", "mischi"]
+POSES = ["master", "idle", "walk", "sit", "sleep", "happy", "portrait", "decorated_idle"]
+FURNITURE = [
+    "cloud_bed", "cozy_sofa", "bookshelf", "workbench", "floor_lamp", "side_table", "potted_fern",
+    "toy_chest", "star_rug", "round_window", "moon_lantern", "soft_curtains", "picture_frame",
+]
+ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart"]
+EXPECTED = (
+    [f"char_{c}_{p}" for c in CHARACTERS for p in POSES]
+    + ["room_living_background"]
+    + [f"furn_{f}" for f in FURNITURE]
+    + ["ui_panel", "ui_button", "ui_button_primary"]
+    + [f"icon_{i}" for i in ICONS]
+    + ["parcel_closed", "parcel_open"]
+)
+
+# Character poses: size relative to the standing height. Standing poses share one
+# height; sitting is shorter; sleeping is measured by width. Tuned by eye against
+# head size in the lineup check, not exact anatomy.
+STAND_FRACTION = 0.80  # standing character fills 80% of the 1024 canvas height (brief)
+POSE_SCALE = {
+    "idle": ("h", 1.00),
+    "walk": ("h", 1.00),
+    "happy": ("h", 1.00),
+    "decorated_idle": ("h", 1.00),
+    "sit": ("h", 0.80),
+    "sleep": ("w", 1.05),
+}
+# Per-character overrides where the source framing differs (matched by head size).
+POSE_SCALE_BY_CHAR = {
+    "snug": {"sit": ("h", 0.92)},
+    "tinker": {"sit": ("h", 0.92)},
+    "mischi": {"sit": ("h", 0.86)},
+}
+GAME_CHAR = 512  # game copy of character poses (half the normalized canvas)
 
 
-def has_real_alpha(img: Image.Image) -> bool:
-    if img.mode != "RGBA":
-        return False
+def load(path: Path) -> Image.Image:
+    img = Image.open(path).convert("RGBA")
     alpha = np.asarray(img)[:, :, 3]
-    return (alpha < 250).mean() > 0.02
+    if (alpha < 250).mean() < 0.02:  # no real transparency: cut out white touching the edges
+        img = remove_edge_white(img)
+    return img
 
 
-def remove_edge_white(img: Image.Image) -> Image.Image:
-    rgba = np.array(img.convert("RGBA"))
-    h, w = rgba.shape[:2]
-    near_white = (rgba[:, :, :3].astype(int) >= 255 - WHITE_TOLERANCE).all(axis=2)
-    bg = np.zeros((h, w), dtype=bool)
-    q: deque[tuple[int, int]] = deque()
-    for x in range(w):
-        for y in (0, h - 1):
-            if near_white[y, x] and not bg[y, x]:
-                bg[y, x] = True
-                q.append((y, x))
-    for y in range(h):
-        for x in (0, w - 1):
-            if near_white[y, x] and not bg[y, x]:
-                bg[y, x] = True
-                q.append((y, x))
-    while q:
-        y, x = q.popleft()
-        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            ny, nx = y + dy, x + dx
-            if 0 <= ny < h and 0 <= nx < w and near_white[ny, nx] and not bg[ny, nx]:
-                bg[ny, nx] = True
-                q.append((ny, nx))
-    rgba[bg, 3] = 0
+def remove_edge_white(img: Image.Image, tol: int = 18) -> Image.Image:
+    rgba = np.array(img)
+    white = (rgba[:, :, :3].astype(int) >= 255 - tol).all(axis=2)
+    labels, _ = ndimage.label(white)
+    edge = set(np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))) - {0}
+    rgba[np.isin(labels, list(edge)), 3] = 0
     return Image.fromarray(rgba)
 
 
-def trim(img: Image.Image, pad: int = 6) -> Image.Image:
-    alpha = np.asarray(img.convert("RGBA"))[:, :, 3]
-    ys, xs = np.where(alpha > 8)
-    if len(xs) == 0:
-        return img
-    x0, x1 = max(0, xs.min() - pad), min(img.width, xs.max() + 1 + pad)
-    y0, y1 = max(0, ys.min() - pad), min(img.height, ys.max() + 1)  # no pad below: feet sit on the edge
-    return img.crop((x0, y0, x1, y1))
+def body_mask(img: Image.Image, min_share: float = 0.01) -> np.ndarray:
+    """Opaque pixels, minus detached specks smaller than min_share of the main shape."""
+    alpha = np.asarray(img)[:, :, 3] > 24
+    labels, n = ndimage.label(alpha)
+    if n == 0:
+        return alpha
+    sizes = ndimage.sum(alpha, labels, range(1, n + 1))
+    keep = [i + 1 for i, s in enumerate(sizes) if s >= sizes.max() * min_share]
+    return np.isin(labels, keep)
+
+
+def bbox(mask: np.ndarray) -> tuple[int, int, int, int]:
+    ys, xs = np.where(mask)
+    return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
+
+
+def foot_x(mask: np.ndarray, box: tuple[int, int, int, int]) -> float:
+    """Horizontal centre of the lowest 8% of the shape (the feet / base)."""
+    x0, y0, x1, y1 = box
+    band = mask[max(y0, y1 - max(2, (y1 - y0) // 12)) : y1, x0:x1]
+    xs = np.where(band)[1]
+    return x0 + (xs.mean() if len(xs) else (x1 - x0) / 2)
+
+
+def place(img: Image.Image, scale: float, canvas: tuple[int, int], anchor_src: tuple[float, float], anchor_dst: tuple[float, float]) -> Image.Image:
+    """Scale img and paste it so anchor_src (in source pixels) lands on anchor_dst."""
+    w, h = max(1, round(img.width * scale)), max(1, round(img.height * scale))
+    scaled = img.resize((w, h), Image.LANCZOS)
+    out = Image.new("RGBA", canvas, (0, 0, 0, 0))
+    ox = round(anchor_dst[0] - anchor_src[0] * scale)
+    oy = round(anchor_dst[1] - anchor_src[1] * scale)
+    out.alpha_composite(scaled, (max(0, ox), max(0, oy)), (max(0, -ox), max(0, -oy)))
+    return out
+
+
+def fit(img: Image.Image, canvas: tuple[int, int], fill: float, bottom: bool = False, margin: float = 0.04) -> Image.Image:
+    mask = body_mask(img)
+    x0, y0, x1, y1 = bbox(mask)
+    scale = min(canvas[0] * fill / (x1 - x0), canvas[1] * fill / (y1 - y0))
+    if bottom:
+        return place(img, scale, canvas, (foot_x(mask, (x0, y0, x1, y1)), y1), (canvas[0] / 2, canvas[1] * (1 - margin)))
+    return place(img, scale, canvas, ((x0 + x1) / 2, (y0 + y1) / 2), (canvas[0] / 2, canvas[1] / 2))
+
+
+def trimmed(img: Image.Image, pad: int = 4) -> Image.Image:
+    x0, y0, x1, y1 = bbox(np.asarray(img)[:, :, 3] > 8)
+    return img.crop((max(0, x0 - pad), max(0, y0 - pad), min(img.width, x1 + pad), min(img.height, y1 + pad)))
+
+
+def save(img: Image.Image, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, optimize=True)
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
+    args = sys.argv[1:]
+    if not args:
         print(__doc__)
         return 2
-    src = Path(sys.argv[1])
+    src = Path(args[0])
+    report_path = Path(args[args.index("--report") + 1]) if "--report" in args else None
+
     best: dict[str, tuple[int, Path]] = {}
+    unknown: list[str] = []
+    superseded: list[str] = []
     for f in sorted(src.glob("*.png")):
         m = re.match(r"^(.*?)(?:_v(\d+))?$", f.stem)
         assert m
         key, version = m.group(1), int(m.group(2) or 1)
-        if not key.startswith(PREFIXES):
-            print(f"skip (unknown name): {f.name}")
+        if key not in EXPECTED:
+            unknown.append(f.name)
             continue
-        if key not in best or version > best[key][0]:
-            best[key] = (version, f)
-    OUT.mkdir(parents=True, exist_ok=True)
-    for key, (version, f) in sorted(best.items()):
-        img = Image.open(f).convert("RGBA")
-        notes = []
-        if not has_real_alpha(img) and not key.startswith(("room_", "ui_panel", "ui_button")):
-            img = remove_edge_white(img)
-            notes.append("white background removed")
-        if not key.startswith(NO_TRIM) and not key.endswith("_master"):
-            img = trim(img)
-        limit = 2400 if key.startswith("room_") else 1024
-        if max(img.size) > limit:
-            scale = limit / max(img.size)
-            img = img.resize((round(img.width * scale), round(img.height * scale)), Image.LANCZOS)
-        img.save(OUT / f"{key}.png", optimize=True)
-        print(f"{key:<34} v{version}  {img.width}x{img.height}  {'; '.join(notes)}")
+        if key in best:
+            loser = best[key][1].name if version > best[key][0] else f.name
+            superseded.append(loser)
+            if version <= best[key][0]:
+                continue
+        best[key] = (version, f)
+    missing = [k for k in EXPECTED if k not in best]
+
+    lines = ["| Asset | Used file | Source size | Output |", "|---|---|---|---|"]
+    anchors: dict[str, dict[str, float]] = {}
+    GAME.mkdir(parents=True, exist_ok=True)
+    for old in GAME.glob("*.png"):
+        old.unlink()
+
+    def record(key: str, source: Image.Image, out: Image.Image, note: str = "") -> None:
+        lines.append(f"| {key} | {best[key][1].name} | {source.width}×{source.height} | {out.width}×{out.height}{' — ' + note if note else ''} |")
+
+    # Characters: one scale per character, taken from the idle pose.
+    for c in CHARACTERS:
+        idle_key = f"char_{c}_idle"
+        if idle_key not in best:
+            continue
+        idle = load(best[idle_key][1])
+        ix0, iy0, ix1, iy1 = bbox(body_mask(idle))
+        stand_px = 1024 * STAND_FRACTION
+        for pose in POSES:
+            key = f"char_{c}_{pose}"
+            if key not in best:
+                continue
+            img = load(best[key][1])
+            if pose == "master":
+                out = fit(img, (2048, 1024), 0.92)
+                save(out, NORMALIZED / f"{key}.png")
+                record(key, img, out, "reference only")
+                continue
+            if pose == "portrait":
+                out = fit(img, (1024, 1024), 0.92)
+                save(out, NORMALIZED / f"{key}.png")
+                game = out.resize((512, 512), Image.LANCZOS)
+                save(game, GAME / f"{key}.png")
+                record(key, img, out)
+                continue
+            mask = body_mask(img)
+            box = bbox(mask)
+            axis, ratio = POSE_SCALE_BY_CHAR.get(c, {}).get(pose, POSE_SCALE[pose])
+            size = (box[3] - box[1]) if axis == "h" else (box[2] - box[0])
+            scale = stand_px * ratio / size
+            fx = foot_x(mask, box) if pose != "sleep" else (box[0] + box[2]) / 2
+            out = place(img, scale, (1024, 1024), (fx, box[3]), (512, 1024 * 0.96))
+            save(out, NORMALIZED / f"{key}.png")
+            game = out.resize((GAME_CHAR, GAME_CHAR), Image.LANCZOS)
+            save(game, GAME / f"{key}.png")
+            # Feet anchor and standing height as fractions of the game image.
+            anchors[key] = {"footX": 0.5, "footY": 0.96, "standHeight": STAND_FRACTION}
+            clipped = (out.getchannel("A").getbbox() or (0, 0, 0, 0))
+            note = "clipped at canvas edge — check" if clipped[0] == 0 or clipped[1] == 0 or clipped[2] == 1024 else ""
+            record(key, img, out, note)
+
+    for f in FURNITURE:
+        key = f"furn_{f}"
+        if key not in best:
+            continue
+        img = load(best[key][1])
+        out = fit(img, (1024, 1024), 0.92, bottom=True, margin=0.02)
+        save(out, NORMALIZED / f"{key}.png")
+        save(trimmed(out).resize((lambda t: (max(1, t.width // 2), max(1, t.height // 2)))(trimmed(out)), Image.LANCZOS), GAME / f"{key}.png")
+        record(key, img, out)
+
+    for i in ICONS:
+        key = f"icon_{i}"
+        if key not in best:
+            continue
+        img = load(best[key][1])
+        out = fit(img, (256, 256), 0.94)
+        save(out, NORMALIZED / f"{key}.png")
+        save(out.resize((128, 128), Image.LANCZOS), GAME / f"{key}.png")
+        record(key, img, out)
+
+    for key in ["parcel_closed", "parcel_open"]:
+        if key not in best:
+            continue
+        img = load(best[key][1])
+        out = fit(img, (1024, 1024), 0.9)
+        save(out, NORMALIZED / f"{key}.png")
+        save(out.resize((512, 512), Image.LANCZOS), GAME / f"{key}.png")
+        record(key, img, out)
+
+    for key, size in [("ui_panel", (512, 512)), ("ui_button", (512, 160)), ("ui_button_primary", (512, 160))]:
+        if key not in best:
+            continue
+        img = load(best[key][1])
+        out = trimmed(img, 0).resize(size, Image.LANCZOS)  # stretched to the brief's frame; edges stay intact
+        save(out, NORMALIZED / f"{key}.png")
+        save(out, GAME / f"{key}.png")
+        record(key, img, out, "stretched to brief frame")
+
+    if "room_living_background" in best:
+        key = "room_living_background"
+        img = Image.open(best[key][1]).convert("RGB")
+        out = img.resize((2400, 1040), Image.LANCZOS)
+        save(out, NORMALIZED / f"{key}.png")
+        out.resize((1920, 832), Image.LANCZOS).save(GAME / f"{key}.png", optimize=True)
+        record(key, img, out.convert("RGBA"), "upscaled from source; game copy 1920×832")
+
+    (GAME / "anchors.json").write_text(json.dumps(anchors, indent=2) + "\n")
     subprocess.run(["node", str(ROOT / "tools" / "build-asset-manifest.mjs")], check=True)
+
+    summary = [
+        f"Expected {len(EXPECTED)} assets; found {len(best)}.",
+        f"Missing: {', '.join(missing) if missing else 'none'}.",
+        f"Unknown file names: {', '.join(unknown) if unknown else 'none'}.",
+        f"Superseded by a newer version: {', '.join(superseded) if superseded else 'none'}.",
+    ]
+    print("\n".join(summary))
+    if report_path:
+        report_path.write_text("\n".join(summary) + "\n\n" + "\n".join(lines) + "\n")
     return 0
 
 

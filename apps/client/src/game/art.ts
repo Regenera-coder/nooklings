@@ -29,17 +29,40 @@ function box(g: G, x0: number, x1: number, backY: number, frontY: number, h: num
   g.fillRoundedRect(x0, backY - h, w, Math.max(2, frontY - backY), r);
 }
 
+/** Where the seat or mattress sits, as a fraction of the furniture image height from its base. */
+const SEAT_FRACTION: Record<string, number> = { cloud_bed: 0.42, cozy_sofa: 0.4 };
+const FLOOR_SINK = 0.12; // image base sits slightly into the cell row so legs read as standing on the floor
+
+/**
+ * On-screen size of a furniture image: fitted to its footprint width, but capped so
+ * wall items stay on the wall and tall floor items stay in proportion to residents.
+ */
+export function furnitureImageSize(def: FurnitureDef, l: RoomLayout, texW: number, texH: number): { w: number; h: number } {
+  if (def.layer === 'rug') return { w: def.w * l.cw, h: def.h * l.ch * 1.05 };
+  const widthFrac = def.w === 1 ? 0.9 : 0.94;
+  let scale = (def.w * l.cw * widthFrac) / texW;
+  const maxH = def.layer === 'wall' ? l.wallH * 0.82 : l.cw * 2.3;
+  if (texH * scale > maxH) scale = maxH / texH;
+  return { w: texW * scale, h: texH * scale };
+}
+
 /** Height of the seat/top surface above the floor, for residents who sit or sleep on it. */
-export function seatHeight(def: FurnitureDef, l: RoomLayout): number {
+export function seatHeight(scene: Phaser.Scene, def: FurnitureDef, l: RoomLayout): number {
+  const key = `furn_${def.id}`;
+  if (scene.textures.exists(key)) {
+    const src = scene.textures.get(key).getSourceImage() as { width: number; height: number };
+    const { h } = furnitureImageSize(def, l, src.width, src.height);
+    return h * (SEAT_FRACTION[def.id] ?? 0.4) - l.ch * FLOOR_SINK;
+  }
   if (def.id === 'cloud_bed') return l.cw * 0.42;
   if (def.id === 'cozy_sofa') return l.cw * 0.38;
   return l.cw * 0.4;
 }
 
 /** Where a resident's feet go when resting on a piece of furniture. */
-export function seatPoint(def: FurnitureDef, p: Placement, l: RoomLayout): { x: number; y: number } {
+export function seatPoint(scene: Phaser.Scene, def: FurnitureDef, p: Placement, l: RoomLayout): { x: number; y: number } {
   const x = l.ox + (p.col + def.w / 2) * l.cw;
-  const y = l.floorTop + (p.row + def.h * 0.7) * l.ch - seatHeight(def, l);
+  const y = l.floorTop + (p.row + def.h * 0.7) * l.ch - seatHeight(scene, def, l);
   return { x, y };
 }
 
@@ -136,7 +159,7 @@ export function drawFurniture(
   let h = cw * 0.5;
   switch (def.id) {
     case 'cloud_bed': {
-      h = seatHeight(def, l);
+      h = seatHeight(scene, def, l);
       box(g, x0, x1, back, front, h * 0.55, WOOD_LIGHT, WOOD);
       g.fillStyle(WOOD_DARK, 1).fillRoundedRect(x0 - 2, back - h * 1.6, cw * 0.16, h * 1.6 + (front - back), 3);
       box(g, x0 + 2, x1 - 2, back, front - 2, h, 0xd9cdf2, 0xb7a6e0, 5);
@@ -146,7 +169,7 @@ export function drawFurniture(
       break;
     }
     case 'cozy_sofa': {
-      h = seatHeight(def, l);
+      h = seatHeight(scene, def, l);
       box(g, x0, x1, back, front, h, 0xf3c7a6, 0xe2a882, 5);
       g.fillStyle(0xd99872, 1).fillRoundedRect(x0, back - h - cw * 0.42, x1 - x0, cw * 0.46, 6);
       g.fillStyle(0xe2a882, 1).fillRoundedRect(x0 - 3, back - h - cw * 0.12, cw * 0.2, front - back + h + cw * 0.12, 5);
@@ -232,7 +255,7 @@ export function drawFurniture(
   };
 }
 
-/** Production furniture art: trimmed image scaled to the item's footprint width. */
+/** Production furniture art, scaled with furnitureImageSize and anchored like the placeholders. */
 function drawFurnitureImage(
   scene: Phaser.Scene,
   def: FurnitureDef,
@@ -242,25 +265,20 @@ function drawFurnitureImage(
 ): DrawnItem {
   const img = scene.add.image(0, 0, key);
   const c = scene.add.container(0, 0, [img]);
-  const targetW = def.w * l.cw * (def.layer === 'rug' ? 1 : 0.94);
-  img.setScale(targetW / img.width);
-  img.setFlipX(p.flipped);
-  const w = img.displayWidth;
-  const h = img.displayHeight;
+  const { w, h } = furnitureImageSize(def, l, img.width, img.height);
+  img.setDisplaySize(w, h).setFlipX(p.flipped);
+  const cx = l.ox + (p.col + def.w / 2) * l.cw;
   if (def.layer === 'wall') {
-    const cx = l.ox + (p.col + def.w / 2) * l.cw;
-    const cy = l.wallTop + l.wallH * 0.48;
+    const cy = l.wallTop + l.wallH * 0.46;
     c.setPosition(cx, cy);
     return { container: c, bounds: { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }, depth: 5 };
   }
-  const cx = l.ox + (p.col + def.w / 2) * l.cw;
   if (def.layer === 'rug') {
     const cy = l.floorTop + (p.row + def.h / 2) * l.ch;
-    img.setDisplaySize(def.w * l.cw, def.h * l.ch * 1.05);
     c.setPosition(cx, cy);
-    return { container: c, bounds: { x0: cx - (def.w * l.cw) / 2, y0: cy - (def.h * l.ch) / 2, x1: cx + (def.w * l.cw) / 2, y1: cy + (def.h * l.ch) / 2 }, depth: furnitureDepth(def, p, l) };
+    return { container: c, bounds: { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }, depth: furnitureDepth(def, p, l) };
   }
-  const fy = l.floorTop + (p.row + def.h) * l.ch - l.ch * 0.12;
+  const fy = l.floorTop + (p.row + def.h) * l.ch - l.ch * FLOOR_SINK;
   img.setOrigin(0.5, 1);
   c.setPosition(cx, fy);
   return { container: c, bounds: { x0: cx - w / 2, y0: fy - h, x1: cx + w / 2, y1: fy }, depth: furnitureDepth(def, p, l) };
