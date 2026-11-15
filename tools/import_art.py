@@ -45,14 +45,18 @@ FURNITURE = [
     "tea_table", "reading_chair", "planter_box", "hanging_plant", "bird_bath", "garden_bench", "rain_window",
     "rain_chime", "travel_trunk", "paper_lanterns", "zen_stones", "heirloom_chest", "wishing_lantern",
 ]
+# Costume pose sets: char_<id>_costume_<costumeId>_<pose>
+COSTUMES = {"mopey": ["umbrella"]}
+COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
 ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
 # Square scene cards for Explore (gathering spots and expedition routes).
 CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill"]
-ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake"]
+ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon"]
 EXPECTED = (
     [f"char_{c}_{p}" for c in CHARACTERS for p in POSES if not p.startswith("decorated_") or c in DECORATED_CHARACTERS]
     + [f"room_{r}_background" for r in ROOMS]
+    + [f"char_{c}_costume_{k}_{p}" for c, ks in COSTUMES.items() for k in ks for p in COSTUME_POSES]
     + [f"furn_{f}" for f in FURNITURE]
     + ["ui_panel", "ui_button", "ui_button_primary"]
     + [f"icon_{i}" for i in ICONS]
@@ -220,7 +224,8 @@ def main() -> int:
         idle = load(best[idle_key][1])
         ix0, iy0, ix1, iy1 = bbox(body_mask(idle))
         stand_px = 1024 * STAND_FRACTION
-        for pose in POSES:
+        costume_pairs = [(f"costume_{k}_{p}", p) for k in COSTUMES.get(c, []) for p in COSTUME_POSES]
+        for pose, scale_pose in [(p, p) for p in POSES] + costume_pairs:
             key = f"char_{c}_{pose}"
             if key not in best:
                 continue
@@ -239,7 +244,7 @@ def main() -> int:
                 continue
             mask = body_mask(img)
             box = bbox(mask)
-            axis, ratio = POSE_SCALE_BY_CHAR.get(c, {}).get(pose, POSE_SCALE[pose])
+            axis, ratio = POSE_SCALE_BY_CHAR.get(c, {}).get(scale_pose, POSE_SCALE[scale_pose])
             size = (box[3] - box[1]) if axis == "h" else (box[2] - box[0])
             scale = stand_px * ratio / size
             fx = foot_x(mask, box) if not pose.endswith("sleep") else (box[0] + box[2]) / 2

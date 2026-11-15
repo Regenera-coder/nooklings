@@ -8,6 +8,9 @@ import {
   invitationStatus,
   isRoomOpen,
   purchaseKey,
+  dayOf,
+  ribbonToday,
+  ribbonsForScore,
   residentsInRoom,
   spotUnlocked,
   isUnlocked,
@@ -42,7 +45,10 @@ export type Command =
   | { id: string; type: 'gather'; spotId: string; at: number }
   | { id: string; type: 'start_expedition'; routeId: string; residentId: string; at: number }
   | { id: string; type: 'collect_expedition'; at: number }
-  | { id: string; type: 'move_resident'; residentId: string; roomId: string };
+  | { id: string; type: 'move_resident'; residentId: string; roomId: string }
+  | { id: string; type: 'buy_costume'; costumeId: string }
+  | { id: string; type: 'wear_costume'; residentId: string; costumeId: string | null }
+  | { id: string; type: 'play_minigame'; score: number; at: number };
 
 export type CommandError =
   | PlacementError
@@ -65,7 +71,9 @@ export type CommandError =
   | 'unknown_route'
   | 'room_full'
   | 'busy'
-  | 'away';
+  | 'away'
+  | 'unknown_costume'
+  | 'daily_limit';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -80,6 +88,10 @@ export type GameEvent =
   | { type: 'expedition_started'; routeId: string; residentId: string; endAt: number }
   | { type: 'expedition_done'; routeId: string; residentId: string; reward: Cost & { hearts?: number } }
   | { type: 'resident_moved'; residentId: string; roomId: string }
+  | { type: 'ribbons_earned'; amount: number; source: 'play' | 'minigame' | 'expedition' }
+  | { type: 'costume_bought'; costumeId: string }
+  | { type: 'costume_worn'; residentId: string; costumeId: string | null }
+  | { type: 'minigame_done'; score: number; ribbons: number }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
@@ -119,7 +131,7 @@ function grantResident(
       : homeForNewResident(d.state, content);
   d.state = {
     ...d.state,
-    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, room } },
+    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, room, costume: null } },
     residentOrder: [...d.state.residentOrder, residentId],
   };
   d.events.push({ type: 'resident_joined', residentId, via, roomId: room });
@@ -279,6 +291,16 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
         residents: { ...state.residents, [cmd.residentId]: { ...owned, bondXp, lastPlayAt: cmd.at } },
       };
       d.events.push({ type: 'played', residentId: cmd.residentId, bondUp: after > before, newBondLevel: after });
+      // Ribbons for playing, up to a daily limit.
+      const today = ribbonToday(d.state, cmd.at);
+      if (today.fromPlay < content.ribbons.playsPerDay && content.ribbons.perPlay > 0) {
+        d.state = {
+          ...d.state,
+          wallet: addCost(d.state.wallet, { ribbons: content.ribbons.perPlay }, 1),
+          ribbonDay: { day: dayOf(cmd.at), fromPlay: today.fromPlay + 1, games: today.games },
+        };
+        d.events.push({ type: 'ribbons_earned', amount: content.ribbons.perPlay, source: 'play' });
+      }
       if (after > before) addHearts(d, content.bond.heartsPerBondLevel * (after - before), content);
       return done();
     }
@@ -377,6 +399,48 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (residentsInRoom(state, cmd.roomId).length >= content.rules.maxResidentsPerRoom) return fail('room_full');
       d.state = { ...state, residents: { ...state.residents, [cmd.residentId]: { ...owned, room: cmd.roomId } } };
       d.events.push({ type: 'resident_moved', residentId: cmd.residentId, roomId: cmd.roomId });
+      return done();
+    }
+
+    case 'buy_costume': {
+      const costume = content.costumes[cmd.costumeId];
+      if (!costume || costume.hidden) return fail('unknown_costume');
+      if (!state.residents[costume.residentId]) return fail('not_owned');
+      if (state.costumesOwned.includes(costume.id)) return fail('already_done');
+      if (levelFor(state.hearts, content) < costume.requiresLevel) return fail('locked');
+      if (!canAfford(state, costume.cost)) return fail('cannot_afford');
+      d.state = { ...state, wallet: addCost(state.wallet, costume.cost, -1), costumesOwned: [...state.costumesOwned, costume.id] };
+      d.events.push({ type: 'costume_bought', costumeId: costume.id });
+      return done();
+    }
+
+    case 'wear_costume': {
+      const owned = state.residents[cmd.residentId];
+      if (!content.residents[cmd.residentId]) return fail('unknown_resident');
+      if (!owned) return fail('not_owned');
+      if (cmd.costumeId !== null) {
+        const costume = content.costumes[cmd.costumeId];
+        if (!costume || costume.residentId !== cmd.residentId) return fail('unknown_costume');
+        if (!state.costumesOwned.includes(costume.id)) return fail('not_owned');
+      }
+      if (owned.costume === cmd.costumeId) return fail('already_done');
+      d.state = { ...state, residents: { ...state.residents, [cmd.residentId]: { ...owned, costume: cmd.costumeId } } };
+      d.events.push({ type: 'costume_worn', residentId: cmd.residentId, costumeId: cmd.costumeId });
+      return done();
+    }
+
+    case 'play_minigame': {
+      if (!Number.isFinite(cmd.at) || !Number.isFinite(cmd.score)) return fail('not_ready');
+      const today = ribbonToday(state, cmd.at);
+      if (today.games >= content.ribbons.minigame.gamesPerDay) return fail('daily_limit');
+      const ribbons = ribbonsForScore(content, cmd.score);
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, { ribbons }, 1),
+        ribbonDay: { day: dayOf(cmd.at), fromPlay: today.fromPlay, games: today.games + 1 },
+      };
+      d.events.push({ type: 'minigame_done', score: Math.floor(cmd.score), ribbons });
+      if (ribbons > 0) d.events.push({ type: 'ribbons_earned', amount: ribbons, source: 'minigame' });
       return done();
     }
 

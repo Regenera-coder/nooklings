@@ -2,6 +2,17 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.4.0 — Milestone C art and costumes (15 Nov 2026), local commits only, not pushed
+
+### Implemented
+- All 180 expected art files imported: Sunroom and Yard, 13 furniture items, Explore cards, Keepsake icon, all seven new residents (Original and Decorated) and second walk frames for every resident. Two corrected sleep poses (Mopey, Pippo Decorated).
+- Costumes: a Wardrobe on each character page. Costumes are bought once with **Ribbons** and worn over the resident's look (or taken off). First costume: Mopey's Tiny Rain Umbrella (12 Ribbons, Level 6). Mischi's and Hush's wing costumes are set up but hidden until the wings decision is made.
+- Ribbons, a new currency, come from: playing with residents (1 each, up to 5 a day), expeditions (Meadow 2, Old Mill 4), and **Button Catch**, a 30-second tapping game in Explore (1 Ribbon per 10 points, up to 5 per game, 3 games a day; golden buttons are worth 3).
+- Save format v4 (old saves carry over).
+
+### Placeholder
+- Costume art and the Ribbon icon are requested in brief 08; until then the Wardrobe says the art is on its way and the icon is a bow emoji.
+
 ## 0.3.2 — Playtest fixes (15 Nov 2026), local commit only, not pushed
 
 ### Implemented

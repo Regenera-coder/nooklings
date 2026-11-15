@@ -11,7 +11,7 @@ import type {
   TaskDef,
 } from './types';
 
-export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes'];
+export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons'];
 
 // ---------- levels ----------
 
@@ -188,6 +188,8 @@ export function conditionMet(state: GameState, content: Content, c: TaskConditio
       return Object.values(state.expeditionsDone).reduce((a, b) => a + b, 0) >= c.count;
     case 'residents_owned':
       return Object.keys(state.residents).length >= c.count;
+    case 'costumes_owned':
+      return state.costumesOwned.length >= c.count;
   }
 }
 
@@ -280,4 +282,27 @@ export function spotUnlocked(state: GameState, content: Content, spotId: string)
   const spot = content.gatherSpots[spotId];
   if (!spot) return false;
   return (!spot.requiresUnlock || isUnlocked(state, content, spot.requiresUnlock)) && isRoomOpen(state, content, spot.roomId);
+}
+
+// ---------- costumes and Ribbons ----------
+
+export const DAY_MS = 86_400_000;
+
+export function dayOf(at: number): number {
+  return Math.floor(at / DAY_MS);
+}
+
+/** Today's Ribbon counters (fresh if the stored day is over). */
+export function ribbonToday(state: GameState, at: number): { fromPlay: number; games: number } {
+  return state.ribbonDay.day === dayOf(at) ? state.ribbonDay : { fromPlay: 0, games: 0 };
+}
+
+export function ribbonsForScore(content: Content, score: number): number {
+  const m = content.ribbons.minigame;
+  const s = Math.max(0, Math.min(m.maxScore, Math.floor(score)));
+  return Math.min(m.maxRibbonsPerGame, Math.floor(s / m.pointsPerRibbon));
+}
+
+export function visibleCostumes(content: Content, residentId: string) {
+  return Object.values(content.costumes).filter((c) => c.residentId === residentId && !c.hidden);
 }

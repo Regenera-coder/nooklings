@@ -241,6 +241,7 @@ export class RoomScene extends Phaser.Scene {
         if (id === joined) r.enterFrom(this.room.door, this.world(), this.time.now);
       }
       r.setDecorated(state.residents[id]?.form === 'decorated');
+      r.setCostume(state.residents[id]?.costume ?? null);
     });
   }
 
@@ -253,6 +254,7 @@ export class RoomScene extends Phaser.Scene {
     if (events.some((e) => e.type === 'room_bought')) this.redrawAll();
     for (const r of this.residents) {
       r.setDecorated(this.store.state.residents[r.def.id]?.form === 'decorated');
+      r.setCostume(this.store.state.residents[r.def.id]?.costume ?? null);
       r.onLayoutChanged(this.world(), now);
     }
     for (const e of events) {

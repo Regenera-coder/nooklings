@@ -1,5 +1,6 @@
 import type {
   Content,
+  CostumeDef,
   ExpeditionDef,
   GatherSpotDef,
   FurnitureDef,
@@ -223,14 +224,31 @@ const gatherSpots: GatherSpotDef[] = [
   { id: 'cotton_patch', name: 'Cotton Patch', roomId: YARD_ID, yield: { fabric: 2 }, cooldownMs: 120_000, requiresUnlock: 'gardening' },
 ];
 
+// Costumes: bought once with Ribbons, worn over a resident's Original or Decorated look.
+// Wing costumes are hidden until the owner settles whether wings leave the base designs (TBD).
+const costumes: CostumeDef[] = [
+  {
+    id: 'mopey_umbrella', residentId: 'mopey', name: 'Tiny Rain Umbrella',
+    description: 'A little felt umbrella so Mopey can enjoy the rain anywhere.', cost: { ribbons: 12 }, requiresLevel: 6,
+  },
+  {
+    id: 'mischi_bat_wings', residentId: 'mischi', name: 'Mischief Wings',
+    description: 'Little stitched bat wings for extra mischief.', cost: { ribbons: 15 }, requiresLevel: 3, hidden: true,
+  },
+  {
+    id: 'hush_moon_wings', residentId: 'hush', name: 'Moonlit Wings',
+    description: 'Soft night wings for quiet moonlit flutters.', cost: { ribbons: 15 }, requiresLevel: 8, hidden: true,
+  },
+];
+
 const expeditions: ExpeditionDef[] = [
   {
     id: 'meadow', name: 'Clover Meadow', description: 'A short stroll for wildflowers and lost buttons.',
-    durationMs: 3 * 60_000, reward: { wood: 4, fabric: 2, keepsakes: 1, hearts: 2 }, requiresUnlock: 'expeditions',
+    durationMs: 3 * 60_000, reward: { wood: 4, fabric: 2, keepsakes: 1, ribbons: 2, hearts: 2 }, requiresUnlock: 'expeditions',
   },
   {
     id: 'old_mill', name: 'The Old Mill', description: 'A longer trip to the creaky mill by the stream. Something there is waiting to be found.',
-    durationMs: 10 * 60_000, reward: { buttons: 60, keepsakes: 3, hearts: 4 }, requiresUnlock: 'expeditions',
+    durationMs: 10 * 60_000, reward: { buttons: 60, keepsakes: 3, ribbons: 4, hearts: 4 }, requiresUnlock: 'expeditions',
     firstTimeResident: 'pippo',
   },
 ];
@@ -360,6 +378,12 @@ export const content: Content = {
   bond: { thresholds: [0, 3, 8, 15, 25], playCooldownMs: 30_000, playReward: { buttons: 5 }, heartsPerBondLevel: 3 },
   formUpgrades: [{ form: 'decorated', requiresBond: 2, cost: { buttons: 60, fabric: 3 }, hearts: 5 }],
   gatherSpots: byId(gatherSpots, (g) => g.id),
+  costumes: byId(costumes, (c) => c.id),
+  ribbons: {
+    perPlay: 1,
+    playsPerDay: 5,
+    minigame: { secondsLong: 30, pointsPerRibbon: 10, maxRibbonsPerGame: 5, gamesPerDay: 3, maxScore: 60 },
+  },
   expeditions: byId(expeditions, (e) => e.id),
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
   rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4 },

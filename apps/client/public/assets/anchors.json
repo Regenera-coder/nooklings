@@ -9,6 +9,11 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_snug_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_snug_sit": {
     "footX": 0.5,
     "footY": 0.96,
@@ -34,6 +39,11 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_snug_decorated_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_snug_decorated_sit": {
     "footX": 0.5,
     "footY": 0.96,
@@ -50,6 +60,11 @@
     "standHeight": 0.8
   },
   "char_tinker_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_tinker_walk2": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
@@ -79,6 +94,11 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_tinker_decorated_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_tinker_decorated_sit": {
     "footX": 0.5,
     "footY": 0.96,
@@ -95,6 +115,11 @@
     "standHeight": 0.8
   },
   "char_mischi_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_walk2": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
@@ -120,6 +145,11 @@
     "standHeight": 0.8
   },
   "char_mischi_decorated_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_decorated_walk2": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
@@ -480,6 +510,41 @@
     "standHeight": 0.8
   },
   "char_luma_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_happy": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_decorated_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_decorated_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_decorated_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_decorated_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_luma_decorated_sleep": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8

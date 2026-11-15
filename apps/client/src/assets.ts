@@ -36,7 +36,15 @@ export type Pose = 'idle' | 'walk' | 'walk2' | 'sit' | 'sleep' | 'happy';
  * every pose that has it (idle, walk, sit, sleep); happy falls back to Decorated idle.
  * Anything missing falls back to the original-form pose, then to idle.
  */
-export function charKey(id: string, pose: Pose, decorated: boolean): string | null {
+export function charKey(id: string, pose: Pose, decorated: boolean, costume: string | null = null): string | null {
+  // A worn costume has its own pose set: char_<id>_costume_<name>_<pose> (costume id mopey_umbrella -> umbrella), falling back pose by pose.
+  if (costume) {
+    const base = `char_${id}_costume_${costumeArtName(id, costume)}_`;
+    const tryPose = pose === 'happy' ? 'idle' : pose;
+    if (hasArt(base + tryPose)) return base + tryPose;
+    if (pose === 'walk2' && hasArt(base + 'walk')) return base + 'walk';
+    if ((pose === 'walk' || pose === 'walk2') && hasArt(base + 'idle')) return base + 'idle';
+  }
   // walk2 is the opposite-foot step frame; without it the walk cycle uses walk only.
   if (pose === 'walk2') {
     if (decorated && hasArt(`char_${id}_decorated_walk2`)) return `char_${id}_decorated_walk2`;
@@ -51,4 +59,9 @@ export function charKey(id: string, pose: Pose, decorated: boolean): string | nu
   if (hasArt(`char_${id}_${pose}`)) return `char_${id}_${pose}`;
   if (hasArt(`char_${id}_idle`)) return `char_${id}_idle`;
   return null;
+}
+
+/** File-name part of a costume: the costume id without the resident prefix. */
+export function costumeArtName(residentId: string, costumeId: string): string {
+  return costumeId.startsWith(residentId + '_') ? costumeId.slice(residentId.length + 1) : costumeId;
 }

@@ -214,3 +214,17 @@ body.ui-art .btn:disabled { opacity: .5; filter: grayscale(.4); }
 select.pick { font: inherit; padding: 6px 8px; border-radius: 10px; border: 2px solid #e6d3c0; background: #fffaf2; }
 body.has-rooms #stage { bottom: 40px; }
 .card-thumb { width: 56px; height: 56px; object-fit: contain; border-radius: 10px; background: #fff4e4; }
+
+/* Wardrobe and Button Catch */
+.wardrobe { margin-top: 10px; }
+.wardrobe h3 { margin: 6px 0; }
+.minigame { position: fixed; inset: 0; z-index: 50; background: #3b2a40; display: flex; flex-direction: column; }
+.mg-hud { background: #2b1f30; display: flex; gap: 10px; align-items: center; color: #fff4dc; padding: 8px 16px; font-size: 18px; }
+.mg-hud .timer { margin-left: auto; color: #ffd27a; font-size: 18px; }
+.mg-field { position: relative; flex: 1; }
+.mg-btn { position: absolute; width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff4dc; background: #f6c6a8; display: grid; place-items: center; padding: 0; animation: mg-pop 0.2s ease-out; }
+.mg-btn img { width: 42px; height: 42px; pointer-events: none; }
+.mg-btn.gold { background: #ffd27a; box-shadow: 0 0 14px #ffe9a8; }
+.mg-done { position: absolute; inset: 0; display: grid; place-content: center; gap: 12px; text-align: center; color: #fff4dc; }
+@keyframes mg-pop { from { transform: scale(0.4); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .mg-btn { animation: none; } }

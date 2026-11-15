@@ -83,7 +83,7 @@ describe('residents and rooms', () => {
     expect(s.residents.snug!.room).toBe(SUNROOM_ID);
     const full: GameState = {
       ...s,
-      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, room: LIVING_ROOM_ID }])),
+      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, room: LIVING_ROOM_ID, costume: null }])),
       residentOrder: ['a', 'b', 'c', 'd'],
     };
     expect(err({ ...full, residents: { ...full.residents, snug: s.residents.snug! } }, { type: 'move_resident', residentId: 'snug', roomId: LIVING_ROOM_ID })).toBe('room_full');
@@ -97,7 +97,9 @@ describe('save v3', () => {
     for (const k of ['purchases', 'gatherReadyAt', 'gatherCount', 'expedition', 'expeditionsDone']) delete v2[k];
     for (const r of Object.values(v2.residents) as Array<Record<string, unknown>>) delete r.room;
     const s = deserialize(JSON.stringify(v2), content);
-    expect(s.version).toBe(3);
+    expect(s.version).toBe(4);
+    expect(s.costumesOwned).toEqual([]);
+    expect(s.residents.snug!.costume).toBeNull();
     expect(s.residents.snug!.room).toBe(LIVING_ROOM_ID);
     expect(s.purchases).toEqual([]);
     expect(s.expedition).toBeNull();

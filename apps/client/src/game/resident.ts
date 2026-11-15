@@ -50,6 +50,7 @@ export class Resident {
   private readonly body: Phaser.GameObjects.Graphics;
   private readonly sprite: Phaser.GameObjects.Image;
   private decorated = false;
+  private costume: string | null = null;
   private happyUntil = 0;
   private shownKey: string | null = null;
   /** -1 when the sleep pose must be mirrored so the head rests on the bed's pillow end. */
@@ -109,6 +110,12 @@ export class Resident {
   setDecorated(on: boolean): void {
     if (this.decorated === on) return;
     this.decorated = on;
+    this.redraw();
+  }
+
+  setCostume(costume: string | null): void {
+    if (this.costume === costume) return;
+    this.costume = costume;
     this.redraw();
   }
 
@@ -300,7 +307,7 @@ export class Resident {
     else if (this.pose === 'sit') pose = 'sit';
     else if (now < this.happyUntil) pose = 'happy';
     else if (walking) pose = 'walk';
-    const key = charKey(this.def.id, pose, this.decorated) ?? idleKey;
+    const key = charKey(this.def.id, pose, this.decorated, this.costume) ?? idleKey;
     if (key !== this.shownKey && this.scene.textures.exists(key)) {
       this.sprite.setTexture(key);
       this.shownKey = key;
@@ -320,8 +327,8 @@ export class Resident {
       const lift = Math.abs(Math.sin(this.bobT));
       // Alternate feet on each step when a second walk frame exists: walk, feet down, walk2, feet down.
       const stepN = Math.floor(this.bobT / Math.PI);
-      const liftedKey = stepN % 2 === 0 ? key : charKey(this.def.id, 'walk2', this.decorated) ?? key;
-      const stepKey = lift > 0.35 ? liftedKey : charKey(this.def.id, 'idle', this.decorated) ?? key;
+      const liftedKey = stepN % 2 === 0 ? key : charKey(this.def.id, 'walk2', this.decorated, this.costume) ?? key;
+      const stepKey = lift > 0.35 ? liftedKey : charKey(this.def.id, 'idle', this.decorated, this.costume) ?? key;
       if (stepKey !== this.shownKey && this.scene.textures.exists(stepKey)) {
         this.sprite.setTexture(stepKey);
         this.shownKey = stepKey;

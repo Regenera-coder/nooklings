@@ -7,6 +7,8 @@ import {
   purchaseKey,
   residentsInRoom,
   spotUnlocked,
+  ribbonToday,
+  visibleCostumes,
   isUnlocked,
   levelFor,
   nextLevel,
@@ -22,7 +24,7 @@ import {
   type ResidentDef,
   type TaskDef,
 } from '@nooklings/core';
-import { artUrl } from '../assets';
+import { artUrl, costumeArtName } from '../assets';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
@@ -37,6 +39,7 @@ const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph:
   wishStamps: { name: 'Wish Stamps', icon: 'icon_wish_stamp', glyph: '✉' },
   mendingThread: { name: 'Mending Thread', icon: 'icon_mending_thread', glyph: '✂' },
   keepsakes: { name: 'Keepsakes', icon: 'icon_keepsake', glyph: '❖' },
+  ribbons: { name: 'Ribbons', icon: 'icon_ribbon', glyph: '🎀' },
   hearts: { name: 'Home Hearts', icon: 'icon_home_heart', glyph: '♥' },
 };
 
@@ -307,6 +310,15 @@ export class GameUI {
         break;
       case 'expedition_done':
         this.toast(`${this.content.residents[e.residentId]?.name} is back from ${this.content.expeditions[e.routeId]?.name}!`, 2400);
+        break;
+      case 'ribbons_earned':
+        if (e.source !== 'minigame') this.toast(`+${e.amount} Ribbon${e.amount > 1 ? 's' : ''}`);
+        break;
+      case 'minigame_done':
+        this.toast(e.ribbons > 0 ? `Button Catch: +${e.ribbons} Ribbons!` : 'Button Catch: no Ribbons this time', 2400);
+        break;
+      case 'costume_bought':
+        this.toast(`Bought ${this.content.costumes[e.costumeId]?.name}!`, 2200);
         break;
       case 'resident_moved':
         this.toast(`${this.content.residents[e.residentId]?.name} now lives in the ${this.content.rooms[e.roomId]?.name}`);
@@ -765,9 +777,44 @@ export class GameUI {
       } else {
         info.append(actions);
       }
+      const wardrobe = this.renderWardrobe(id);
+      if (wardrobe) info.append(wardrobe);
     }
     wrap.append(art, info);
     this.page.append(wrap);
+  }
+
+  /** Costumes for one resident: buy with Ribbons, then wear or take off. */
+  private renderWardrobe(id: string): HTMLElement | null {
+    const s = this.getState();
+    const list = visibleCostumes(this.content, id);
+    if (!list.length) return null;
+    const box = el('div', 'wardrobe');
+    box.append(el('h3', '', 'Wardrobe'));
+    const have = el('div', 'rewards');
+    have.append(...costChips({ ribbons: s.wallet.ribbons ?? 0 }));
+    box.append(have);
+    const level = levelFor(s.hearts, this.content);
+    const worn = s.residents[id]?.costume ?? null;
+    for (const c of list) {
+      const row = el('div', 'spot-row');
+      const body = el('div', 'grow');
+      body.append(el('b', '', c.name), el('p', '', c.description));
+      if (!hasCostumeArt(id, c.id)) body.append(el('p', 'hint', 'Costume art is on its way.'));
+      row.append(body);
+      const owned = s.costumesOwned.includes(c.id);
+      if (!owned) {
+        if (level < c.requiresLevel) row.append(el('span', 'muted', `Home Level ${c.requiresLevel}`));
+        else {
+          const cost = el('div', 'rewards');
+          cost.append(...costChips(c.cost));
+          row.append(cost, button('Buy', 'btn primary', () => this.run({ type: 'buy_costume', costumeId: c.id }), !canAfford(s, c.cost)));
+        }
+      } else if (worn === c.id) row.append(button('Take off', 'btn', () => this.run({ type: 'wear_costume', residentId: id, costumeId: null })));
+      else row.append(button('Wear', 'btn primary', () => this.run({ type: 'wear_costume', residentId: id, costumeId: c.id })));
+      box.append(row);
+    }
+    return box;
   }
 
   private homePicker(id: string, current: string): HTMLElement {
@@ -814,6 +861,70 @@ export class GameUI {
       card.append(row);
     }
     this.page.append(card);
+  }
+
+  private renderMinigameCard(): void {
+    const s = this.getState();
+    const rules = this.content.ribbons;
+    const today = ribbonToday(s, Date.now());
+    const left = rules.minigame.gamesPerDay - today.games;
+    const card = el('div', 'card');
+    card.append(el('h3', '', 'Button Catch'));
+    const have = el('div', 'rewards');
+    have.append(...costChips({ ribbons: s.wallet.ribbons ?? 0 }));
+    card.append(have);
+    card.append(el('p', '', `Tap the buttons as they pop up! Every ${rules.minigame.pointsPerRibbon} points earns a Ribbon (up to ${rules.minigame.maxRibbonsPerGame} a game). Ribbons buy costumes in each resident's Wardrobe.`));
+    card.append(el('p', 'hint', `Games left today: ${left}/${rules.minigame.gamesPerDay} · Ribbons from playing with residents today: ${today.fromPlay}/${rules.playsPerDay}`));
+    card.append(button('Play', 'btn primary', () => this.startMinigame(), left <= 0));
+    this.page.append(card);
+  }
+
+  private startMinigame(): void {
+    const m = this.content.ribbons.minigame;
+    const overlay = el('div', 'minigame');
+    const hud = el('div', 'mg-hud');
+    const scoreEl = el('b', '', '0');
+    const timeEl = el('span', 'timer', `${m.secondsLong}s`);
+    hud.append(el('span', '', 'Score '), scoreEl, timeEl);
+    const field = el('div', 'mg-field');
+    overlay.append(hud, field);
+    document.body.append(overlay);
+    let score = 0;
+    let remaining = m.secondsLong;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const icon = artUrl('icon_buttons');
+    const spawn = () => {
+      const b = el('button', 'mg-btn');
+      if (icon) { const img = el('img'); img.src = icon; img.alt = ''; b.append(img); } else b.textContent = '●';
+      const golden = Math.random() < 0.15;
+      if (golden) b.classList.add('gold');
+      b.style.left = `${8 + Math.random() * 80}%`;
+      b.style.top = `${8 + Math.random() * 74}%`;
+      b.setAttribute('aria-label', golden ? 'Golden button, 3 points' : 'Button, 1 point');
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        score += golden ? 3 : 1;
+        scoreEl.textContent = String(score);
+        b.remove();
+      }, { once: true });
+      field.append(b);
+      window.setTimeout(() => b.remove(), reduced ? 1600 : 1100);
+    };
+    const spawner = window.setInterval(spawn, 450);
+    const clock = window.setInterval(() => {
+      remaining -= 1;
+      timeEl.textContent = `${remaining}s`;
+      if (remaining <= 0) finish();
+    }, 1000);
+    const finish = () => {
+      window.clearInterval(spawner);
+      window.clearInterval(clock);
+      field.replaceChildren();
+      this.run({ type: 'play_minigame', score, at: Date.now() });
+      const done = el('div', 'mg-done');
+      done.append(el('h3', '', `You caught ${score} points!`), button('Done', 'btn primary', () => { overlay.remove(); this.render(); }));
+      overlay.append(done);
+    };
   }
 
   private tripResident = '';
@@ -882,6 +993,7 @@ export class GameUI {
     head.append(el('h2', '', 'Explore'));
     this.page.append(head);
     this.renderGathering();
+    this.renderMinigameCard();
     this.renderExpeditions();
     for (const pool of Object.values(this.content.parcels)) {
       const card = el('div', 'card');
@@ -1045,6 +1157,8 @@ function errorText(error: string): string {
       return 'Not ready yet';
     case 'already_done':
       return 'Already done';
+    case 'daily_limit':
+      return 'That’s all for today. Come back tomorrow!';
     case 'room_full':
       return 'That room is full (4 residents)';
     case 'busy':
@@ -1079,4 +1193,8 @@ function cardArt(key: string): HTMLElement | null {
   img.src = url;
   img.alt = '';
   return img;
+}
+
+function hasCostumeArt(id: string, costumeId: string): boolean {
+  return !!artUrl(`char_${id}_costume_${costumeArtName(id, costumeId)}_idle`);
 }

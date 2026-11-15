@@ -32,3 +32,8 @@ They were viewed in Drive and look correct (Mischi walk2 frames keep the four-po
 4. Hush has small bat wings, like Mischi.
 5. Glim and Mopey are both lavender with large purple hoods; Glim's brief asked for a periwinkle blue body.
 6. Mopey's Decorated set has the raincoat but no tiny umbrella (brief asked for both). Minor.
+
+## Update, 15 Nov evening
+- The 14 missing files are now imported (all 180 expected assets present). Snug, Tinker and Mischi walk2 frames verified in game; Luma's full set verified.
+- Fixes verified in game: `char_mopey_decorated_sleep_v2` (yellow raincoat hood) and `char_pippo_decorated_sleep_v2` (postal cap).
+- Owner decisions: Pippo loses the goggles; Glim reworked to periwinkle blue (brief 08); the tiny umbrella becomes an earnable costume; Mischi's and Hush's wings may become costumes later (on hold, no art change yet).

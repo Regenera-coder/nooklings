@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
 import type { Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -15,17 +15,19 @@ const MIGRATIONS: Record<number, Migration> = {
   1: (raw) => ({ ...raw, version: 2 }),
   // v2 (Milestone B) -> v3 (Milestone C): residents get a home room; new progress fields default to empty.
   2: (raw) => ({ ...raw, version: 3 }),
+  // v3 -> v4: costumes and Ribbons (new fields default to empty).
+  3: (raw) => ({ ...raw, version: 4 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
-  return { buttons: 0, wood: 0, fabric: 0, wishStamps: 0, mendingThread: 0, keepsakes: 0 };
+  return { buttons: 0, wood: 0, fabric: 0, wishStamps: 0, mendingThread: 0, keepsakes: 0, ribbons: 0 };
 }
 
 export function newGame(content: Content): GameState {
   const wallet = emptyWallet();
   for (const c of CURRENCIES) wallet[c] = content.starter.wallet[c] ?? 0;
   const residents: Record<string, OwnedResident> = {};
-  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, room: content.roomOrder[0]! };
+  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, room: content.roomOrder[0]!, costume: null };
   let nextUid = 1;
   const rooms: GameState['rooms'] = {};
   for (const roomId of Object.keys(content.rooms)) {
@@ -52,6 +54,8 @@ export function newGame(content: Content): GameState {
     gatherCount: 0,
     expedition: null,
     expeditionsDone: {},
+    costumesOwned: [],
+    ribbonDay: { day: 0, fromPlay: 0, games: 0 },
     rngState: content.starter.rngSeed >>> 0,
     nextUid,
     appliedCommandIds: [],
@@ -128,7 +132,7 @@ export function deserialize(text: string, content: Content): GameState {
     for (const [id, r] of Object.entries(rawResidents)) {
       if (!content.residents[id] || !r) continue;
       const room = typeof r.room === 'string' && content.rooms[r.room] ? r.room : content.roomOrder[0]!;
-      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), room };
+      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), room, costume: typeof r.costume === 'string' ? r.costume : null };
     }
   } else {
     Object.assign(residents, fresh.residents);
@@ -155,6 +159,11 @@ export function deserialize(text: string, content: Content): GameState {
       ? { routeId: rawTrip.routeId, residentId: rawTrip.residentId, startAt: num(rawTrip.startAt), endAt: num(rawTrip.endAt) }
       : null;
 
+  const costumesOwned = strings(data.costumesOwned).filter((c, i, a) => !!content.costumes[c] && a.indexOf(c) === i);
+  for (const r of Object.values(residents)) if (r.costume && !costumesOwned.includes(r.costume)) r.costume = null;
+  const rd = (data.ribbonDay ?? {}) as Raw;
+  const ribbonDay = { day: nonNegInt(rd.day), fromPlay: nonNegInt(rd.fromPlay), games: nonNegInt(rd.games) };
+
   const usedUids = Object.values(rooms).flatMap((r) => r.placements.map((p) => Number(p.uid.slice(1)) || 0));
   const nextUid = Math.max(num(data.nextUid, 1), ...usedUids.map((n) => n + 1), 1);
   const taskIds = new Set(content.tasks.map((t) => t.id));
@@ -178,6 +187,8 @@ export function deserialize(text: string, content: Content): GameState {
     gatherCount: nonNegInt(data.gatherCount),
     expedition,
     expeditionsDone,
+    costumesOwned,
+    ribbonDay,
     rngState: typeof data.rngState === 'number' ? data.rngState >>> 0 : fresh.rngState,
     nextUid,
     appliedCommandIds: strings(data.appliedCommandIds),

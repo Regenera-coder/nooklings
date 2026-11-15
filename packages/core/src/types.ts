@@ -8,7 +8,7 @@ export interface Cell {
   row: number;
 }
 
-export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread' | 'keepsakes';
+export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread' | 'keepsakes' | 'ribbons';
 export type Cost = Partial<Record<Currency, number>>;
 
 export interface FurnitureDef {
@@ -43,6 +43,25 @@ export interface RoomDef {
   access?: { unlock: string; cost: Cost };
   /** Optional expansion: before it is bought only the first baseCols columns are usable. */
   expansion?: { unlock: string; cost: Cost; baseCols: number };
+}
+
+/** A costume a resident can wear over their Original or Decorated look. Bought once with Ribbons. */
+export interface CostumeDef {
+  id: string;
+  residentId: string;
+  name: string;
+  description: string;
+  cost: Cost;
+  requiresLevel: number;
+  /** Hidden from the Wardrobe until the owner releases it (art pending or design not settled). */
+  hidden?: boolean;
+}
+
+/** Ribbon rules: how players earn the costume currency. */
+export interface RibbonRules {
+  perPlay: number;
+  playsPerDay: number;
+  minigame: { secondsLong: number; pointsPerRibbon: number; maxRibbonsPerGame: number; gamesPerDay: number; maxScore: number };
 }
 
 export interface GatherSpotDef {
@@ -131,7 +150,8 @@ export type TaskCondition =
   | { kind: 'room_items'; roomId: string; count: number }
   | { kind: 'gathered'; count: number }
   | { kind: 'expeditions_done'; count: number }
-  | { kind: 'residents_owned'; count: number };
+  | { kind: 'residents_owned'; count: number }
+  | { kind: 'costumes_owned'; count: number };
 
 export interface TaskDef {
   id: string;
@@ -193,6 +213,8 @@ export interface OwnedResident {
   lastPlayAt: number;
   /** Room this resident lives in. */
   room: string;
+  /** Costume being worn, if any. */
+  costume: string | null;
 }
 
 export interface ActiveExpedition {
@@ -234,6 +256,9 @@ export interface GameState {
   gatherCount: number;
   expedition: ActiveExpedition | null;
   expeditionsDone: Record<string, number>;
+  costumesOwned: string[];
+  /** Daily Ribbon counters; reset when the day changes. */
+  ribbonDay: { day: number; fromPlay: number; games: number };
   /** Parcel random state. Moves to the server in Milestone D so it can't be predicted. */
   rngState: number;
   nextUid: number;
@@ -253,6 +278,8 @@ export interface Content {
   bond: BondDef;
   formUpgrades: FormUpgradeDef[];
   gatherSpots: Record<string, GatherSpotDef>;
+  costumes: Record<string, CostumeDef>;
+  ribbons: RibbonRules;
   expeditions: Record<string, ExpeditionDef>;
   /** Order in which new residents are housed, and the room shown first. */
   roomOrder: string[];
