@@ -2,6 +2,17 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.5.1 — Daily Arcade Ribbon cap (16 Nov 2026)
+
+### Implemented
+- **Daily Arcade Ribbon cap** (owner decision): the whole Arcade gives at most **10 Ribbons a day** (`arcade.maxRibbonsPerDay`), counted across all games and reset each day with the play counters. Before, a full day could give up to 150.
+- A round past the cap still counts: plays, best scores and prizes work as before, it just gives no Ribbons. A round that crosses the cap gives only what is left.
+- The Arcade page shows "Arcade Ribbons today x/10"; the results card shows the same and "Ribbons full today" once the cap is reached.
+- Save format v6 (old saves carry over; today's Arcade Ribbons start at 0).
+
+### Proposed values
+- The cap of 10 is a proposed value. Ribbons from playing with residents (5 a day) and expeditions are not capped by it.
+
 ## 0.5.0 — Milestone D: the Arcade (15 Nov 2026)
 
 ### Implemented

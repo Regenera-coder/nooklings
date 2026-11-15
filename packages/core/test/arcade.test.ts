@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { content } from '@nooklings/content';
 import {
-  applyCommand, arcadePlaysLeft, companionOf, DAY_MS, deserialize, newGame, ribbonsForScore, serialize,
+  applyCommand, arcadePlaysLeft, arcadeRibbonsLeft, companionOf, DAY_MS, deserialize, newGame, ribbonsForScore, serialize,
   type ArcadeGameId, type Command, type GameState,
 } from '@nooklings/core';
 
@@ -163,8 +163,8 @@ describe('save v5', () => {
     delete v4.arcade;
     delete v4.companions;
     const s = deserialize(JSON.stringify(v4), content);
-    expect(s.version).toBe(5);
-    expect(s.arcade).toEqual({ day: 0, plays: {}, best: {}, prizes: [] });
+    expect(s.version).toBe(6);
+    expect(s.arcade).toEqual({ day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] });
     expect(s.companions).toEqual({});
   });
 
@@ -173,7 +173,55 @@ describe('save v5', () => {
     raw.arcade = { day: 3, plays: { memory: 99, nope: 1 }, best: { memory: 5000, nope: 4 }, prizes: ['memory:0', 'memory:0', 'memory:7', 'nope:1'] };
     raw.companions = { button_mouse: { residentId: 'snug' }, firefly: { residentId: 'snug' }, unknown_pet: { residentId: null }, owl: 5, curious_owl: { residentId: 'hush' } };
     const s = deserialize(JSON.stringify(raw), content);
-    expect(s.arcade).toEqual({ day: 3, plays: { memory: 3 }, best: { memory: 100 }, prizes: ['memory:0'] });
+    expect(s.arcade).toEqual({ day: 3, plays: { memory: 3 }, ribbons: 0, best: { memory: 100 }, prizes: ['memory:0'] });
     expect(s.companions).toEqual({ button_mouse: { residentId: 'snug' }, firefly: { residentId: null }, curious_owl: { residentId: null } });
+  });
+});
+
+describe('daily Arcade Ribbon cap', () => {
+  const cap = content.arcade.maxRibbonsPerDay;
+
+  it('trims Ribbons at the cap, across games, and resets the next day', () => {
+    let s = atLevel(8);
+    const start = s.wallet.ribbons;
+    expect(arcadeRibbonsLeft(s, content, AT)).toBe(cap);
+    // Two full rounds (5 + 5) reach the cap of 10.
+    s = ok(s, { type: 'play_arcade', gameId: 'button_catch', score: 9999, at: AT }).state;
+    let r = ok(s, { type: 'play_arcade', gameId: 'memory', score: 9999, at: AT + 1 });
+    s = r.state;
+    expect(s.wallet.ribbons - start).toBe(cap);
+    expect(r.events.find((e) => e.type === 'arcade_done')).toMatchObject({ ribbons: 5, ribbonsLeft: 0 });
+    // Past the cap: the round still counts (best score, plays, prizes) but gives no Ribbons.
+    r = ok(s, { type: 'play_arcade', gameId: 'stitch', score: 9999, at: AT + 2 });
+    s = r.state;
+    expect(s.wallet.ribbons - start).toBe(cap);
+    expect(s.arcade.best.stitch).toBe(content.arcadeGames.stitch.maxScore);
+    expect(s.arcade.prizes).toContain('stitch:2');
+    expect(r.events.find((e) => e.type === 'arcade_done')).toMatchObject({ ribbons: 0, ribbonsLeft: 0 });
+    expect(r.events.some((e) => e.type === 'ribbons_earned')).toBe(false);
+    // A new day starts again from zero.
+    expect(arcadeRibbonsLeft(s, content, AT + DAY_MS)).toBe(cap);
+    r = ok(s, { type: 'play_arcade', gameId: 'stitch', score: 9999, at: AT + DAY_MS });
+    expect(r.state.wallet.ribbons - start).toBe(cap + 5);
+    expect(r.state.arcade.ribbons).toBe(5);
+  });
+
+  it('gives a partial round when only a few Ribbons are left', () => {
+    let s = atLevel(8);
+    const start = s.wallet.ribbons;
+    s = ok(s, { type: 'play_arcade', gameId: 'button_catch', score: 9999, at: AT }).state; // 5
+    s = ok(s, { type: 'play_arcade', gameId: 'button_catch', score: 30, at: AT + 1 }).state; // 3
+    const r = ok(s, { type: 'play_arcade', gameId: 'memory', score: 9999, at: AT + 2 }); // 2 of 5
+    expect(r.state.wallet.ribbons - start).toBe(cap);
+    expect(r.events.find((e) => e.type === 'arcade_done')).toMatchObject({ ribbons: 2, ribbonsLeft: 0 });
+  });
+
+  it('carries a v5 save over and clamps a tampered counter', () => {
+    const v5 = JSON.parse(serialize(atLevel(8)));
+    v5.version = 5;
+    delete v5.arcade.ribbons;
+    expect(deserialize(JSON.stringify(v5), content).arcade.ribbons).toBe(0);
+    v5.arcade.ribbons = 9999;
+    expect(deserialize(JSON.stringify(v5), content).arcade.ribbons).toBe(cap);
   });
 });

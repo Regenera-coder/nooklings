@@ -338,6 +338,7 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
 .ar-pill2 { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #fff; border: 2px solid #e6c49a; border-radius: 999px; padding: 5px 12px; font-weight: 800; font-size: 14px; }
 .ar-pill2 img { width: 22px; height: 22px; object-fit: contain; }
 .ar-note { margin: 0; text-align: center; font-size: 12px; color: #7a5266; }
+.ar-cap { font-size: 12px; }
 .ar-res-prize { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; font-size: 12px; background: #fbeee0; border-radius: 16px; padding: 8px; }
 .ar-res-prize b { font-size: 13px; }
 .ar-res-art { width: 76px; height: 76px; object-fit: contain; }

@@ -96,6 +96,8 @@ export interface ArcadeGameDef {
 export interface ArcadeRules {
   playsPerDay: number;
   maxRibbonsPerGame: number;
+  /** Most Ribbons the whole Arcade gives in one day; rounds after that still count for best scores and prizes. */
+  maxRibbonsPerDay: number;
   /** Display order on the Arcade page. */
   order: ArcadeGameId[];
 }
@@ -281,6 +283,8 @@ export interface ArcadeState {
   day: number;
   /** Plays used today, per game. */
   plays: Partial<Record<ArcadeGameId, number>>;
+  /** Ribbons earned in the Arcade today, across all games. */
+  ribbons: number;
   /** Best single-round score ever, per game. */
   best: Partial<Record<ArcadeGameId, number>>;
   /** Prizes already granted, as "<gameId>:<index>". */

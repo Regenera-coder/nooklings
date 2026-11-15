@@ -321,6 +321,12 @@ export function arcadePlaysLeft(state: GameState, content: Content, gameId: Arca
   return Math.max(0, content.arcade.playsPerDay - used);
 }
 
+/** Arcade Ribbons still to be won today, across all games. */
+export function arcadeRibbonsLeft(state: GameState, content: Content, at: number): number {
+  const earned = state.arcade.day === dayOf(at) ? state.arcade.ribbons : 0;
+  return Math.max(0, content.arcade.maxRibbonsPerDay - earned);
+}
+
 export function prizeKey(gameId: ArcadeGameId, index: number): string {
   return `${gameId}:${index}`;
 }

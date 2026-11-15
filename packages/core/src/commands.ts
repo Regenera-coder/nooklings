@@ -12,6 +12,7 @@ import {
   ribbonToday,
   ribbonsForScore,
   arcadePlaysLeft,
+  arcadeRibbonsLeft,
   arcadeUnlocked,
   clampScore,
   companionHomeFor,
@@ -99,7 +100,7 @@ export type GameEvent =
   | { type: 'ribbons_earned'; amount: number; source: 'play' | 'arcade' | 'expedition' }
   | { type: 'costume_bought'; costumeId: string }
   | { type: 'costume_worn'; residentId: string; costumeId: string | null }
-  | { type: 'arcade_done'; gameId: ArcadeGameId; score: number; best: number; newBest: boolean; ribbons: number; playsLeft: number }
+  | { type: 'arcade_done'; gameId: ArcadeGameId; score: number; best: number; newBest: boolean; ribbons: number; playsLeft: number; ribbonsLeft: number }
   | { type: 'prize_won'; gameId: ArcadeGameId; index: number; kind: 'furniture' | 'companion'; id: string; residentId: string | null }
   | { type: 'companion_assigned'; companionId: string; residentId: string | null }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
@@ -447,18 +448,22 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const left = arcadePlaysLeft(state, content, cmd.gameId, cmd.at);
       if (left <= 0) return fail('daily_limit');
       const score = clampScore(game, cmd.score);
-      const ribbons = ribbonsForScore(content, game, score);
+      // The daily Arcade cap trims the round's Ribbons; the round itself still counts.
+      const ribbonsLeft = arcadeRibbonsLeft(state, content, cmd.at);
+      const ribbons = Math.min(ribbonsForScore(content, game, score), ribbonsLeft);
       const day = dayOf(cmd.at);
-      const plays = state.arcade.day === day ? { ...state.arcade.plays } : {};
+      const sameDay = state.arcade.day === day;
+      const plays = sameDay ? { ...state.arcade.plays } : {};
+      const ribbonsToday = (sameDay ? state.arcade.ribbons : 0) + ribbons;
       plays[cmd.gameId] = (plays[cmd.gameId] ?? 0) + 1;
       const oldBest = state.arcade.best[cmd.gameId] ?? 0;
       const best = Math.max(oldBest, score);
       d.state = {
         ...state,
         wallet: addCost(state.wallet, { ribbons }, 1),
-        arcade: { ...state.arcade, day, plays, best: { ...state.arcade.best, [cmd.gameId]: best } },
+        arcade: { ...state.arcade, day, plays, ribbons: ribbonsToday, best: { ...state.arcade.best, [cmd.gameId]: best } },
       };
-      d.events.push({ type: 'arcade_done', gameId: cmd.gameId, score, best, newBest: score > oldBest, ribbons, playsLeft: left - 1 });
+      d.events.push({ type: 'arcade_done', gameId: cmd.gameId, score, best, newBest: score > oldBest, ribbons, playsLeft: left - 1, ribbonsLeft: ribbonsLeft - ribbons });
       if (ribbons > 0) d.events.push({ type: 'ribbons_earned', amount: ribbons, source: 'arcade' });
       // Prizes: each is granted once, the first time a round reaches its score.
       game.prizes.forEach((prize, index) => {

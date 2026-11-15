@@ -1,5 +1,6 @@
 import {
   arcadePlaysLeft,
+  arcadeRibbonsLeft,
   arcadeUnlocked,
   levelFor,
   prizeWon,
@@ -103,7 +104,11 @@ export class Arcade {
       ribbons.append(img);
     }
     ribbons.append(el('b', '', String(s.wallet.ribbons)), el('span', '', ' Ribbons'));
-    head.append(el('p', 'muted', `Win Ribbons and exclusive prizes. ${this.content.arcade.playsPerDay} plays per game each day.`), ribbons);
+    const cap = this.content.arcade.maxRibbonsPerDay;
+    const won = cap - arcadeRibbonsLeft(s, this.content, now);
+    const blurb = el('p', 'muted', `Win Ribbons and exclusive prizes. ${this.content.arcade.playsPerDay} plays per game each day.`);
+    blurb.append(el('br'), el('span', 'ar-cap', won >= cap ? `All ${cap} Arcade Ribbons won today. Prizes and best scores still count!` : `Arcade Ribbons today ${won}/${cap}`));
+    head.append(blurb, ribbons);
     page.append(head);
 
     const grid = el('div', 'ar-grid');
@@ -348,10 +353,14 @@ export class Arcade {
       img.alt = '';
       rib.append(img);
     }
-    rib.append(document.createTextNode(done ? `+${done.ribbons} Ribbon${done.ribbons === 1 ? '' : 's'}` : 'No Ribbons'));
+    rib.append(document.createTextNode(done && done.ribbons > 0 ? `+${done.ribbons} Ribbon${done.ribbons === 1 ? '' : 's'}` : done && done.ribbonsLeft <= 0 ? 'Ribbons full today' : done ? '+0 Ribbons' : 'No Ribbons'));
     mid.append(rib);
     if (error) mid.append(el('p', 'ar-note', error));
-    else if (done) mid.append(el('p', 'ar-note', `Plays left today ${done.playsLeft}/${this.content.arcade.playsPerDay}`));
+    else if (done) {
+      mid.append(el('p', 'ar-note', `Plays left today ${done.playsLeft}/${this.content.arcade.playsPerDay}`));
+      const cap = this.content.arcade.maxRibbonsPerDay;
+      mid.append(el('p', 'ar-note', done.ribbonsLeft <= 0 ? `All ${cap} Arcade Ribbons won today` : `Arcade Ribbons today ${cap - done.ribbonsLeft}/${cap}`));
+    }
 
     // Right: the prize just won, or the next one to aim for.
     const right = el('div', 'ar-res-prize');

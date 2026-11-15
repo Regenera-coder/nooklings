@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -19,6 +19,8 @@ const MIGRATIONS: Record<number, Migration> = {
   3: (raw) => ({ ...raw, version: 4 }),
   // v4 -> v5 (Milestone D): the Arcade and companions (new fields default to empty).
   4: (raw) => ({ ...raw, version: 5 }),
+  // v5 -> v6: daily Arcade Ribbon cap (today's Arcade Ribbons start at 0).
+  5: (raw) => ({ ...raw, version: 6 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -58,7 +60,7 @@ export function newGame(content: Content): GameState {
     expeditionsDone: {},
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
-    arcade: { day: 0, plays: {}, best: {}, prizes: [] },
+    arcade: { day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] },
     companions: {},
     rngState: content.starter.rngSeed >>> 0,
     nextUid,
@@ -171,7 +173,7 @@ export function deserialize(text: string, content: Content): GameState {
   // Arcade: keep only known games and prizes; scores within each game's range.
   const ra = (data.arcade ?? {}) as Raw;
   const isGame = (k: string): k is ArcadeGameId => k in content.arcadeGames;
-  const arcade: ArcadeState = { day: nonNegInt(ra.day), plays: {}, best: {}, prizes: [] };
+  const arcade: ArcadeState = { day: nonNegInt(ra.day), plays: {}, ribbons: Math.min(content.arcade.maxRibbonsPerDay, nonNegInt(ra.ribbons)), best: {}, prizes: [] };
   for (const [k, v] of Object.entries((ra.plays ?? {}) as Raw)) if (isGame(k)) arcade.plays[k] = Math.min(content.arcade.playsPerDay, nonNegInt(v));
   for (const [k, v] of Object.entries((ra.best ?? {}) as Raw)) if (isGame(k)) arcade.best[k] = Math.min(content.arcadeGames[k].maxScore, nonNegInt(v));
   arcade.prizes = strings(ra.prizes).filter((key, i, all) => {

@@ -458,7 +458,7 @@ export const content: Content = {
   gatherSpots: byId(gatherSpots, (g) => g.id),
   costumes: byId(costumes, (c) => c.id),
   ribbons: { perPlay: 1, playsPerDay: 5 },
-  arcade: { playsPerDay: 3, maxRibbonsPerGame: 5, order: arcadeGames.map((g) => g.id) },
+  arcade: { playsPerDay: 3, maxRibbonsPerGame: 5, maxRibbonsPerDay: 10, order: arcadeGames.map((g) => g.id) },
   arcadeGames: byId(arcadeGames, (g) => g.id) as Record<ArcadeGameId, ArcadeGameDef>,
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
