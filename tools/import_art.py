@@ -35,7 +35,7 @@ NORMALIZED = ROOT / "art" / "normalized"
 GAME = ROOT / "apps" / "client" / "public" / "assets"
 
 CHARACTERS = ["snug", "tinker", "mischi"]
-POSES = ["master", "idle", "walk", "sit", "sleep", "happy", "portrait", "decorated_idle"]
+POSES = ["master", "idle", "walk", "sit", "sleep", "happy", "portrait", "decorated_idle", "decorated_walk", "decorated_sit", "decorated_sleep"]
 FURNITURE = [
     "cloud_bed", "cozy_sofa", "bookshelf", "workbench", "floor_lamp", "side_table", "potted_fern",
     "toy_chest", "star_rug", "round_window", "moon_lantern", "soft_curtains", "picture_frame",
@@ -59,14 +59,17 @@ POSE_SCALE = {
     "walk": ("h", 1.00),
     "happy": ("h", 1.00),
     "decorated_idle": ("h", 1.00),
+    "decorated_walk": ("h", 1.00),
     "sit": ("h", 0.80),
+    "decorated_sit": ("h", 0.80),
     "sleep": ("w", 1.05),
+    "decorated_sleep": ("w", 1.05),
 }
 # Per-character overrides where the source framing differs (matched by head size).
 POSE_SCALE_BY_CHAR = {
-    "snug": {"sit": ("h", 0.92)},
-    "tinker": {"sit": ("h", 0.92)},
-    "mischi": {"sit": ("h", 0.86)},
+    "snug": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
+    "tinker": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
+    "mischi": {"sit": ("h", 0.86), "decorated_sit": ("h", 0.86)},
 }
 GAME_CHAR = 512  # game copy of character poses (half the normalized canvas)
 
@@ -150,10 +153,19 @@ def main() -> int:
     src = Path(args[0])
     report_path = Path(args[args.index("--report") + 1]) if "--report" in args else None
 
+    exclude_file = ROOT / "art" / "import-exclude.txt"
+    excluded: dict[str, str] = {}
+    if exclude_file.exists():
+        for line in exclude_file.read_text().splitlines():
+            if line.strip() and not line.startswith("#"):
+                name, _, why = line.partition(" # ")
+                excluded[name.strip()] = why.strip()
     best: dict[str, tuple[int, Path]] = {}
     unknown: list[str] = []
     superseded: list[str] = []
     for f in sorted(src.glob("*.png")):
+        if f.name in excluded:
+            continue
         m = re.match(r"^(.*?)(?:_v(\d+))?$", f.stem)
         assert m
         key, version = m.group(1), int(m.group(2) or 1)
@@ -207,7 +219,7 @@ def main() -> int:
             axis, ratio = POSE_SCALE_BY_CHAR.get(c, {}).get(pose, POSE_SCALE[pose])
             size = (box[3] - box[1]) if axis == "h" else (box[2] - box[0])
             scale = stand_px * ratio / size
-            fx = foot_x(mask, box) if pose != "sleep" else (box[0] + box[2]) / 2
+            fx = foot_x(mask, box) if not pose.endswith("sleep") else (box[0] + box[2]) / 2
             out = place(img, scale, (1024, 1024), (fx, box[3]), (512, 1024 * 0.96))
             save(out, NORMALIZED / f"{key}.png")
             game = out.resize((GAME_CHAR, GAME_CHAR), Image.LANCZOS)
@@ -272,6 +284,7 @@ def main() -> int:
         f"Missing: {', '.join(missing) if missing else 'none'}.",
         f"Unknown file names: {', '.join(unknown) if unknown else 'none'}.",
         f"Superseded by a newer version: {', '.join(superseded) if superseded else 'none'}.",
+        f"Excluded on review: {'; '.join(f'{k} ({v})' for k, v in excluded.items()) if excluded else 'none'}.",
     ]
     print("\n".join(summary))
     if report_path:

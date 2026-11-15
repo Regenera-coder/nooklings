@@ -31,10 +31,16 @@ export function allArt(): Manifest {
 
 export type Pose = 'idle' | 'walk' | 'sit' | 'sleep' | 'happy';
 
-/** Texture key for a character pose, preferring the Decorated form where drawn. */
+/**
+ * Texture key for a character pose. A Decorated resident uses its Decorated art for
+ * every pose that has it (idle, walk, sit, sleep); happy falls back to Decorated idle.
+ * Anything missing falls back to the original-form pose, then to idle.
+ */
 export function charKey(id: string, pose: Pose, decorated: boolean): string | null {
-  if (decorated && (pose === 'idle' || pose === 'walk' || pose === 'happy') && hasArt(`char_${id}_decorated_idle`)) {
-    return `char_${id}_decorated_idle`;
+  if (decorated) {
+    const decoPose = pose === 'happy' ? 'idle' : pose;
+    if (hasArt(`char_${id}_decorated_${decoPose}`)) return `char_${id}_decorated_${decoPose}`;
+    if ((pose === 'idle' || pose === 'walk') && hasArt(`char_${id}_decorated_idle`)) return `char_${id}_decorated_idle`;
   }
   if (hasArt(`char_${id}_${pose}`)) return `char_${id}_${pose}`;
   if (hasArt(`char_${id}_idle`)) return `char_${id}_idle`;

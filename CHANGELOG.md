@@ -2,6 +2,14 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.2.2 — Milestone B art revisions (15 Nov 2026), local commit only, not pushed or deployed
+
+### Implemented
+- Decorated walk, sit and sleep poses for Snug, Tinker and Mischi; a Decorated resident now keeps its costume everywhere, including on the sofa and bed.
+- New Tasks tab icon (stitched clipboard).
+- Snug three-quarter idle (v2).
+- Importer: Decorated poses in the lineup, and `art/import-exclude.txt` for reviewed rejections (Tinker and Mischi idle v2).
+
 ## 0.2.1 — Milestone B production art (15 Nov 2026), local only, not deployed
 
 ### Implemented

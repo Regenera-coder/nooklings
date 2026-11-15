@@ -1,0 +1,3 @@
+# Source files the importer must skip, with the reason. One file name per line before " # ".
+char_tinker_idle_v2.png # design differs from the approved Tinker (new snout face, curly fleece, red scarf, flatter style)
+char_mischi_idle_v2.png # still front-facing, no improvement over the current idle

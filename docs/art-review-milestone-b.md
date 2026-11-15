@@ -40,3 +40,25 @@ Margins varied from 2% to 54% of the canvas; small detached sparkles are ignored
 
 ## Not an art issue, but visible now
 At 740×360 a standing resident is about 55 px tall, and about 35 px at 640×320. Faces read; small accessories don't. Consider a zoom gesture or slightly larger residents in Milestone C.
+
+---
+
+# Revision round 1 — 15 Nov 2026
+
+13 candidate files received. Each was compared against the character's master, existing poses and Decorated idle.
+
+| File | Result | Reason |
+|---|---|---|
+| char_snug_decorated_walk / sit / sleep | Accepted | Same quilted star cape, moon charm, lantern and cloud pillow as Decorated idle; sleep has head on the right |
+| char_tinker_decorated_walk / sit / sleep | Accepted | Same brass pauldron, patched apron, clockwork bird and goggles; sleep has head on the right |
+| char_mischi_decorated_walk / sit / sleep | Accepted | Same bell collar, starred wings and long sparkling scarf; sleep has head on the right |
+| icon_tab_tasks_v2 | Accepted | Stitched clipboard with a tick, clearly different from the Nookbook book at 28 px |
+| char_snug_idle_v2 | Accepted | Genuinely three-quarter right; same design, colours and accessories; walk-to-stand switch now matches |
+| char_tinker_idle_v2 | Rejected, kept original | Design drift: new snout-and-mouth face (approved Tinker has none), curly fleece hair and ear flaps, red scarf, flatter rendering style. Only a partial turn |
+| char_mischi_idle_v2 | Rejected, kept original | Still front-facing (not three-quarter); slightly flatter fur; no improvement over the current idle |
+
+Code: Decorated residents now use Decorated art for idle, walk, sit and sleep (happy falls back to Decorated idle). Walk is mirrored for leftward movement; sleep is mirrored onto the bed's pillow end. All 24 standing, walking, sitting and sleeping poses share one floor line and one scale per character.
+
+Remaining minor notes (no action needed for acceptance):
+- Mischi Decorated sit reads slightly larger than her original sit (bigger scarf and collar); within tolerance.
+- Tinker and Mischi still switch from a side view (walk) to a front view (idle) when they stop. Optional future fix: a three-quarter idle that keeps the approved design.

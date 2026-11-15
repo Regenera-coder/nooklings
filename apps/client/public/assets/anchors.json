@@ -29,6 +29,21 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_snug_decorated_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_decorated_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_decorated_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_tinker_idle": {
     "footX": 0.5,
     "footY": 0.96,
@@ -59,6 +74,21 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_tinker_decorated_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_tinker_decorated_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_tinker_decorated_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_mischi_idle": {
     "footX": 0.5,
     "footY": 0.96,
@@ -85,6 +115,21 @@
     "standHeight": 0.8
   },
   "char_mischi_decorated_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_decorated_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_decorated_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_decorated_sleep": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
