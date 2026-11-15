@@ -318,7 +318,10 @@ export class Resident {
       // Two-frame step: lifted-leg walk pose while in the air, feet-down idle pose on each footfall,
       // with a side-to-side waddle and a little squash as each foot lands.
       const lift = Math.abs(Math.sin(this.bobT));
-      const stepKey = lift > 0.35 ? key : charKey(this.def.id, 'idle', this.decorated) ?? key;
+      // Alternate feet on each step when a second walk frame exists: walk, feet down, walk2, feet down.
+      const stepN = Math.floor(this.bobT / Math.PI);
+      const liftedKey = stepN % 2 === 0 ? key : charKey(this.def.id, 'walk2', this.decorated) ?? key;
+      const stepKey = lift > 0.35 ? liftedKey : charKey(this.def.id, 'idle', this.decorated) ?? key;
       if (stepKey !== this.shownKey && this.scene.textures.exists(stepKey)) {
         this.sprite.setTexture(stepKey);
         this.shownKey = stepKey;

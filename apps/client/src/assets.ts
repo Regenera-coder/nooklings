@@ -29,7 +29,7 @@ export function allArt(): Manifest {
   return manifest;
 }
 
-export type Pose = 'idle' | 'walk' | 'sit' | 'sleep' | 'happy';
+export type Pose = 'idle' | 'walk' | 'walk2' | 'sit' | 'sleep' | 'happy';
 
 /**
  * Texture key for a character pose. A Decorated resident uses its Decorated art for
@@ -37,6 +37,12 @@ export type Pose = 'idle' | 'walk' | 'sit' | 'sleep' | 'happy';
  * Anything missing falls back to the original-form pose, then to idle.
  */
 export function charKey(id: string, pose: Pose, decorated: boolean): string | null {
+  // walk2 is the opposite-foot step frame; without it the walk cycle uses walk only.
+  if (pose === 'walk2') {
+    if (decorated && hasArt(`char_${id}_decorated_walk2`)) return `char_${id}_decorated_walk2`;
+    if (!decorated && hasArt(`char_${id}_walk2`)) return `char_${id}_walk2`;
+    return charKey(id, 'walk', decorated);
+  }
   if (decorated) {
     const decoPose = pose === 'happy' ? 'idle' : pose;
     if (hasArt(`char_${id}_decorated_${decoPose}`)) return `char_${id}_decorated_${decoPose}`;

@@ -36,8 +36,8 @@ GAME = ROOT / "apps" / "client" / "public" / "assets"
 
 CHARACTERS = ["snug", "tinker", "mischi", "bloomi", "glim", "mopey", "pippo", "hush", "patcha", "luma"]
 # Decorated poses exist only for the Milestone B residents so far; others are optional.
-DECORATED_CHARACTERS = ["snug", "tinker", "mischi"]
-POSES = ["master", "idle", "walk", "sit", "sleep", "happy", "portrait", "decorated_idle", "decorated_walk", "decorated_sit", "decorated_sleep"]
+DECORATED_CHARACTERS = CHARACTERS  # brief 07 asks for Decorated sets for every resident
+POSES = ["master", "idle", "walk", "walk2", "sit", "sleep", "happy", "portrait", "decorated_idle", "decorated_walk", "decorated_walk2", "decorated_sit", "decorated_sleep"]
 FURNITURE = [
     "cloud_bed", "cozy_sofa", "bookshelf", "workbench", "floor_lamp", "side_table", "potted_fern",
     "toy_chest", "star_rug", "round_window", "moon_lantern", "soft_curtains", "picture_frame",
@@ -67,6 +67,8 @@ STAND_FRACTION = 0.80  # standing character fills 80% of the 1024 canvas height 
 POSE_SCALE = {
     "idle": ("h", 1.00),
     "walk": ("h", 1.00),
+    "walk2": ("h", 1.00),
+    "decorated_walk2": ("h", 1.00),
     "happy": ("h", 1.00),
     "decorated_idle": ("h", 1.00),
     "decorated_walk": ("h", 1.00),
