@@ -164,6 +164,31 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_mischi_costume_wings_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_wings_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_wings_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_wings_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_wings_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_bloomi_idle": {
     "footX": 0.5,
     "footY": 0.96,
@@ -329,6 +354,31 @@
     "footY": 0.96,
     "standHeight": 0.8
   },
+  "char_mopey_costume_umbrella_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_umbrella_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_umbrella_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_umbrella_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_umbrella_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
   "char_pippo_idle": {
     "footX": 0.5,
     "footY": 0.96,
@@ -435,6 +485,31 @@
     "standHeight": 0.8
   },
   "char_hush_decorated_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_hush_costume_wings_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_hush_costume_wings_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_hush_costume_wings_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_hush_costume_wings_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_hush_costume_wings_sleep": {
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8

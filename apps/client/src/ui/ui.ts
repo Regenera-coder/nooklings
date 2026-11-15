@@ -561,7 +561,7 @@ export class GameUI {
     if (!def || !owned) return;
     const mini = el('div', 'mini');
     const img = el('img');
-    img.src = portraitUrl(def, { decorated: owned.form === 'decorated' });
+    img.src = portraitUrl(def, { decorated: owned.form === 'decorated', costume: owned.costume });
     img.alt = '';
     const names = el('div');
     names.append(el('h2', '', def.name), el('p', 'sub', `${def.rarity} · ${status} · ${this.content.rooms[owned.room]?.name ?? ''}`));
@@ -705,7 +705,7 @@ export class GameUI {
       if ((this.filter === 'owned' && !owned) || (this.filter === 'missing' && owned)) continue;
       const card = el('button', `ncard${owned ? '' : ' missing'}`);
       const img = el('img');
-      img.src = portraitUrl(r, { silhouette: !owned, decorated: s.residents[r.id]?.form === 'decorated' });
+      img.src = portraitUrl(r, { silhouette: !owned, decorated: s.residents[r.id]?.form === 'decorated', costume: s.residents[r.id]?.costume });
       img.alt = owned ? r.name : 'Not yet found';
       card.append(img, el('span', 'nm', owned ? r.name : '???'), el('span', `rar ${r.rarity}`, r.rarity));
       card.addEventListener('click', () => this.openDetail(r.id));
@@ -733,7 +733,7 @@ export class GameUI {
     const wrap = el('div', 'detail');
     const art = el('div', 'art');
     const img = el('img');
-    img.src = portraitUrl(def, { silhouette: !owned, decorated: owned?.form === 'decorated' });
+    img.src = portraitUrl(def, { silhouette: !owned, decorated: owned?.form === 'decorated', costume: owned?.costume });
     img.alt = owned ? def.name : 'Not yet found';
     art.append(img);
     const info = el('div', 'info');

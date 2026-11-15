@@ -1,5 +1,5 @@
 import type { ResidentDef } from '@nooklings/core';
-import { artUrl } from './assets';
+import { artUrl, costumeArtName } from './assets';
 
 /**
  * Placeholder portraits for the DOM (Nookbook, character page, parcel reveal),
@@ -103,11 +103,12 @@ function draw(def: ResidentDef, silhouette: boolean, decorated: boolean): string
   return c.toDataURL();
 }
 
-export function portraitUrl(def: ResidentDef, opts: { silhouette?: boolean; decorated?: boolean } = {}): string {
+export function portraitUrl(def: ResidentDef, opts: { silhouette?: boolean; decorated?: boolean; costume?: string | null } = {}): string {
   const silhouette = opts.silhouette === true;
   const decorated = opts.decorated === true;
   if (!silhouette) {
-    const art = (decorated && artUrl(`char_${def.id}_decorated_idle`)) || artUrl(`char_${def.id}_portrait`);
+    const costumeArt = opts.costume ? artUrl(`char_${def.id}_costume_${costumeArtName(def.id, opts.costume)}_idle`) : null;
+    const art = costumeArt || (decorated && artUrl(`char_${def.id}_decorated_idle`)) || artUrl(`char_${def.id}_portrait`);
     if (art) return art;
   }
   const key = `${def.id}:${silhouette}:${decorated}`;

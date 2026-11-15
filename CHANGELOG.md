@@ -2,6 +2,15 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.4.1 — Brief 08 (15 Nov 2026), local commit only, not pushed
+
+### Implemented
+- Pippo reworked (beanie and map, no goggles); Glim reworked (periwinkle blue, no hood).
+- Mischi and Hush are wingless by default. Their wings are Wardrobe costumes: Mischief Wings (15 Ribbons, Level 3) and Moonlit Wings (15 Ribbons, Level 8).
+- Mopey's Decorated look no longer includes the umbrella; the Tiny Rain Umbrella costume now has its own art.
+- Ribbon currency icon.
+- Character pages and the Nookbook show the costume a resident is wearing.
+
 ## 0.4.0 — Milestone C art and costumes (15 Nov 2026), local commits only, not pushed
 
 ### Implemented

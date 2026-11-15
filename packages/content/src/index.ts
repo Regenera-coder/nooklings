@@ -225,7 +225,7 @@ const gatherSpots: GatherSpotDef[] = [
 ];
 
 // Costumes: bought once with Ribbons, worn over a resident's Original or Decorated look.
-// Wing costumes are hidden until the owner settles whether wings leave the base designs (TBD).
+// Mischi and Hush are wingless by default (15 Nov 2026); their wings are costumes.
 const costumes: CostumeDef[] = [
   {
     id: 'mopey_umbrella', residentId: 'mopey', name: 'Tiny Rain Umbrella',
@@ -233,11 +233,11 @@ const costumes: CostumeDef[] = [
   },
   {
     id: 'mischi_wings', residentId: 'mischi', name: 'Mischief Wings',
-    description: 'Little stitched bat wings for extra mischief.', cost: { ribbons: 15 }, requiresLevel: 3, hidden: true,
+    description: 'Little stitched bat wings for extra mischief.', cost: { ribbons: 15 }, requiresLevel: 3,
   },
   {
     id: 'hush_wings', residentId: 'hush', name: 'Moonlit Wings',
-    description: 'Soft night wings for quiet moonlit flutters.', cost: { ribbons: 15 }, requiresLevel: 8, hidden: true,
+    description: 'Soft moth wings with stitched moons, for quiet moonlit flutters.', cost: { ribbons: 15 }, requiresLevel: 8,
   },
 ];
 

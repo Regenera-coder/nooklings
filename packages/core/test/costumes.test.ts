@@ -53,8 +53,13 @@ describe('costumes', () => {
     expect(s.residents.mopey!.costume).toBeNull();
   });
 
-  it('keeps hidden costumes (wings, pending decision) out of the shop', () => {
-    const s = { ...newGame(content), hearts: 300, wallet: { ...newGame(content).wallet, ribbons: 99 } };
-    expect(err(s, { type: 'buy_costume', costumeId: 'mischi_wings' })).toBe('unknown_costume');
+  it('sells Mischi her wings as a costume once she lives with you', () => {
+    const g = newGame(content);
+    let s: GameState = { ...g, hearts: 30, wallet: { ...g.wallet, ribbons: 20 } };
+    expect(err(s, { type: 'buy_costume', costumeId: 'mischi_wings' })).toBe('not_owned');
+    s = { ...s, residents: { ...s.residents, mischi: { bondXp: 0, form: 'original', lastPlayAt: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, 'mischi'] };
+    s = ok(s, { type: 'buy_costume', costumeId: 'mischi_wings' });
+    s = ok(s, { type: 'wear_costume', residentId: 'mischi', costumeId: 'mischi_wings' });
+    expect(s.residents.mischi!.costume).toBe('mischi_wings');
   });
 });

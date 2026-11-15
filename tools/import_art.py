@@ -48,6 +48,8 @@ FURNITURE = [
 # Costume pose sets: char_<id>_costume_<costumeId>_<pose>
 COSTUMES = {"mopey": ["umbrella"], "mischi": ["wings"], "hush": ["wings"]}
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
+# Files delivered with a baked-in ground shadow; the importer strips it (flagged for redraw).
+SHADOW_FIX = {"char_mischi_costume_wings_idle", "char_mischi_costume_wings_walk", "char_mischi_costume_wings_sleep"}
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
 ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
 # Square scene cards for Explore (gathering spots and expedition routes).
@@ -88,7 +90,8 @@ POSE_SCALE_BY_CHAR = {
     "mischi": {"sit": ("h", 0.86), "decorated_sit": ("h", 0.86)},
     "bloomi": {"sit": ("h", 0.9), "decorated_sit": ("h", 0.9)},
     "glim": {"sit": ("h", 0.95), "decorated_sit": ("h", 0.95)},
-    "mopey": {"sit": ("h", 0.94), "decorated_sit": ("h", 0.94)},
+    # The umbrella widens Mopey's costume sleep, so it is drawn larger to match the normal sleep size.
+    "mopey": {"sit": ("h", 0.94), "decorated_sit": ("h", 0.94), "costume_umbrella_sleep": ("w", 1.15)},
     "pippo": {"sit": ("h", 0.84), "decorated_sit": ("h", 0.84)},
     "hush": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
     "patcha": {"sit": ("h", 0.9), "decorated_sit": ("h", 0.9)},
@@ -102,6 +105,33 @@ def load(path: Path) -> Image.Image:
     if (alpha < 250).mean() < 0.02:  # no real transparency: cut out white touching the edges
         img = remove_edge_white(img)
     return img
+
+
+def remove_ground_shadow(img: Image.Image) -> Image.Image:
+    """Drop a baked-in ground shadow: dull grey-brown pixels (and their pale rim) in the bottom
+    band of the figure, kept only if they are not part of a colourful body region above."""
+    rgba = np.array(img)
+    a = rgba[:, :, 3] > 24
+    if not a.any():
+        return img
+    ys, xs = np.where(a)
+    y0, y1 = ys.min(), ys.max()
+    band_top = int(y1 - (y1 - y0) * 0.09)
+    rgb = rgba[:, :, :3].astype(float) / 255
+    mx, mn = rgb.max(2), rgb.min(2)
+    sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
+    dull = a & (sat < 0.32) & (mx < 0.78)
+    pale = a & (sat < 0.10) & (mx >= 0.78)
+    cand = (dull | pale)
+    cand[:band_top] = False
+    labels, n = ndimage.label(cand)
+    for i in range(1, n + 1):
+        region = labels == i
+        rys, rxs = np.where(region)
+        # a shadow is a wide, flat blob touching the very bottom of the figure
+        if rys.max() >= y1 - 2 and (rxs.max() - rxs.min()) > 3 * max(1, rys.max() - rys.min()):
+            rgba[region, 3] = 0
+    return Image.fromarray(rgba)
 
 
 def remove_edge_white(img: Image.Image, tol: int = 18) -> Image.Image:
@@ -216,6 +246,16 @@ def main() -> int:
     def record(key: str, source: Image.Image, out: Image.Image, note: str = "") -> None:
         lines.append(f"| {key} | {best[key][1].name} | {source.width}×{source.height} | {out.width}×{out.height}{' — ' + note if note else ''} |")
 
+    mirrored_sleep: list[str] = []
+
+    def sleep_head_left(im: Image.Image) -> bool:
+        """Head side of a lying figure: the side with more mass in the top third (ears and head)."""
+        m = body_mask(im)
+        x0, y0, x1, y1 = bbox(m)
+        top = m[y0 : y0 + (y1 - y0) // 3, x0:x1]
+        ys, xs = np.nonzero(top)
+        return xs.size > 0 and xs.mean() < (x1 - x0) / 2
+
     # Characters: one scale per character, taken from the idle pose.
     for c in CHARACTERS:
         idle_key = f"char_{c}_idle"
@@ -230,6 +270,8 @@ def main() -> int:
             if key not in best:
                 continue
             img = load(best[key][1])
+            if key in SHADOW_FIX:
+                img = remove_ground_shadow(img)
             if pose == "master":
                 out = fit(img, (2048, 1024), 0.92)
                 save(out, NORMALIZED / f"{key}.png")
@@ -242,9 +284,15 @@ def main() -> int:
                 save(game, GAME / f"{key}.png")
                 record(key, img, out)
                 continue
+            if scale_pose.endswith("sleep") and sleep_head_left(img):
+                # The game expects every sleep pose with the head on the right (like Snug's);
+                # mirror ones drawn the other way so residents always lie with their head on the pillow.
+                img = img.transpose(Image.FLIP_LEFT_RIGHT)
+                mirrored_sleep.append(key)
             mask = body_mask(img)
             box = bbox(mask)
-            axis, ratio = POSE_SCALE_BY_CHAR.get(c, {}).get(scale_pose, POSE_SCALE[scale_pose])
+            overrides = POSE_SCALE_BY_CHAR.get(c, {})
+            axis, ratio = overrides.get(pose) or overrides.get(scale_pose) or POSE_SCALE[scale_pose]
             size = (box[3] - box[1]) if axis == "h" else (box[2] - box[0])
             scale = stand_px * ratio / size
             fx = foot_x(mask, box) if not pose.endswith("sleep") else (box[0] + box[2]) / 2

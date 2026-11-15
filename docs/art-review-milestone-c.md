@@ -37,3 +37,21 @@ They were viewed in Drive and look correct (Mischi walk2 frames keep the four-po
 - The 14 missing files are now imported (all 180 expected assets present). Snug, Tinker and Mischi walk2 frames verified in game; Luma's full set verified.
 - Fixes verified in game: `char_mopey_decorated_sleep_v2` (yellow raincoat hood) and `char_pippo_decorated_sleep_v2` (postal cap).
 - Owner decisions: Pippo loses the goggles; Glim reworked to periwinkle blue (brief 08); the tiny umbrella becomes an earnable costume; Mischi's and Hush's wings may become costumes later (on hold, no art change yet).
+
+## Brief 08 review (15 Nov evening) — 73 files, all imported
+| Part | Result |
+|---|---|
+| Pippo (13) | Pass. Knitted beanie with paper-aeroplane badge and rolled map; no goggles anywhere; Decorated keeps postal cap and satchel. |
+| Glim (13) | Pass. Periwinkle blue, no hood, glowing star on the tail; Decorated has the moon clip and starry shawl. Clearly different from Mopey. |
+| Mopey Decorated (5) + umbrella costume (5) | Pass. Decorated is raincoat and hood only; costume holds an open yellow umbrella. Costume sleep enlarged on import to match Mopey's normal sleep size. |
+| Ribbon icon (1) | Pass. Replaces the bow emoji everywhere. |
+| Mischi wingless (13) | Pass. Four-point star, purple stitch and scarf unchanged; Decorated has the one-bell knot and two stitched stars on the scarf. |
+| Hush wingless (13) | Pass. |
+| Wing costumes (10) | Pass, with one note below. Hush's moth wings with moons look clearly different from Mischi's bat wings. |
+
+Integration checks: every pose 1024×1024 with transparency, feet on the shared line, one scale per character; walk → idle → walk2 alternates for all four reworked residents and all three costumes; Wear / Take off switches the art immediately in the room and on the character page.
+
+Importer changes: sleep poses drawn with the head on the left are mirrored so every resident lies the same way in bed (Mischi's new sleeps needed this).
+
+Outstanding:
+1. `char_mischi_costume_wings_idle`, `_walk`, `_sleep` were delivered with a baked-in ground shadow. The importer strips most of it (walk is clean); a faint contact shadow remains under idle and sleep. Optional redraw without shadow.
