@@ -111,3 +111,17 @@ describe('save v3', () => {
     expect(back.purchases).toEqual([]);
   });
 });
+
+describe('invited residents', () => {
+  it('move into the room they were invited to', () => {
+    let s = rich(4);
+    s = ok(s, { type: 'buy_room', roomId: SUNROOM_ID, kind: 'open' });
+    for (const id of ['planter_box', 'potted_fern']) {
+      s = ok(s, { type: 'craft', recipeId: id });
+    }
+    s = ok(s, { type: 'place', roomId: SUNROOM_ID, defId: 'planter_box', col: 3, row: 2 });
+    s = ok(s, { type: 'place', roomId: SUNROOM_ID, defId: 'potted_fern', col: 6, row: 3 });
+    s = ok(s, { type: 'invite', residentId: 'bloomi' });
+    expect(s.residents.bloomi!.room).toBe(SUNROOM_ID);
+  });
+});

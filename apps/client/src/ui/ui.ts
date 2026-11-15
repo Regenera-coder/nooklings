@@ -1,7 +1,12 @@
 import {
   bondProgress,
   canAfford,
+  gatherReadyIn,
   invitationStatus,
+  isRoomOpen,
+  purchaseKey,
+  residentsInRoom,
+  spotUnlocked,
   isUnlocked,
   levelFor,
   nextLevel,
@@ -146,6 +151,7 @@ export class GameUI {
       }
     }
     this.applyInterfaceArt();
+    this.renderRoomTabs();
     window.setInterval(() => this.tick(), 1000);
     this.renderTop();
     this.renderBadges();
@@ -188,6 +194,7 @@ export class GameUI {
     if (tab !== 'nookbook') this.detailId = null;
     this.page.scrollTop = 0;
     this.buildBtn.hidden = tab !== 'home';
+    this.buildBtn.disabled = !isRoomOpen(this.getState(), this.content, this.roomId);
     this.render();
   }
 
@@ -202,6 +209,43 @@ export class GameUI {
   openCharacter(id: string): void {
     this.setTab('nookbook');
     this.openDetail(id);
+  }
+
+  private get roomId(): string {
+    return this.getScene()?.currentRoomId ?? this.content.roomOrder[0]!;
+  }
+
+  showRoom(roomId: string): void {
+    if (this.tab !== 'home') this.setTab('home');
+    if (this.build) this.setBuild(false);
+    this.getScene()?.switchRoom(roomId);
+    this.selection = { kind: 'none' };
+    this.render();
+  }
+
+  private renderRoomTabs(): void {
+    const bar = document.getElementById('room-tabs');
+    if (!bar) return;
+    const s = this.getState();
+    bar.hidden = this.tab !== 'home';
+    bar.replaceChildren();
+    const level = levelFor(s.hearts, this.content);
+    for (const id of this.content.roomOrder) {
+      const room = this.content.rooms[id]!;
+      const open = isRoomOpen(s, this.content, id);
+      // Hide rooms that aren't even unlockable yet, so the bar stays short early on.
+      const unlockLevel = room.access ? this.content.levels.find((l) => l.unlocks.includes(room.access!.unlock))?.level ?? 99 : 1;
+      if (!open && level < unlockLevel) continue;
+      const b = el('button', id === this.roomId ? 'on' : '');
+      b.append(document.createTextNode(open ? room.name : `🔒 ${room.name}`));
+      if (!open && canAfford(s, room.access!.cost)) b.append(el('span', 'dot'));
+      b.addEventListener('click', () => this.showRoom(id));
+      bar.append(b);
+    }
+    if (bar.children.length < 2) bar.hidden = true;
+    const had = document.body.classList.contains('has-rooms');
+    document.body.classList.toggle('has-rooms', !bar.hidden);
+    if (had !== !bar.hidden) this.onLayoutChange();
   }
 
   // ---------- scene and store callbacks ----------
@@ -245,8 +289,26 @@ export class GameUI {
       case 'crafted':
         this.toast(`Crafted ${this.content.furniture[e.furnitureId]?.name ?? 'item'}. It's in your storage.`);
         break;
-      case 'resident_joined':
-        if (e.via === 'invitation') this.toast(`${this.content.residents[e.residentId]?.name} moved in!`, 2600);
+      case 'resident_joined': {
+        const where = this.content.rooms[e.roomId]?.name ?? 'your home';
+        if (e.via === 'invitation') this.toast(`${this.content.residents[e.residentId]?.name} moved into the ${where}!`, 2600);
+        if (e.via === 'expedition') this.toast(`${this.content.residents[e.residentId]?.name} came home with you and moved into the ${where}!`, 3400);
+        break;
+      }
+      case 'room_bought':
+        this.toast(e.kind === 'open' ? `The ${this.content.rooms[e.roomId]?.name} is open!` : `The ${this.content.rooms[e.roomId]?.name} is bigger now!`, 2600);
+        break;
+      case 'gathered':
+        this.toast(`Gathered ${Object.entries(e.yield).map(([k, v]) => `${v} ${CURRENCY[k as Currency].name}`).join(', ')}`);
+        break;
+      case 'expedition_started':
+        this.toast(`${this.content.residents[e.residentId]?.name} set off to ${this.content.expeditions[e.routeId]?.name}`, 2400);
+        break;
+      case 'expedition_done':
+        this.toast(`${this.content.residents[e.residentId]?.name} is back from ${this.content.expeditions[e.routeId]?.name}!`, 2400);
+        break;
+      case 'resident_moved':
+        this.toast(`${this.content.residents[e.residentId]?.name} now lives in the ${this.content.rooms[e.roomId]?.name}`);
         break;
       case 'task_claimed':
         this.toast('Reward collected');
@@ -273,8 +335,9 @@ export class GameUI {
 
   private tick(): void {
     const hasCountdown =
-      (this.tab === 'home' && this.selection.kind === 'resident') || (this.tab === 'nookbook' && this.detailId !== null);
+      (this.tab === 'home' && this.selection.kind === 'resident') || (this.tab === 'nookbook' && this.detailId !== null) || this.tab === 'explore';
     if (hasCountdown && !this.revealing) this.render();
+    else this.renderBadges();
   }
 
   private async toggleFullscreen(): Promise<void> {
@@ -295,6 +358,8 @@ export class GameUI {
 
   private render(): void {
     this.renderTop();
+    this.renderRoomTabs();
+    this.buildBtn.disabled = !isRoomOpen(this.getState(), this.content, this.roomId);
     this.renderBadges();
     this.renderPanel();
     this.page.hidden = this.tab === 'home';
@@ -325,7 +390,11 @@ export class GameUI {
     const tasksDue =
       taskStates(s, this.content).some((t) => t.status === 'claimable') ||
       Object.keys(this.content.invitations).some((id) => invitationStatus(s, this.content, id)?.ready);
-    const parcelDue = Object.values(this.content.parcels).some((p) => poolCanOpen(s, this.content, p));
+    const now = Date.now();
+    const parcelDue =
+      Object.values(this.content.parcels).some((p) => poolCanOpen(s, this.content, p)) ||
+      Object.keys(this.content.gatherSpots).some((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0) ||
+      (!!s.expedition && s.expedition.endAt <= now);
     const bookDue = s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug');
     const set = (tab: Tab, on: boolean) => {
       const b = document.querySelector<HTMLElement>(`#rail .tab[data-tab="${tab}"] .badge`);
@@ -343,7 +412,10 @@ export class GameUI {
     const wasHidden = panel.hidden;
     panel.replaceChildren();
     let show = false;
-    if (this.tab === 'home' && this.build) {
+    if (this.tab === 'home' && !isRoomOpen(this.getState(), this.content, this.roomId)) {
+      show = true;
+      this.renderLockedRoom(panel, this.roomId);
+    } else if (this.tab === 'home' && this.build) {
       show = true;
       if (this.pending) this.renderPending(panel, this.pending);
       else this.renderTray(panel);
@@ -358,17 +430,50 @@ export class GameUI {
     if (wasHidden !== panel.hidden) this.onLayoutChange();
   }
 
+  private renderLockedRoom(panel: HTMLElement, roomId: string): void {
+    const s = this.getState();
+    const room = this.content.rooms[roomId]!;
+    const access = room.access!;
+    panel.append(el('h2', '', room.name));
+    const unlocked = isUnlocked(s, this.content, access.unlock);
+    const lvl = this.content.levels.find((l) => l.unlocks.includes(access.unlock))?.level;
+    panel.append(el('p', 'sub', unlocked ? `Open the ${room.name} to decorate it and give residents more space.` : `Opens at Home Level ${lvl}.`));
+    const req = el('div', 'req');
+    const cost = el('span', canAfford(s, access.cost) ? 'ok' : 'no');
+    cost.append(...costChips(access.cost, ''));
+    req.append(cost);
+    panel.append(req);
+    const acts = el('div', 'acts');
+    acts.append(button(`Open the ${room.name}`, 'act primary wide', () => this.run({ type: 'buy_room', roomId, kind: 'open' }), !unlocked));
+    panel.append(acts);
+    panel.append(el('p', 'hint', 'Tip: the Yard has a woodpile and a berry bush you can gather from in Explore.'));
+  }
+
   private renderTray(panel: HTMLElement): void {
     const s = this.getState();
-    panel.append(el('h2', '', 'Build'));
+    const room = this.content.rooms[this.roomId]!;
+    panel.append(el('h2', '', `Build · ${room.name}`));
     panel.append(el('p', 'sub', 'Tap an item to place it, or tap furniture in the room to move it.'));
+    if (room.walls === false) panel.append(el('p', 'hint', 'Outdoors: no wall items here.'));
+    if (room.expansion && !s.purchases.includes(purchaseKey(room.id, 'expand'))) {
+      const unlocked = isUnlocked(s, this.content, room.expansion.unlock);
+      const lvl = this.content.levels.find((l) => l.unlocks.includes(room.expansion!.unlock))?.level;
+      const card = el('div', 'req');
+      const cost = el('span', canAfford(s, room.expansion.cost) ? 'ok' : 'no');
+      cost.append(...costChips(room.expansion.cost, ''));
+      card.append(el('span', unlocked ? 'ok' : 'no', `Expand: Home Level ${lvl}`), cost);
+      panel.append(card);
+      panel.append(button(`Expand the ${room.name}`, 'btn', () => this.run({ type: 'buy_room', roomId: room.id, kind: 'expand' }), !unlocked));
+    }
 
     panel.append(el('h3', '', 'Craft'));
     if (!isUnlocked(s, this.content, 'crafting')) {
       panel.append(el('p', 'hint', 'Crafting unlocks at Home Level 2.'));
     } else {
       const tray = el('div', 'tray');
-      for (const r of Object.values(this.content.recipes)) {
+      const level = levelFor(s.hearts, this.content);
+      const later = Object.values(this.content.recipes).filter((r) => r.requiresLevel > level);
+      for (const r of Object.values(this.content.recipes).filter((r) => r.requiresLevel <= level)) {
         const def = this.content.furniture[r.furnitureId]!;
         const affordable = canAfford(s, r.cost);
         const b = el('button', `chip${affordable ? '' : ' empty'}`);
@@ -382,10 +487,12 @@ export class GameUI {
         tray.append(b);
       }
       panel.append(tray);
+      if (later.length) panel.append(el('p', 'hint', `${later.length} more recipes unlock at higher Home Levels.`));
     }
 
     const inv = s.inventory;
     for (const group of GROUPS) {
+      if (group.layer === 'wall' && room.walls === false) continue;
       const defs = Object.values(this.content.furniture).filter((d) => d.layer === group.layer && (inv[d.id] ?? 0) > 0);
       panel.append(el('h3', '', group.label));
       if (defs.length === 0) {
@@ -444,7 +551,7 @@ export class GameUI {
     img.src = portraitUrl(def, { decorated: owned.form === 'decorated' });
     img.alt = '';
     const names = el('div');
-    names.append(el('h2', '', def.name), el('p', 'sub', `${def.rarity} · ${status}`));
+    names.append(el('h2', '', def.name), el('p', 'sub', `${def.rarity} · ${status} · ${this.content.rooms[owned.room]?.name ?? ''}`));
     mini.append(img, names);
     panel.append(mini);
     const bond = bondProgress(owned.bondXp, this.content);
@@ -460,6 +567,7 @@ export class GameUI {
   private playButton(id: string, cls: string): HTMLButtonElement {
     const wait = playReadyAt(this.getState(), this.content, id) - Date.now();
     const def = this.content.residents[id]!;
+    if (this.getState().expedition?.residentId === id) return button(`${def.name} is exploring`, cls, () => undefined, true);
     return button(wait > 0 ? `Play in ${seconds(wait)}` : `Play with ${def.name}`, cls, () => {
       this.run({ type: 'play', residentId: id, at: Date.now() });
     }, wait > 0);
@@ -485,16 +593,29 @@ export class GameUI {
       img.style.cssText = 'width:52px;height:52px;border-radius:10px;background:#f3e4ec;object-fit:contain';
       const body = el('div', 'grow');
       body.append(el('h3', '', st.levelOk ? `Invitation: ${def.name}` : 'Invitation: ???'));
+      if (!st.levelOk && st.def.requiresLevel > levelFor(s.hearts, this.content) + 1) {
+        // Only tease the next level's invitation; later ones stay off the page.
+        continue;
+      }
       body.append(el('p', '', st.levelOk ? `${st.def.welcomeText} Once the room is right, ${def.name} is guaranteed to join.` : `Unlocks at Home Level ${st.def.requiresLevel}.`));
       const req = el('div', 'req');
       req.append(el('span', st.levelOk ? 'ok' : 'no', `Home Level ${st.def.requiresLevel}`));
-      for (const a of st.atmosphere) req.append(el('span', a.ok ? 'ok' : 'no', `${a.tag} ${a.have}/${a.need}`));
+      const roomName = this.content.rooms[st.def.roomId]?.name ?? '';
+      if (!st.roomOpen) req.append(el('span', 'no', `Open the ${roomName}`));
+      for (const a of st.atmosphere) req.append(el('span', a.ok ? 'ok' : 'no', `${roomName}: ${a.tag} ${a.have}/${a.need}`));
+      for (const p of st.placed) req.append(el('span', p.ok ? 'ok' : 'no', `${this.content.furniture[p.furnitureId]?.name} placed`));
+      const friendsOk = st.friends.filter((f) => f.ok).length;
+      if (st.friends.length) req.append(el('span', friendsOk === st.friends.length ? 'ok' : 'no', `Friends ${friendsOk}/${st.friends.length}`));
       const gift = el('span', st.giftOk ? 'ok' : 'no');
       gift.append(...costChips(st.def.welcomeGift, ''));
       gift.prepend(document.createTextNode('Gift: '));
       req.append(gift);
       body.append(req);
-      row.append(img, body, button('Invite', 'btn primary', () => this.run({ type: 'invite', residentId: id }), !st.ready));
+      const cell = el('div', 'actions');
+      cell.style.flexDirection = 'column';
+      cell.append(button('Invite', 'btn primary', () => this.run({ type: 'invite', residentId: id }), !st.ready));
+      if (st.levelOk && st.roomOpen && !st.ready) cell.append(button('Decorate', 'btn', () => { this.showRoom(st.def.roomId); this.setBuild(true); }));
+      row.append(img, body, cell);
       card.append(row);
       this.page.append(card);
     }
@@ -509,7 +630,7 @@ export class GameUI {
       this.page.append(this.taskCard(def, status));
     }
     const doneCount = all.filter((t) => t.status === 'claimed').length;
-    if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'All Milestone B tasks done. More arrive with Home Levels 4 to 10.'));
+    if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'Every task is done. Your home is complete!'));
   }
 
   private taskCard(def: TaskDef, status: string): HTMLElement {
@@ -525,18 +646,19 @@ export class GameUI {
     }
     row.append(body);
     if (status === 'claimable') row.append(button('Claim', 'btn primary', () => this.run({ type: 'claim_task', taskId: def.id })));
-    else if (status === 'active' && def.goTo) row.append(button('Go', 'btn', () => this.go(def.goTo!)));
+    else if (status === 'active' && def.goTo) row.append(button('Go', 'btn', () => this.go(def.goTo!, taskRoom(def))));
     else if (status === 'claimed') row.append(el('span', 'muted', 'Done'));
     card.append(row);
     return card;
   }
 
-  private go(target: NonNullable<TaskDef['goTo']>): void {
+  private go(target: NonNullable<TaskDef['goTo']>, roomId?: string): void {
     if (target === 'build') {
       this.setTab('home');
-      this.setBuild(true);
+      if (roomId) this.showRoom(roomId);
+      if (isRoomOpen(this.getState(), this.content, this.roomId)) this.setBuild(true);
     } else if (target === 'nookbook') this.setTab('nookbook');
-    else if (target === 'parcels') this.setTab('explore');
+    else if (target === 'parcels' || target === 'explore') this.setTab('explore');
     else this.page.scrollTop = 0;
   }
 
@@ -623,7 +745,7 @@ export class GameUI {
       bondCell.append(bondHearts(bond.level), document.createTextNode(bond.span ? `  ${bond.into}/${bond.span} to next` : '  Max'));
       add('Bond', bondCell);
       add('Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
-      add('Lives in', 'Living Room');
+      add('Lives in', this.homePicker(id, owned.room));
       info.append(kv, el('p', 'story', def.story));
       const actions = el('div', 'actions');
       actions.append(this.playButton(id, 'btn primary'));
@@ -647,6 +769,110 @@ export class GameUI {
     this.page.append(wrap);
   }
 
+  private homePicker(id: string, current: string): HTMLElement {
+    const s = this.getState();
+    const select = el('select', 'pick');
+    for (const roomId of this.content.roomOrder) {
+      if (!isRoomOpen(s, this.content, roomId)) continue;
+      const count = residentsInRoom(s, roomId).length;
+      const full = roomId !== current && count >= this.content.rules.maxResidentsPerRoom;
+      const opt = el('option', '', `${this.content.rooms[roomId]!.name} (${count}/${this.content.rules.maxResidentsPerRoom})${full ? ' · full' : ''}`);
+      opt.value = roomId;
+      opt.disabled = full;
+      opt.selected = roomId === current;
+      select.append(opt);
+    }
+    select.addEventListener('change', () => this.run({ type: 'move_resident', residentId: id, roomId: select.value }));
+    return select;
+  }
+
+  // ---------- Explore: gathering, expeditions and Mystery Parcels ----------
+
+  private renderGathering(): void {
+    const s = this.getState();
+    const now = Date.now();
+    const card = el('div', 'card');
+    card.append(el('h3', '', 'Gathering in the Yard'));
+    for (const spot of Object.values(this.content.gatherSpots)) {
+      const row = el('div', 'spot-row');
+      const thumb = cardArt(`spot_${spot.id}`);
+      if (thumb) row.append(thumb);
+      const body = el('div', 'grow');
+      body.append(el('b', '', spot.name));
+      const yieldLine = el('div', 'rewards');
+      yieldLine.append(...costChips(spot.yield));
+      body.append(yieldLine);
+      row.append(body);
+      if (!spotUnlocked(s, this.content, spot.id)) {
+        const lvl = spot.requiresUnlock ? this.content.levels.find((l) => l.unlocks.includes(spot.requiresUnlock!))?.level : undefined;
+        row.append(el('span', 'muted', lvl ? `Home Level ${lvl}` : 'Locked'));
+      } else {
+        const wait = gatherReadyIn(s, this.content, spot.id, now);
+        row.append(wait > 0 ? el('span', 'timer', `Ready in ${clock(wait)}`) : button('Gather', 'btn primary', () => this.run({ type: 'gather', spotId: spot.id, at: Date.now() })));
+      }
+      card.append(row);
+    }
+    this.page.append(card);
+  }
+
+  private tripResident = '';
+
+  private renderExpeditions(): void {
+    const s = this.getState();
+    const now = Date.now();
+    const card = el('div', 'card');
+    card.append(el('h3', '', 'Expeditions'));
+    if (!isUnlocked(s, this.content, 'expeditions')) {
+      const lvl = this.content.levels.find((l) => l.unlocks.includes('expeditions'))?.level;
+      card.append(el('p', '', `Send a resident on a little trip for Keepsakes. Unlocks at Home Level ${lvl}.`));
+      this.page.append(card);
+      return;
+    }
+    const trip = s.expedition;
+    if (trip) {
+      const route = this.content.expeditions[trip.routeId]!;
+      const who = this.content.residents[trip.residentId]!.name;
+      const left = trip.endAt - now;
+      card.append(el('p', '', left > 0 ? `${who} is exploring ${route.name}.` : `${who} is back from ${route.name}!`));
+      const bar = el('div', 'trip-bar');
+      const fill = el('span');
+      fill.style.width = `${Math.min(100, Math.max(0, ((now - trip.startAt) / (trip.endAt - trip.startAt)) * 100))}%`;
+      bar.append(fill);
+      card.append(bar);
+      card.append(left > 0 ? el('p', 'timer', `Home in ${clock(left)}`) : button('Welcome home', 'btn primary', () => this.run({ type: 'collect_expedition', at: Date.now() })));
+      this.page.append(card);
+      return;
+    }
+    const owned = s.residentOrder;
+    if (!owned.includes(this.tripResident)) this.tripResident = owned[0] ?? '';
+    const pickRow = el('div', 'spot-row');
+    pickRow.append(el('span', 'grow', 'Who goes?'));
+    const select = el('select', 'pick');
+    for (const id of owned) {
+      const opt = el('option', '', this.content.residents[id]!.name);
+      opt.value = id;
+      opt.selected = id === this.tripResident;
+      select.append(opt);
+    }
+    select.addEventListener('change', () => { this.tripResident = select.value; });
+    pickRow.append(select);
+    card.append(pickRow);
+    for (const route of Object.values(this.content.expeditions)) {
+      const row = el('div', 'spot-row');
+      const thumb = cardArt(`exp_${route.id}`);
+      if (thumb) row.append(thumb);
+      const body = el('div', 'grow');
+      body.append(el('b', '', `${route.name} · ${Math.round(route.durationMs / 60_000)} min`), el('p', '', route.description));
+      const rewards = el('div', 'rewards');
+      rewards.append(...costChips(route.reward));
+      if (route.firstTimeResident && !s.expeditionsDone[route.id] && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
+      body.append(rewards);
+      row.append(body, button('Send', 'btn primary', () => this.run({ type: 'start_expedition', routeId: route.id, residentId: this.tripResident, at: Date.now() })));
+      card.append(row);
+    }
+    this.page.append(card);
+  }
+
   // ---------- Explore: Mystery Parcels ----------
 
   private renderExplore(): void {
@@ -654,6 +880,8 @@ export class GameUI {
     const head = el('div', 'page-h');
     head.append(el('h2', '', 'Explore'));
     this.page.append(head);
+    this.renderGathering();
+    this.renderExpeditions();
     for (const pool of Object.values(this.content.parcels)) {
       const card = el('div', 'card');
       if (!isUnlocked(s, this.content, pool.requiresUnlock)) {
@@ -698,9 +926,6 @@ export class GameUI {
       card.append(wrap);
       this.page.append(card);
     }
-    const exp = el('div', 'card');
-    exp.append(el('h3', '', 'Expeditions'), el('p', '', 'Gathering and short expeditions arrive in Milestone C.'));
-    this.page.append(exp);
   }
 
   private parcelArt(key: 'parcel_closed' | 'parcel_open'): HTMLElement {
@@ -772,7 +997,7 @@ export class GameUI {
       img.alt = '';
       art = img;
       if (record.duplicate) lines.push(`You already have ${title}.`, `+${e.threadGranted} Mending Thread`);
-      else lines.push('New resident!', `${title} moved into your Living Room.`);
+      else lines.push('New resident!', `${title} moved into your ${this.content.rooms[this.getState().residents[record.id]?.room ?? '']?.name ?? 'home'}.`);
       if (record.guaranteed) lines.push('Your guaranteed first parcel.');
     } else {
       const furl = artUrl(`furn_${record.id}`);
@@ -819,7 +1044,38 @@ function errorText(error: string): string {
       return 'Not ready yet';
     case 'already_done':
       return 'Already done';
+    case 'room_full':
+      return 'That room is full (4 residents)';
+    case 'busy':
+      return 'Someone is already exploring';
+    case 'away':
+      return "They're away exploring";
     default:
       return reasonText(error);
   }
+}
+
+function clock(ms: number): string {
+  const total = Math.max(1, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`;
+}
+
+/** The room a task is about, so "Go" can take the player straight there. */
+function taskRoom(def: TaskDef): string | undefined {
+  const c = def.condition;
+  if (c.kind === 'placed' || c.kind === 'room_items') return c.roomId;
+  if (c.kind === 'purchased') return c.key.split(':')[0];
+  return undefined;
+}
+
+/** Small square scene art for Explore rows, once ChatGPT delivers it. */
+function cardArt(key: string): HTMLElement | null {
+  const url = artUrl(key);
+  if (!url) return null;
+  const img = el('img', 'card-thumb');
+  img.src = url;
+  img.alt = '';
+  return img;
 }

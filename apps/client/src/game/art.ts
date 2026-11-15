@@ -126,12 +126,21 @@ export function drawFurniture(
         top = -s * 0.62;
         break;
       }
-      default: {
+      case 'picture_frame': {
         g.fillStyle(WOOD, 1).fillRoundedRect(-s * 0.32, -s * 0.38, s * 0.64, s * 0.62, 3);
         g.fillStyle(0xfdf3e3, 1).fillRect(-s * 0.24, -s * 0.3, s * 0.48, s * 0.46);
         g.fillStyle(0xf2b5c4, 1).fillCircle(-s * 0.06, -s * 0.1, s * 0.07).fillCircle(s * 0.06, -s * 0.1, s * 0.07);
         g.fillTriangle(-s * 0.13, -s * 0.07, s * 0.13, -s * 0.07, 0, s * 0.08);
         top = -s * 0.38;
+        break;
+      }
+      default: {
+        // Labelled stand-in until production art arrives, tinted by its main atmosphere tag.
+        const tint = tagTint(def);
+        g.fillStyle(tint, 1).fillRoundedRect(-wpx / 2 + pad, -s * 0.4, wpx - pad * 2, s * 0.72, 6);
+        g.fillStyle(0xffffff, 0.35).fillRoundedRect(-wpx / 2 + pad + 3, -s * 0.36, wpx - pad * 2 - 6, s * 0.2, 4);
+        c.add(label(scene, def.name, wpx - pad * 2, s));
+        top = -s * 0.4;
       }
     }
     if (p.flipped) g.setScale(-1, 1);
@@ -243,7 +252,11 @@ export function drawFurniture(
       break;
     }
     default: {
-      box(g, x0, x1, back, front, h, WOOD_LIGHT, WOOD);
+      const tint = tagTint(def);
+      box(g, x0, x1, back, front, h, lighten(tint), tint);
+      const t = label(scene, def.name, x1 - x0, cw);
+      t.setY(front - h * 0.5);
+      c.add(t);
       top = back - h;
     }
   }
@@ -408,4 +421,32 @@ export function drawResident(g: G, def: ResidentDef, s: number, pose: DrawPose, 
   else if (def.id === 'mischi') drawMischi(g, s, pose);
   else drawGeneric(g, s, pose, def);
   if (decorated) drawDecoration(g, s, pose);
+}
+
+const TAG_TINTS: Record<string, number> = {
+  Natural: 0x8dbf6a, Rainy: 0x7fa9d6, Calm: 0xa99bd6, Dreamy: 0x9b7fd0, Warm: 0xe0a46a, Playful: 0xe98fb0, Crafty: 0xc79a6a,
+};
+
+function tagTint(def: FurnitureDef): number {
+  const main = Object.entries(def.tags).sort((a, b) => b[1] - a[1])[0]?.[0];
+  return (main && TAG_TINTS[main]) || 0xc79a6a;
+}
+
+function lighten(color: number): number {
+  const r = (color >> 16) & 255, g = (color >> 8) & 255, b = color & 255;
+  const up = (v: number) => Math.min(255, Math.round(v + (255 - v) * 0.35));
+  return (up(r) << 16) | (up(g) << 8) | up(b);
+}
+
+function label(scene: Phaser.Scene, text: string, width: number, cell: number): Phaser.GameObjects.Text {
+  return scene.add
+    .text(0, 0, text, {
+      fontFamily: 'system-ui, sans-serif',
+      fontSize: `${Math.max(9, Math.round(cell * 0.2))}px`,
+      fontStyle: 'bold',
+      color: '#3b2a40',
+      align: 'center',
+      wordWrap: { width: Math.max(20, width - 4) },
+    })
+    .setOrigin(0.5, 0.5);
 }

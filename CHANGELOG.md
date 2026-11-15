@@ -2,6 +2,29 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.3.0 — Milestone C: the whole First Residents series (15 Nov 2026), local commits only, not pushed or deployed
+
+### Implemented
+- Home Levels 4 to 10 (Gardening, Bigger yard, Rainy-day decor, Expeditions, Tranquil decor, Heirloom restoring, Wishing Lantern).
+- Two new rooms: the **Sunroom** (opens at Level 3 for 300 Buttons + 25 Wood) and the **Yard** (open from the start at 8 columns; expands to 14 at Level 5 for 500 Buttons + 40 Wood). The Yard is outdoors, so it has no wall items. Room switcher under the room.
+- All ten First Residents can be earned without parcels or money: invitations for Bloomi, Glim, Mopey, Hush, Patcha and Luma (secret, needs every other resident and the Wishing Lantern); Pippo comes home from the first trip to the Old Mill.
+- Gathering in the Yard (Woodpile, Button Berry Bush, Cotton Patch from Level 4) with cooldowns.
+- Expeditions (Clover Meadow 3 min, The Old Mill 10 min): one resident at a time, who is away from home and can't be played with until they return. New currency: Keepsakes.
+- 13 new furniture recipes, including the Heirloom Chest (Keepsakes) and the Wishing Lantern.
+- Residents live in a room (up to 4 per room); invited residents move into the room they were invited to; "Lives in" picker on each character page.
+- 13 new tasks continuing the chain to Level 10; Task "Go" buttons take you to the right room.
+- Save format v3 with migration from v2 (existing residents move into the Living Room).
+- Whole-game simulation test: a patient player with no money and no lucky parcels reaches Level 10 with all ten residents and every task done (about 50 minutes of non-stop play in the simulation).
+- Importer ready for the Milestone C art (brief 07): seven new residents, three room backgrounds, 13 furniture items, Keepsake icon and five Explore cards. It now refuses to run against an empty folder.
+
+### Placeholder
+- New furniture, the Sunroom and Yard, and the seven new residents are drawn as simple coloured stand-ins (furniture is labelled) until the brief 07 art arrives.
+- Decorated upgrade is available for every resident, but only Snug, Tinker and Mischi have Decorated art.
+
+### Planned
+- Tuning of the level pace after the phone playtest.
+- Gathering spots drawn in the Yard (currently in Explore only).
+
 ## 0.2.2 — Milestone B art revisions (15 Nov 2026), local commit only, not pushed or deployed
 
 ### Implemented

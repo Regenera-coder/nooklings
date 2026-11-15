@@ -34,20 +34,30 @@ ROOT = Path(__file__).resolve().parent.parent
 NORMALIZED = ROOT / "art" / "normalized"
 GAME = ROOT / "apps" / "client" / "public" / "assets"
 
-CHARACTERS = ["snug", "tinker", "mischi"]
+CHARACTERS = ["snug", "tinker", "mischi", "bloomi", "glim", "mopey", "pippo", "hush", "patcha", "luma"]
+# Decorated poses exist only for the Milestone B residents so far; others are optional.
+DECORATED_CHARACTERS = ["snug", "tinker", "mischi"]
 POSES = ["master", "idle", "walk", "sit", "sleep", "happy", "portrait", "decorated_idle", "decorated_walk", "decorated_sit", "decorated_sleep"]
 FURNITURE = [
     "cloud_bed", "cozy_sofa", "bookshelf", "workbench", "floor_lamp", "side_table", "potted_fern",
     "toy_chest", "star_rug", "round_window", "moon_lantern", "soft_curtains", "picture_frame",
+    # Milestone C
+    "tea_table", "reading_chair", "planter_box", "hanging_plant", "bird_bath", "garden_bench", "rain_window",
+    "rain_chime", "travel_trunk", "paper_lanterns", "zen_stones", "heirloom_chest", "wishing_lantern",
 ]
-ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart"]
+# Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
+ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
+# Square scene cards for Explore (gathering spots and expedition routes).
+CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill"]
+ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake"]
 EXPECTED = (
-    [f"char_{c}_{p}" for c in CHARACTERS for p in POSES]
-    + ["room_living_background"]
+    [f"char_{c}_{p}" for c in CHARACTERS for p in POSES if not p.startswith("decorated_") or c in DECORATED_CHARACTERS]
+    + [f"room_{r}_background" for r in ROOMS]
     + [f"furn_{f}" for f in FURNITURE]
     + ["ui_panel", "ui_button", "ui_button_primary"]
     + [f"icon_{i}" for i in ICONS]
     + ["parcel_closed", "parcel_open"]
+    + CARDS
 )
 
 # Character poses: size relative to the standing height. Standing poses share one
@@ -151,6 +161,10 @@ def main() -> int:
         print(__doc__)
         return 2
     src = Path(args[0])
+    if not src.is_dir() or not any(src.glob("*.png")):
+        # Guard: the importer clears the game folder, so never run it against an empty or wrong path.
+        print(f"No PNG files found in {src}. Nothing changed.")
+        return 2
     report_path = Path(args[args.index("--report") + 1]) if "--report" in args else None
 
     exclude_file = ROOT / "art" / "import-exclude.txt"
@@ -251,7 +265,7 @@ def main() -> int:
         save(out.resize((128, 128), Image.LANCZOS), GAME / f"{key}.png")
         record(key, img, out)
 
-    for key in ["parcel_closed", "parcel_open"]:
+    for key in ["parcel_closed", "parcel_open", *CARDS]:
         if key not in best:
             continue
         img = load(best[key][1])
@@ -269,13 +283,26 @@ def main() -> int:
         save(out, GAME / f"{key}.png")
         record(key, img, out, "stretched to brief frame")
 
-    if "room_living_background" in best:
-        key = "room_living_background"
+    for room, (rw, rh) in ROOMS.items():
+        key = f"room_{room}_background"
+        if key not in best:
+            continue
         img = Image.open(best[key][1]).convert("RGB")
-        out = img.resize((2400, 1040), Image.LANCZOS)
+        # Centre-crop to the room's proportions first so nothing is stretched.
+        target = rw / rh
+        if abs(img.width / img.height - target) / target < 0.04:
+            img_c = img  # close enough: resize as before
+        elif img.width / img.height > target:
+            cw = round(img.height * target)
+            img_c = img.crop(((img.width - cw) // 2, 0, (img.width - cw) // 2 + cw, img.height))
+        else:
+            ch = round(img.width / target)
+            img_c = img.crop((0, (img.height - ch) // 2, img.width, (img.height - ch) // 2 + ch))
+        out = img_c.resize((rw, rh), Image.LANCZOS)
         save(out, NORMALIZED / f"{key}.png")
-        out.resize((1920, 832), Image.LANCZOS).save(GAME / f"{key}.png", optimize=True)
-        record(key, img, out.convert("RGBA"), "upscaled from source; game copy 1920×832")
+        gw, gh = round(rw * 0.8), round(rh * 0.8)
+        out.resize((gw, gh), Image.LANCZOS).save(GAME / f"{key}.png", optimize=True)
+        record(key, img, out.convert("RGBA"), f"fitted to room proportions; game copy {gw}×{gh}")
 
     (GAME / "anchors.json").write_text(json.dumps(anchors, indent=2) + "\n")
     subprocess.run(["node", str(ROOT / "tools" / "build-asset-manifest.mjs")], check=True)

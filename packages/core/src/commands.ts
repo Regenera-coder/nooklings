@@ -105,8 +105,18 @@ function addHearts(d: Draft, amount: number, content: Content): void {
   for (let l = before + 1; l <= after; l++) d.events.push({ type: 'level_up', level: l });
 }
 
-function grantResident(d: Draft, content: Content, residentId: string, via: 'invitation' | 'parcel' | 'expedition'): void {
-  const room = homeForNewResident(d.state, content);
+function grantResident(
+  d: Draft,
+  content: Content,
+  residentId: string,
+  via: 'invitation' | 'parcel' | 'expedition',
+  preferredRoom?: string,
+): void {
+  // Invited residents move into the room they were invited to, if it has space.
+  const room =
+    preferredRoom && isRoomOpen(d.state, content, preferredRoom) && residentsInRoom(d.state, preferredRoom).length < content.rules.maxResidentsPerRoom
+      ? preferredRoom
+      : homeForNewResident(d.state, content);
   d.state = {
     ...d.state,
     residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, room } },
@@ -220,7 +230,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!status.giftOk) return fail('cannot_afford');
       if (!status.ready) return fail('not_ready');
       d.state = { ...state, wallet: addCost(state.wallet, status.def.welcomeGift, -1) };
-      grantResident(d, content, cmd.residentId, 'invitation');
+      grantResident(d, content, cmd.residentId, 'invitation', status.def.roomId);
       return done();
     }
 

@@ -197,3 +197,20 @@ body.ui-art .btn:disabled { opacity: .5; filter: grayscale(.4); }
 .reveal-parcel.opened { animation: burst .55s ease-out; }
 @keyframes burst { from { transform: scale(1.18); } 50% { transform: scale(1.32); } to { transform: scale(1.25); } }
 .card .muted { color: var(--panel-soft); }
+
+/* Milestone C: room switcher floating over the room */
+#room-tabs { position: absolute; left: 8px; bottom: 4px; display: flex; gap: 6px; z-index: 5; }
+#room-tabs[hidden] { display: none; }
+#room-tabs button { font: inherit; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 2px solid #fff4dc;
+  background: rgba(59, 42, 64, 0.82); color: #fff4dc; display: flex; align-items: center; gap: 4px; min-height: 32px; }
+#room-tabs button.on { background: #ffd27a; color: #3b2a40; }
+#room-tabs button .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff7a8a; }
+.spot-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px dashed #e6d3c0; }
+.spot-row:first-of-type { border-top: 0; }
+.spot-row .grow { flex: 1; }
+.timer { font-variant-numeric: tabular-nums; color: #8a6f7c; font-size: 12px; }
+.trip-bar { height: 8px; border-radius: 6px; background: #efe1d2; overflow: hidden; margin: 6px 0; }
+.trip-bar span { display: block; height: 100%; background: #9bcb6b; }
+select.pick { font: inherit; padding: 6px 8px; border-radius: 10px; border: 2px solid #e6d3c0; background: #fffaf2; }
+body.has-rooms #stage { bottom: 40px; }
+.card-thumb { width: 56px; height: 56px; object-fit: contain; border-radius: 10px; background: #fff4e4; }

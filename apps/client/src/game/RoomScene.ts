@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { blockedGrid, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
+import { blockedGrid, effectiveRoom, isRoomOpen, residentsAtHome, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
 import type { GameStore } from '../store';
 import { allArt } from '../assets';
 import { drawFurniture, type DrawnItem } from './art';
@@ -63,8 +63,33 @@ export class RoomScene extends Phaser.Scene {
     this.reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   }
 
+  /** The room as it can be used now (a yard before its expansion is narrower). */
   private get room() {
+    return effectiveRoom(this.store.state, this.store.content, this.roomId)!;
+  }
+
+  /** The full room, used for drawing so a locked expansion area is still visible. */
+  private get fullRoom() {
     return this.store.content.rooms[this.roomId]!;
+  }
+
+  get currentRoomId(): string {
+    return this.roomId;
+  }
+
+  /** Show another room: residents who live there walk around it, everyone else stays put. */
+  switchRoom(roomId: string): void {
+    if (roomId === this.roomId || !this.store.content.rooms[roomId]) return;
+    this.cancelPending();
+    for (const r of this.residents) r.container.destroy();
+    this.residents = [];
+    this.claims.clear();
+    this.roomId = roomId;
+    this.layout = computeLayout(this.fullRoom, this.scale.width, this.scale.height);
+    this.blocked = blockedGrid(this.room, this.placements, this.store.content);
+    this.select({ kind: 'none' });
+    this.syncResidents(null);
+    this.redrawAll();
   }
 
   private get placements(): readonly Placement[] {
@@ -83,7 +108,7 @@ export class RoomScene extends Phaser.Scene {
     this.roomImage = this.add.image(0, 0, '__DEFAULT').setOrigin(0, 0).setDepth(1).setVisible(false);
     this.gridGfx = this.add.graphics().setDepth(12);
     this.ghostCells = this.add.graphics().setDepth(13);
-    this.layout = computeLayout(this.room, this.scale.width, this.scale.height);
+    this.layout = computeLayout(this.fullRoom, this.scale.width, this.scale.height);
     this.blocked = blockedGrid(this.room, this.placements, this.store.content);
 
     this.syncResidents(null);
@@ -186,15 +211,17 @@ export class RoomScene extends Phaser.Scene {
 
   private onResize(size: Phaser.Structs.Size): void {
     this.cameras.main.setSize(size.width, size.height);
-    this.layout = computeLayout(this.room, size.width, size.height);
+    this.layout = computeLayout(this.fullRoom, size.width, size.height);
     for (const r of this.residents) r.setLayout(this.layout);
     this.redrawAll();
   }
 
-  /** Residents shown in the room: owned ones in join order, up to the active cap. */
+  /** Residents shown: those who live in this room and are at home, up to the room cap. */
   private syncResidents(joined: string | null): void {
     const state = this.store.state;
-    const active = state.residentOrder.slice(0, this.store.content.rules.maxActiveResidents);
+    const active = isRoomOpen(state, this.store.content, this.roomId)
+      ? residentsAtHome(state, this.roomId).slice(0, this.store.content.rules.maxResidentsPerRoom)
+      : [];
     this.residents = this.residents.filter((r) => {
       if (active.includes(r.def.id)) return true;
       r.container.destroy();
@@ -221,8 +248,9 @@ export class RoomScene extends Phaser.Scene {
     this.blocked = blockedGrid(this.room, this.placements, this.store.content);
     this.redrawFurniture();
     const now = this.time.now;
-    for (const e of events) if (e.type === 'resident_joined') this.syncResidents(e.residentId);
-    if (events.length === 0) this.syncResidents(null);
+    const entering = events.find((e) => e.type === 'resident_joined' || e.type === 'resident_moved' || e.type === 'expedition_done');
+    this.syncResidents(entering && 'residentId' in entering ? entering.residentId : null);
+    if (events.some((e) => e.type === 'room_bought')) this.redrawAll();
     for (const r of this.residents) {
       r.setDecorated(this.store.state.residents[r.def.id]?.form === 'decorated');
       r.onLayoutChanged(this.world(), now);
@@ -300,15 +328,90 @@ export class RoomScene extends Phaser.Scene {
   private drawRoom(): void {
     const g = this.roomGfx;
     const l = this.layout;
-    const room = this.room;
+    const room = this.fullRoom;
     g.clear();
     const frame = Math.max(6, l.cw * 0.18);
-    g.fillStyle(0x6d4b33, 1).fillRoundedRect(l.ox - frame, l.wallTop - frame, l.width + frame * 2, l.wallH + l.floorH + frame * 2, 10);
-    if (this.textures.exists('room_living_background')) {
-      this.roomImage.setTexture('room_living_background').setPosition(l.ox, l.wallTop).setDisplaySize(l.width, l.wallH + l.floorH).setVisible(true);
+    g.fillStyle(room.theme === 'yard' ? 0x5d7a45 : 0x6d4b33, 1).fillRoundedRect(l.ox - frame, l.wallTop - frame, l.width + frame * 2, l.wallH + l.floorH + frame * 2, 10);
+    const bgKey = `room_${room.theme}_background`;
+    if (this.textures.exists(bgKey)) {
+      this.roomImage.setTexture(bgKey).setPosition(l.ox, l.wallTop).setDisplaySize(l.width, l.wallH + l.floorH).setVisible(true);
+      this.drawLocks();
       return;
     }
     this.roomImage.setVisible(false);
+    if (room.theme === 'sunroom') this.drawSunroom();
+    else if (room.theme === 'yard') this.drawYard();
+    else this.drawLiving();
+    this.drawLocks();
+  }
+
+  /** Shade what can't be used yet: a whole unopened room, or a yard's unbought expansion. */
+  private drawLocks(): void {
+    const g = this.roomGfx;
+    const l = this.layout;
+    const state = this.store.state;
+    if (!isRoomOpen(state, this.store.content, this.roomId)) {
+      g.fillStyle(0x2b2130, 0.45).fillRect(l.ox, l.wallTop, l.width, l.wallH + l.floorH);
+      return;
+    }
+    const usable = this.room.cols;
+    if (usable < this.fullRoom.cols) {
+      const x = l.ox + usable * l.cw;
+      const w = (this.fullRoom.cols - usable) * l.cw;
+      g.fillStyle(0x2b2130, 0.38).fillRect(x, l.wallTop, w, l.wallH + l.floorH);
+      g.lineStyle(3, 0xfff4dc, 0.7);
+      for (let y = l.wallTop; y < l.floorTop + l.floorH; y += 14) g.lineBetween(x, y, x, Math.min(y + 7, l.floorTop + l.floorH));
+    }
+  }
+
+  private drawSunroom(): void {
+    const g = this.roomGfx;
+    const l = this.layout;
+    const room = this.fullRoom;
+    g.fillStyle(0xe6f0d8, 1).fillRect(l.ox, l.wallTop, l.width, l.wallH);
+    // Tall window panes along the back wall
+    for (let c = 0; c < room.cols; c += 2) {
+      const x = l.ox + c * l.cw + l.cw * 0.2;
+      g.fillStyle(0xbfe3f2, 1).fillRoundedRect(x, l.wallTop + l.wallH * 0.1, l.cw * 1.6, l.wallH * 0.62, { tl: l.cw * 0.5, tr: l.cw * 0.5, bl: 2, br: 2 });
+      g.fillStyle(0xffffff, 0.45).fillRect(x + l.cw * 0.15, l.wallTop + l.wallH * 0.18, l.cw * 0.18, l.wallH * 0.45);
+      g.lineStyle(2, 0xffffff, 0.9).lineBetween(x + l.cw * 0.8, l.wallTop + l.wallH * 0.1, x + l.cw * 0.8, l.wallTop + l.wallH * 0.72);
+    }
+    g.fillStyle(0xb9cf9a, 1).fillRect(l.ox, l.wallTop + l.wallH * 0.76, l.width, l.wallH * 0.24);
+    g.fillStyle(0x93ad74, 1).fillRect(l.ox, l.floorTop - 4, l.width, 4);
+    for (let r = 0; r < room.rows; r++)
+      for (let c = 0; c < room.cols; c++) {
+        g.fillStyle((r + c) % 2 === 0 ? 0xf2dcc0 : 0xe7c9a6, 1).fillRect(l.ox + c * l.cw, l.floorTop + r * l.ch, l.cw, l.ch);
+      }
+    this.drawDoor(0x7d9a5c, 0xa9c487);
+  }
+
+  private drawYard(): void {
+    const g = this.roomGfx;
+    const l = this.layout;
+    const room = this.fullRoom;
+    g.fillStyle(0xbfe6f5, 1).fillRect(l.ox, l.wallTop, l.width, l.wallH);
+    g.fillStyle(0xffffff, 0.8);
+    for (let c = 1; c < room.cols; c += 4) g.fillEllipse(l.ox + c * l.cw, l.wallTop + l.wallH * 0.25, l.cw * 1.4, l.wallH * 0.18);
+    g.fillStyle(0x7fae5c, 1).fillRect(l.ox, l.wallTop + l.wallH * 0.55, l.width, l.wallH * 0.45);
+    for (let c = 0; c < room.cols * 2; c++) g.fillCircle(l.ox + (c + 0.5) * (l.cw / 2), l.wallTop + l.wallH * 0.58, l.cw * 0.32);
+    // Picket fence
+    g.fillStyle(0xfff4dc, 1);
+    g.fillRect(l.ox, l.wallTop + l.wallH * 0.74, l.width, l.wallH * 0.06);
+    for (let c = 0; c < room.cols * 2; c++) g.fillRect(l.ox + c * (l.cw / 2) + l.cw * 0.12, l.wallTop + l.wallH * 0.62, l.cw * 0.2, l.wallH * 0.38);
+    for (let r = 0; r < room.rows; r++) {
+      g.fillStyle(r % 2 === 0 ? 0x9bcb6b : 0x92c264, 1).fillRect(l.ox, l.floorTop + r * l.ch, l.width, l.ch);
+      g.fillStyle(0x7fb357, 0.8);
+      for (let c = (r % 2) * 0.5; c < room.cols; c += 1.3) g.fillTriangle(l.ox + c * l.cw, l.floorTop + (r + 0.7) * l.ch, l.ox + (c + 0.08) * l.cw, l.floorTop + (r + 0.45) * l.ch, l.ox + (c + 0.16) * l.cw, l.floorTop + (r + 0.7) * l.ch);
+    }
+    const d = room.door;
+    const dx = l.ox + d.col * l.cw;
+    g.fillStyle(0xd9c3a1, 1).fillRoundedRect(dx + l.cw * 0.1, l.floorTop + l.ch * 0.1, l.cw * 0.8, l.ch * 0.8, 6);
+  }
+
+  private drawLiving(): void {
+    const g = this.roomGfx;
+    const l = this.layout;
+    const room = this.fullRoom;
     g.fillStyle(0xf4e3c8, 1).fillRect(l.ox, l.wallTop, l.width, l.wallH);
     g.fillStyle(0xecd6b6, 1);
     for (let c = 0; c < room.cols * 2; c += 2) g.fillRect(l.ox + (c + 0.5) * (l.cw / 2), l.wallTop, l.cw / 4, l.wallH * 0.68);
@@ -322,10 +425,16 @@ export class RoomScene extends Phaser.Scene {
       g.fillStyle(0xb07e52, 0.7);
       for (let c = offset; c < room.cols; c += 3) g.fillRect(l.ox + c * l.cw, l.floorTop + r * l.ch, 1, l.ch);
     }
-    const d = room.door;
+    this.drawDoor(0x8f6440, 0xb98a5e);
+  }
+
+  private drawDoor(frameColor: number, doorColor: number): void {
+    const g = this.roomGfx;
+    const l = this.layout;
+    const d = this.fullRoom.door;
     const dx = l.ox + d.col * l.cw;
-    g.fillStyle(0x8f6440, 1).fillRoundedRect(dx + l.cw * 0.08, l.wallTop + l.wallH * 0.22, l.cw * 0.84, l.wallH * 0.78, { tl: l.cw * 0.42, tr: l.cw * 0.42, bl: 0, br: 0 });
-    g.fillStyle(0xb98a5e, 1).fillRoundedRect(dx + l.cw * 0.16, l.wallTop + l.wallH * 0.3, l.cw * 0.68, l.wallH * 0.7, { tl: l.cw * 0.34, tr: l.cw * 0.34, bl: 0, br: 0 });
+    g.fillStyle(frameColor, 1).fillRoundedRect(dx + l.cw * 0.08, l.wallTop + l.wallH * 0.22, l.cw * 0.84, l.wallH * 0.78, { tl: l.cw * 0.42, tr: l.cw * 0.42, bl: 0, br: 0 });
+    g.fillStyle(doorColor, 1).fillRoundedRect(dx + l.cw * 0.16, l.wallTop + l.wallH * 0.3, l.cw * 0.68, l.wallH * 0.7, { tl: l.cw * 0.34, tr: l.cw * 0.34, bl: 0, br: 0 });
     g.fillStyle(0xffd27a, 1).fillCircle(dx + l.cw * 0.7, l.wallTop + l.wallH * 0.68, Math.max(2, l.cw * 0.05));
     g.fillStyle(0x8fc7b1, 0.9).fillRoundedRect(dx + l.cw * 0.1, l.floorTop + l.ch * 0.15, l.cw * 0.8, l.ch * 0.6, 4);
   }
@@ -337,9 +446,9 @@ export class RoomScene extends Phaser.Scene {
     const l = this.layout;
     g.lineStyle(1, 0xffffff, 0.28);
     for (let c = 0; c <= this.room.cols; c++) g.lineBetween(l.ox + c * l.cw, l.floorTop, l.ox + c * l.cw, l.floorTop + l.floorH);
-    for (let r = 0; r <= this.room.rows; r++) g.lineBetween(l.ox, l.floorTop + r * l.ch, l.ox + l.width, l.floorTop + r * l.ch);
+    for (let r = 0; r <= this.room.rows; r++) g.lineBetween(l.ox, l.floorTop + r * l.ch, l.ox + this.room.cols * l.cw, l.floorTop + r * l.ch);
     g.lineStyle(1, 0xffffff, 0.18);
-    for (let c = 0; c <= this.room.cols; c++) g.lineBetween(l.ox + c * l.cw, l.wallTop, l.ox + c * l.cw, l.floorTop);
+    if (this.room.walls !== false) for (let c = 0; c <= this.room.cols; c++) g.lineBetween(l.ox + c * l.cw, l.wallTop, l.ox + c * l.cw, l.floorTop);
     const d = this.room.door;
     g.fillStyle(0x8fc7b1, 0.35).fillRect(l.ox + d.col * l.cw, l.floorTop + d.row * l.ch, l.cw, l.ch);
   }
