@@ -82,6 +82,12 @@ POSE_SCALE_BY_CHAR = {
     "snug": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
     "tinker": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
     "mischi": {"sit": ("h", 0.86), "decorated_sit": ("h", 0.86)},
+    "bloomi": {"sit": ("h", 0.9), "decorated_sit": ("h", 0.9)},
+    "glim": {"sit": ("h", 0.95), "decorated_sit": ("h", 0.95)},
+    "mopey": {"sit": ("h", 0.94), "decorated_sit": ("h", 0.94)},
+    "pippo": {"sit": ("h", 0.84), "decorated_sit": ("h", 0.84)},
+    "hush": {"sit": ("h", 0.92), "decorated_sit": ("h", 0.92)},
+    "patcha": {"sit": ("h", 0.9), "decorated_sit": ("h", 0.9)},
 }
 GAME_CHAR = 512  # game copy of character poses (half the normalized canvas)
 

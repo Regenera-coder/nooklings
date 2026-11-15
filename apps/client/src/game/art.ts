@@ -30,7 +30,7 @@ function box(g: G, x0: number, x1: number, backY: number, frontY: number, h: num
 }
 
 /** Where the seat or mattress sits, as a fraction of the furniture image height from its base. */
-const SEAT_FRACTION: Record<string, number> = { cloud_bed: 0.42, cozy_sofa: 0.4 };
+const SEAT_FRACTION: Record<string, number> = { cloud_bed: 0.42, cozy_sofa: 0.4, reading_chair: 0.34, garden_bench: 0.36 };
 const FLOOR_SINK = 0.12; // image base sits slightly into the cell row so legs read as standing on the floor
 
 /**
