@@ -11,6 +11,11 @@ import {
   dayOf,
   ribbonToday,
   ribbonsForScore,
+  arcadePlaysLeft,
+  arcadeUnlocked,
+  clampScore,
+  companionHomeFor,
+  prizeKey,
   residentsInRoom,
   spotUnlocked,
   isUnlocked,
@@ -21,7 +26,7 @@ import {
   playReadyAt,
   taskStates,
 } from './progress';
-import type { Content, Cost, GameState, ParcelRecord, Placement } from './types';
+import type { ArcadeGameId, Content, Cost, GameState, ParcelRecord, Placement } from './types';
 
 /**
  * Every change to the game goes through a command with a unique id.
@@ -48,7 +53,8 @@ export type Command =
   | { id: string; type: 'move_resident'; residentId: string; roomId: string }
   | { id: string; type: 'buy_costume'; costumeId: string }
   | { id: string; type: 'wear_costume'; residentId: string; costumeId: string | null }
-  | { id: string; type: 'play_minigame'; score: number; at: number };
+  | { id: string; type: 'play_arcade'; gameId: ArcadeGameId; score: number; at: number }
+  | { id: string; type: 'assign_companion'; companionId: string; residentId: string | null };
 
 export type CommandError =
   | PlacementError
@@ -73,7 +79,9 @@ export type CommandError =
   | 'busy'
   | 'away'
   | 'unknown_costume'
-  | 'daily_limit';
+  | 'daily_limit'
+  | 'unknown_game'
+  | 'unknown_companion';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -88,10 +96,12 @@ export type GameEvent =
   | { type: 'expedition_started'; routeId: string; residentId: string; endAt: number }
   | { type: 'expedition_done'; routeId: string; residentId: string; reward: Cost & { hearts?: number } }
   | { type: 'resident_moved'; residentId: string; roomId: string }
-  | { type: 'ribbons_earned'; amount: number; source: 'play' | 'minigame' | 'expedition' }
+  | { type: 'ribbons_earned'; amount: number; source: 'play' | 'arcade' | 'expedition' }
   | { type: 'costume_bought'; costumeId: string }
   | { type: 'costume_worn'; residentId: string; costumeId: string | null }
-  | { type: 'minigame_done'; score: number; ribbons: number }
+  | { type: 'arcade_done'; gameId: ArcadeGameId; score: number; best: number; newBest: boolean; ribbons: number; playsLeft: number }
+  | { type: 'prize_won'; gameId: ArcadeGameId; index: number; kind: 'furniture' | 'companion'; id: string; residentId: string | null }
+  | { type: 'companion_assigned'; companionId: string; residentId: string | null }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
@@ -429,18 +439,62 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       return done();
     }
 
-    case 'play_minigame': {
+    case 'play_arcade': {
+      const game = content.arcadeGames[cmd.gameId];
+      if (!game) return fail('unknown_game');
       if (!Number.isFinite(cmd.at) || !Number.isFinite(cmd.score)) return fail('not_ready');
-      const today = ribbonToday(state, cmd.at);
-      if (today.games >= content.ribbons.minigame.gamesPerDay) return fail('daily_limit');
-      const ribbons = ribbonsForScore(content, cmd.score);
+      if (!arcadeUnlocked(state, content, cmd.gameId)) return fail('locked');
+      const left = arcadePlaysLeft(state, content, cmd.gameId, cmd.at);
+      if (left <= 0) return fail('daily_limit');
+      const score = clampScore(game, cmd.score);
+      const ribbons = ribbonsForScore(content, game, score);
+      const day = dayOf(cmd.at);
+      const plays = state.arcade.day === day ? { ...state.arcade.plays } : {};
+      plays[cmd.gameId] = (plays[cmd.gameId] ?? 0) + 1;
+      const oldBest = state.arcade.best[cmd.gameId] ?? 0;
+      const best = Math.max(oldBest, score);
       d.state = {
         ...state,
         wallet: addCost(state.wallet, { ribbons }, 1),
-        ribbonDay: { day: dayOf(cmd.at), fromPlay: today.fromPlay, games: today.games + 1 },
+        arcade: { ...state.arcade, day, plays, best: { ...state.arcade.best, [cmd.gameId]: best } },
       };
-      d.events.push({ type: 'minigame_done', score: Math.floor(cmd.score), ribbons });
-      if (ribbons > 0) d.events.push({ type: 'ribbons_earned', amount: ribbons, source: 'minigame' });
+      d.events.push({ type: 'arcade_done', gameId: cmd.gameId, score, best, newBest: score > oldBest, ribbons, playsLeft: left - 1 });
+      if (ribbons > 0) d.events.push({ type: 'ribbons_earned', amount: ribbons, source: 'arcade' });
+      // Prizes: each is granted once, the first time a round reaches its score.
+      game.prizes.forEach((prize, index) => {
+        const key = prizeKey(cmd.gameId, index);
+        if (score < prize.score || d.state.arcade.prizes.includes(key)) return;
+        let residentId: string | null = null;
+        if (prize.kind === 'furniture') {
+          if (!content.furniture[prize.id]) return;
+          d.state = { ...d.state, inventory: { ...d.state.inventory, [prize.id]: (d.state.inventory[prize.id] ?? 0) + 1 } };
+        } else {
+          if (!content.companions[prize.id] || d.state.companions[prize.id]) return;
+          residentId = companionHomeFor(d.state, game.host);
+          d.state = { ...d.state, companions: { ...d.state.companions, [prize.id]: { residentId } } };
+        }
+        d.state = { ...d.state, arcade: { ...d.state.arcade, prizes: [...d.state.arcade.prizes, key] } };
+        d.events.push({ type: 'prize_won', gameId: cmd.gameId, index, kind: prize.kind, id: prize.id, residentId });
+      });
+      return done();
+    }
+
+    case 'assign_companion': {
+      if (!content.companions[cmd.companionId]) return fail('unknown_companion');
+      const current = state.companions[cmd.companionId];
+      if (!current) return fail('not_owned');
+      if (cmd.residentId !== null) {
+        if (!content.residents[cmd.residentId]) return fail('unknown_resident');
+        if (!state.residents[cmd.residentId]) return fail('not_owned');
+      }
+      if (current.residentId === cmd.residentId) return fail('already_done');
+      // A resident keeps one companion: whoever was following them goes back to resting.
+      const companions: GameState['companions'] = {};
+      for (const [id, c] of Object.entries(state.companions)) {
+        companions[id] = id === cmd.companionId ? { residentId: cmd.residentId } : cmd.residentId !== null && c.residentId === cmd.residentId ? { residentId: null } : c;
+      }
+      d.state = { ...state, companions };
+      d.events.push({ type: 'companion_assigned', companionId: cmd.companionId, residentId: cmd.residentId });
       return done();
     }
 

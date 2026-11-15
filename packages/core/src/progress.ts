@@ -1,4 +1,6 @@
 import type {
+  ArcadeGameDef,
+  ArcadeGameId,
   Content,
   RoomDef,
   Cost,
@@ -292,15 +294,52 @@ export function dayOf(at: number): number {
   return Math.floor(at / DAY_MS);
 }
 
-/** Today's Ribbon counters (fresh if the stored day is over). */
+/** Today's Ribbon counters for playing with residents (fresh if the stored day is over). */
 export function ribbonToday(state: GameState, at: number): { fromPlay: number; games: number } {
   return state.ribbonDay.day === dayOf(at) ? state.ribbonDay : { fromPlay: 0, games: 0 };
 }
 
-export function ribbonsForScore(content: Content, score: number): number {
-  const m = content.ribbons.minigame;
-  const s = Math.max(0, Math.min(m.maxScore, Math.floor(score)));
-  return Math.min(m.maxRibbonsPerGame, Math.floor(s / m.pointsPerRibbon));
+// ---------- the Arcade ----------
+
+/** A round's score as the rules count it: whole points between 0 and the game's maximum. */
+export function clampScore(game: ArcadeGameDef, score: number): number {
+  return Math.max(0, Math.min(game.maxScore, Math.floor(score)));
+}
+
+export function ribbonsForScore(content: Content, game: ArcadeGameDef, score: number): number {
+  return Math.min(content.arcade.maxRibbonsPerGame, Math.floor(clampScore(game, score) / game.pointsPerRibbon));
+}
+
+export function arcadeUnlocked(state: GameState, content: Content, gameId: ArcadeGameId): boolean {
+  const game = content.arcadeGames[gameId];
+  return !!game && levelFor(state.hearts, content) >= game.unlockLevel;
+}
+
+/** Plays left today for one game. */
+export function arcadePlaysLeft(state: GameState, content: Content, gameId: ArcadeGameId, at: number): number {
+  const used = state.arcade.day === dayOf(at) ? state.arcade.plays[gameId] ?? 0 : 0;
+  return Math.max(0, content.arcade.playsPerDay - used);
+}
+
+export function prizeKey(gameId: ArcadeGameId, index: number): string {
+  return `${gameId}:${index}`;
+}
+
+export function prizeWon(state: GameState, gameId: ArcadeGameId, index: number): boolean {
+  return state.arcade.prizes.includes(prizeKey(gameId, index));
+}
+
+/** The resident a newly won companion goes to: the game's host if free, else the first resident without one. */
+export function companionHomeFor(state: GameState, preferred: string | null): string | null {
+  const taken = new Set(Object.values(state.companions).map((c) => c.residentId).filter(Boolean));
+  if (preferred && state.residents[preferred] && !taken.has(preferred)) return preferred;
+  return state.residentOrder.find((id) => !taken.has(id)) ?? null;
+}
+
+/** Companion following a resident, if any. */
+export function companionOf(state: GameState, residentId: string): string | null {
+  for (const [id, c] of Object.entries(state.companions)) if (c.residentId === residentId) return id;
+  return null;
 }
 
 export function visibleCostumes(content: Content, residentId: string) {

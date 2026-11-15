@@ -100,6 +100,11 @@ export class Resident {
     return { x0: x - this.size * 0.45, y0: y - this.size * 1.15, x1: x + this.size * 0.45, y1: y + 4 };
   }
 
+  /** Where a companion should follow: the resident's feet, the way they face and their size. */
+  followPoint(): { x: number; y: number; facing: number; size: number } {
+    return { x: this.container.x, y: this.container.y, facing: this.facing, size: this.size };
+  }
+
   setLayout(layout: RoomLayout): void {
     this.size = layout.cw * 1.05;
     this.emote.setFontSize(Math.max(14, Math.round(layout.cw * 0.4)));
@@ -222,7 +227,7 @@ export class Resident {
         break;
       }
       case 'rest': {
-        if (this.mode.type === 'sleep' && !this.reducedMotion) {
+        if (this.mode.type === 'sleep' && !this.reducedMotion && this.container.visible) {
           this.zTimer += dtMs;
           if (this.zTimer > 1400) {
             this.zTimer = 0;

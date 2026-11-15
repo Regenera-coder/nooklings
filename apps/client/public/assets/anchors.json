@@ -623,5 +623,105 @@
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
+  },
+  "pet_button_mouse_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_button_mouse_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_paper_crane_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_paper_crane_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_tiny_tortoise_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_tiny_tortoise_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_teapot_sprite_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_teapot_sprite_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_yarn_kitten_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_yarn_kitten_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_bumblebee_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_bumblebee_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_curious_owl_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_curious_owl_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_firefly_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_firefly_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_carrier_pigeon_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_carrier_pigeon_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_shadow_bunny_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "pet_shadow_bunny_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
   }
 }

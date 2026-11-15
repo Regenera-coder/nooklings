@@ -44,7 +44,39 @@ FURNITURE = [
     # Milestone C
     "tea_table", "reading_chair", "planter_box", "hanging_plant", "bird_bath", "garden_bench", "rain_window",
     "rain_chime", "travel_trunk", "paper_lanterns", "zen_stones", "heirloom_chest", "wishing_lantern",
+    # Milestone D: Arcade prizes
+    "button_jar", "button_rug", "card_table", "photo_wall", "stone_tablet", "glyph_banner", "mini_oven", "teacup_set",
+    "sewing_basket", "embroidery_hoop", "flower_cart", "trellis_arch", "magnifier_lamp", "puzzle_frame", "firefly_jar",
+    "lantern_string", "mailbox", "parcel_stack", "play_tent", "peek_curtain",
 ]
+# Milestone D: companions (pet_<id>_idle / _walk, facing right) and Arcade art.
+PETS = ["button_mouse", "paper_crane", "tiny_tortoise", "teapot_sprite", "yarn_kitten", "bumblebee", "curious_owl", "firefly", "carrier_pigeon", "shadow_bunny"]
+PET_POSES = ["idle", "walk"]
+ARCADE_GAMES = ["button_catch", "memory", "glyph", "kitchen", "stitch", "garden", "spot", "lantern", "parcel", "hide"]
+RESIDENT_STAMPS = CHARACTERS
+# Play pieces: single objects on white -> transparent, trimmed, longest side scaled to the given size.
+ARCADE_SPRITES: dict[str, int] = {
+    "game_button_catch_button": 192, "game_button_catch_gold": 192,
+    "game_memory_back": 320, **{f"game_memory_face_{i:02d}": 320 for i in range(1, 9)},
+    "game_glyph_tile": 192, **{f"game_glyph_{i:02d}": 192 for i in range(1, 13)}, "game_glyph_scroll": 768,
+    **{f"game_kitchen_{k}": 256 for k in ["pot", "pan", "board", "bowl", "berry", "flour", "egg", "carrot", "potato", "butter", "dish_tart", "dish_soup", "dish_pancakes"]},
+    "game_stitch_fabric": 640, "game_stitch_needle": 192, **{f"game_stitch_done_{i:02d}": 640 for i in range(1, 5)},
+    **{f"game_garden_{k}": 256 for k in ["pot", "sprout", "bud", "bloom_01", "bloom_02", "bloom_03", "droop", "weed", "can"]},
+    **{f"game_lantern_{c}_{st}": 256 for c in ["pink", "blue", "yellow", "green"] for st in ["on", "off"]},
+    "game_parcel_belt": 1200, "game_parcel_basket": 256, **{f"game_parcel_box_{i:02d}": 224 for i in range(1, 5)},
+    **{f"game_parcel_stamp_{r}": 160 for r in RESIDENT_STAMPS},
+    "game_hide_peek": 160, "game_hide_found": 224,
+    "ui_card_frame": 512, "ui_prize_slot_locked": 256, "ui_prize_slot_open": 256, "ui_pause_button": 128,
+    "ui_star_burst": 384, "ui_play_button": 512,
+}
+# Full-bleed pictures (no background removal): name -> game copy size.
+ARCADE_PICTURES: dict[str, tuple[int, int]] = {
+    **{f"game_{g}_card": (512, 512) for g in ARCADE_GAMES},
+    "game_kitchen_counter": (1200, 520), "game_garden_bed": (1200, 520), "game_lantern_backdrop": (1200, 520),
+    **{f"game_spot_scene_{i:02d}_{v}": (720, 624) for i in range(1, 4) for v in ["a", "b"]},
+}
+# Design references kept in art/normalized only (screen mock-ups and the annotated difference images).
+REFERENCES = ["ui_arcade_hub", "ui_game_intro", "ui_game_frame", "ui_game_results", "ui_prize_reveal"] + [f"game_spot_scene_{i:02d}_diffs" for i in range(1, 4)]
 # Costume pose sets: char_<id>_costume_<costumeId>_<pose>
 COSTUMES = {"mopey": ["umbrella"], "mischi": ["wings"], "hush": ["wings"]}
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
@@ -64,6 +96,8 @@ EXPECTED = (
     + [f"icon_{i}" for i in ICONS]
     + ["parcel_closed", "parcel_open"]
     + CARDS
+    + [f"pet_{p}_{q}" for p in PETS for q in PET_POSES]
+    + list(ARCADE_SPRITES) + list(ARCADE_PICTURES) + REFERENCES
 )
 
 # Character poses: size relative to the standing height. Standing poses share one
@@ -240,7 +274,7 @@ def main() -> int:
     lines = ["| Asset | Used file | Source size | Output |", "|---|---|---|---|"]
     anchors: dict[str, dict[str, float]] = {}
     GAME.mkdir(parents=True, exist_ok=True)
-    for old in GAME.glob("*.png"):
+    for old in [*GAME.glob("*.png"), *GAME.glob("*.webp")]:
         old.unlink()
 
     def record(key: str, source: Image.Image, out: Image.Image, note: str = "") -> None:
@@ -364,6 +398,51 @@ def main() -> int:
         gw, gh = round(rw * 0.8), round(rh * 0.8)
         out.resize((gw, gh), Image.LANCZOS).save(GAME / f"{key}.png", optimize=True)
         record(key, img, out.convert("RGBA"), f"fitted to room proportions; game copy {gw}×{gh}")
+
+    # Companions: one scale per pet so idle and walk match; feet bottom-centre like the residents.
+    PET_CANVAS, PET_FILL_H, PET_FILL_W = 512, 0.80, 0.92
+    for pet in PETS:
+        keys = [f"pet_{pet}_{q}" for q in PET_POSES if f"pet_{pet}_{q}" in best]
+        if not keys:
+            continue
+        imgs = {k: load(best[k][1]) for k in keys}
+        boxes = {k: bbox(body_mask(im)) for k, im in imgs.items()}
+        ref = boxes.get(f"pet_{pet}_idle") or next(iter(boxes.values()))
+        widest = max(b[2] - b[0] for b in boxes.values())
+        scale = min(PET_CANVAS * PET_FILL_H / (ref[3] - ref[1]), PET_CANVAS * PET_FILL_W / widest)
+        for k, im in imgs.items():
+            m = body_mask(im)
+            box = boxes[k]
+            out = place(im, scale, (PET_CANVAS, PET_CANVAS), (foot_x(m, box), box[3]), (PET_CANVAS / 2, PET_CANVAS * 0.96))
+            save(out, NORMALIZED / f"{k}.png")
+            save(out.resize((256, 256), Image.LANCZOS), GAME / f"{k}.png")
+            anchors[k] = {"footX": 0.5, "footY": 0.96, "standHeight": PET_FILL_H}
+            record(k, im, out)
+
+    for key, longest in ARCADE_SPRITES.items():
+        if key not in best:
+            continue
+        img = trimmed(load(best[key][1]), 2)
+        factor = longest / max(img.width, img.height)
+        out = img.resize((max(1, round(img.width * factor)), max(1, round(img.height * factor))), Image.LANCZOS)
+        save(img, NORMALIZED / f"{key}.png")
+        out.save(GAME / f"{key}.webp", quality=88, method=6)  # Arcade art is shown in the page, not Phaser: WebP keeps it small
+        record(key, img, out, "trimmed, WebP")
+
+    for key, size in ARCADE_PICTURES.items():
+        if key not in best:
+            continue
+        img = Image.open(best[key][1]).convert("RGB")
+        save(img, NORMALIZED / f"{key}.png")
+        out = img.resize(size, Image.LANCZOS)
+        out.save(GAME / f"{key}.webp", quality=86, method=6)
+        record(key, img.convert("RGBA"), out.convert("RGBA"), "WebP")
+
+    for key in REFERENCES:
+        if key in best:
+            img = Image.open(best[key][1]).convert("RGB")
+            save(img, NORMALIZED / f"{key}.png")
+            record(key, img.convert("RGBA"), img.convert("RGBA"), "reference only")
 
     (GAME / "anchors.json").write_text(json.dumps(anchors, indent=2) + "\n")
     subprocess.run(["node", str(ROOT / "tools" / "build-asset-manifest.mjs")], check=True)

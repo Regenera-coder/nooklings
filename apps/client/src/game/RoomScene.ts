@@ -1,9 +1,10 @@
 import * as Phaser from 'phaser';
-import { blockedGrid, effectiveRoom, isRoomOpen, residentsAtHome, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
+import { blockedGrid, companionOf, effectiveRoom, isRoomOpen, residentsAtHome, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
 import type { GameStore } from '../store';
 import { allArt } from '../assets';
 import { drawFurniture, type DrawnItem } from './art';
 import { computeLayout, floorCellAt, wallSlotAt, type RoomLayout } from './layout';
+import { Companion } from './companion';
 import { Resident, type ResidentStatus, type World } from './resident';
 
 export interface PendingEdit {
@@ -42,6 +43,9 @@ export class RoomScene extends Phaser.Scene {
   private drawn = new Map<string, DrawnItem>();
   private ghost: DrawnItem | null = null;
   private residents: Resident[] = [];
+  private companions: Companion[] = [];
+  /** Hide and Seek: residents and companions are hidden while the game runs. */
+  private hiding = false;
   private claims = new Map<string, string>();
   private roomImage!: Phaser.GameObjects.Image;
   private blocked: boolean[][] = [];
@@ -98,7 +102,7 @@ export class RoomScene extends Phaser.Scene {
 
   preload(): void {
     for (const [key, path] of Object.entries(allArt())) {
-      if (key.startsWith('char_') || key.startsWith('furn_') || key.startsWith('room_')) this.load.image(key, path);
+      if (key.startsWith('char_') || key.startsWith('furn_') || key.startsWith('room_') || key.startsWith('pet_')) this.load.image(key, path);
     }
   }
 
@@ -127,6 +131,10 @@ export class RoomScene extends Phaser.Scene {
     const now = this.time.now;
     const world = this.world();
     for (const r of this.residents) r.update(delta, now, world);
+    for (const c of this.companions) {
+      const r = this.residents.find((x) => x.def.id === c.residentId);
+      if (r) c.update(delta, r, this.hiding);
+    }
     if (this.selection.kind === 'resident') {
       const sel = this.selection;
       const r = this.residents.find((x) => x.def.id === sel.id);
@@ -135,6 +143,30 @@ export class RoomScene extends Phaser.Scene {
   }
 
   // ---------- public API used by the UI ----------
+
+  /** Hide and Seek: hide everyone (true) or bring them back (false). */
+  setHiding(on: boolean): void {
+    this.hiding = on;
+    for (const r of this.residents) r.container.setVisible(!on);
+    for (const c of this.companions) c.setVisible(!on);
+  }
+
+  /** Furniture a resident could hide behind, with screen bounds in canvas pixels. Rugs and ceiling items don't count. */
+  hidingSpots(): Array<{ uid: string; defId: string; x0: number; y0: number; x1: number; y1: number }> {
+    const out: Array<{ uid: string; defId: string; x0: number; y0: number; x1: number; y1: number }> = [];
+    for (const p of this.placements) {
+      const def = this.store.content.furniture[p.defId];
+      const d = this.drawn.get(p.uid);
+      if (!def || !d || def.layer === 'rug' || def.layer === 'ceiling') continue;
+      out.push({ uid: p.uid, defId: p.defId, ...d.bounds });
+    }
+    return out;
+  }
+
+  /** The canvas element, so overlays can line up with the room. */
+  get canvasElement(): HTMLCanvasElement {
+    return this.game.canvas;
+  }
 
   setBuildMode(on: boolean): void {
     this.buildMode = on;
@@ -243,6 +275,25 @@ export class RoomScene extends Phaser.Scene {
       r.setDecorated(state.residents[id]?.form === 'decorated');
       r.setCostume(state.residents[id]?.costume ?? null);
     });
+    this.syncCompanions();
+  }
+
+  /** One companion per shown resident who has been given one. */
+  private syncCompanions(): void {
+    const state = this.store.state;
+    const wanted = new Map<string, string>();
+    for (const r of this.residents) {
+      const pet = companionOf(state, r.def.id);
+      if (pet) wanted.set(pet, r.def.id);
+    }
+    this.companions = this.companions.filter((c) => {
+      if (wanted.get(c.id) === c.residentId) return true;
+      c.destroy();
+      return false;
+    });
+    for (const [pet, residentId] of wanted) {
+      if (!this.companions.some((c) => c.id === pet)) this.companions.push(new Companion(this, pet, residentId, this.reducedMotion));
+    }
   }
 
   private onStateChanged(events: GameEvent[]): void {
@@ -251,6 +302,10 @@ export class RoomScene extends Phaser.Scene {
     const now = this.time.now;
     const entering = events.find((e) => e.type === 'resident_joined' || e.type === 'resident_moved' || e.type === 'expedition_done');
     this.syncResidents(entering && 'residentId' in entering ? entering.residentId : null);
+    for (const e of events) {
+      if (e.type === 'companion_assigned' && e.residentId) this.residents.find((r) => r.def.id === e.residentId)?.react('♥', this.time.now);
+      if (e.type === 'prize_won' && e.kind === 'companion' && e.residentId) this.residents.find((r) => r.def.id === e.residentId)?.react('✦', this.time.now);
+    }
     if (events.some((e) => e.type === 'room_bought')) this.redrawAll();
     for (const r of this.residents) {
       r.setDecorated(this.store.state.residents[r.def.id]?.form === 'decorated');

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { content, LIVING_ROOM_ID, SUNROOM_ID, YARD_ID } from '@nooklings/content';
-import { applyCommand, deserialize, effectiveRoom, newGame, serialize, type Command, type GameState } from '@nooklings/core';
+import { applyCommand, deserialize, SAVE_VERSION, effectiveRoom, newGame, serialize, type Command, type GameState } from '@nooklings/core';
 
 type Input = Command extends infer C ? (C extends unknown ? Omit<C, 'id'> : never) : never;
 let n = 0;
@@ -97,7 +97,7 @@ describe('save v3', () => {
     for (const k of ['purchases', 'gatherReadyAt', 'gatherCount', 'expedition', 'expeditionsDone']) delete v2[k];
     for (const r of Object.values(v2.residents) as Array<Record<string, unknown>>) delete r.room;
     const s = deserialize(JSON.stringify(v2), content);
-    expect(s.version).toBe(4);
+    expect(s.version).toBe(SAVE_VERSION);
     expect(s.costumesOwned).toEqual([]);
     expect(s.residents.snug!.costume).toBeNull();
     expect(s.residents.snug!.room).toBe(LIVING_ROOM_ID);

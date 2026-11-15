@@ -2,6 +2,23 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.5.0 — Milestone D: the Arcade (15 Nov 2026)
+
+### Implemented
+- **The Arcade** in Explore (Arcade / Outdoors & parcels switch). Ten game cards with the host's face, plays left today, best score and a lock with the Home Level for games not yet open. Built from ChatGPT's five approved mock-ups; every label, number and button is drawn in code.
+- Full-screen **intro** (host explains the game, three prize slots with their score milestones, Play button), shared **game frame** (score, time, pause), **results** card (score, best, Ribbons earned, prize unlocked or next prize with progress) and **prize reveal** (with "Place it now" for furniture and "Choose a friend" for companions).
+- **Ten games**: Button Catch (Snug, Level 1), Memory Match (Tinker, 2), Stitch-a-Pattern (Patcha, 2), Cosy Kitchen (Bloomi, 3), Garden Tending (Bloomi, 4), Glyph Garden (Patcha, 5), Lantern Lights (Glim, 5), Spot the Difference (Mischi, 6), Parcel Sorting (Pippo, 7), Hide and Seek (Hush, 8, played over your own room).
+- Rules: 3 plays per game per day; Ribbons by score, up to 5 per round; best score per game; three exclusive prizes per game (two furniture, one companion), each granted once, the first time a round reaches its score. Pausing freezes the round; "End round" keeps the score.
+- **20 prize furniture items** go to storage and place like any other item (rug, wall and floor types; Peek-a-boo Curtain hangs over windows). They are never sold, crafted or found in parcels.
+- **Companions** (new system): 10 small pets that follow a resident around the room with a two-step walk, turning to face the way they go (bee and firefly hover). A new companion goes to the game's host, or the first resident without one. Change it on the resident's Nookbook page (one companion each).
+- Gentle play: no fail sounds, no red, wrong answers only wiggle; timers only end the round; tap targets at least 44 px; shape cues alongside colour (lantern shapes, badges on garden pots). Reduced-motion is respected.
+- Spot the Difference tap zones measured from the circled _diffs images (all 15 checked against the annotations).
+- Save format v5 (old saves carry over; unknown games, prizes and companions are dropped on load).
+- Arcade art is served as WebP (3 MB instead of 24 MB as PNG).
+
+### Proposed values (the brief leaves them to the code)
+- Prize scores, round lengths and Ribbon rates per game are in `packages/content/src/index.ts` (`arcadeGames`).
+
 ## 0.4.1 — Brief 08 (15 Nov 2026), local commit only, not pushed
 
 ### Implemented

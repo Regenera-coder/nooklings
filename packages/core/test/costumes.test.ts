@@ -22,17 +22,6 @@ describe('Ribbons', () => {
     expect(s.wallet.ribbons).toBe(6);
   });
 
-  it('come from Button Catch by score, three games a day, capped', () => {
-    let s = newGame(content);
-    const at = 30_000 * DAY_MS;
-    s = ok(s, { type: 'play_minigame', score: 34, at });
-    expect(s.wallet.ribbons).toBe(3);
-    s = ok(s, { type: 'play_minigame', score: 9999, at: at + 1 });
-    expect(s.wallet.ribbons).toBe(8);
-    s = ok(s, { type: 'play_minigame', score: 0, at: at + 2 });
-    expect(err(s, { type: 'play_minigame', score: 50, at: at + 3 })).toBe('daily_limit');
-    expect(ok(s, { type: 'play_minigame', score: 50, at: at + DAY_MS }).wallet.ribbons).toBe(13);
-  });
 });
 
 describe('costumes', () => {

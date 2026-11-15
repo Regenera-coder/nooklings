@@ -57,11 +57,54 @@ export interface CostumeDef {
   hidden?: boolean;
 }
 
-/** Ribbon rules: how players earn the costume currency. */
+/** Ribbon rules: how players earn the costume currency outside the Arcade. */
 export interface RibbonRules {
   perPlay: number;
   playsPerDay: number;
-  minigame: { secondsLong: number; pointsPerRibbon: number; maxRibbonsPerGame: number; gamesPerDay: number; maxScore: number };
+}
+
+export type ArcadeGameId =
+  | 'button_catch' | 'memory' | 'glyph' | 'kitchen' | 'stitch'
+  | 'garden' | 'spot' | 'lantern' | 'parcel' | 'hide';
+
+/** One of the three exclusive prizes a game unlocks at a score milestone. */
+export interface ArcadePrize {
+  /** Score needed in a single round. */
+  score: number;
+  kind: 'furniture' | 'companion';
+  /** Furniture definition id or companion id. */
+  id: string;
+}
+
+export interface ArcadeGameDef {
+  id: ArcadeGameId;
+  name: string;
+  /** Resident who presents the game. */
+  host: string;
+  /** Home Level that opens the game. */
+  unlockLevel: number;
+  /** One line of how to play, said by the host. */
+  howTo: string;
+  /** Round length in seconds (0 = the round ends on moves, not time). */
+  seconds: number;
+  /** Scores are clamped to this. */
+  maxScore: number;
+  pointsPerRibbon: number;
+  prizes: [ArcadePrize, ArcadePrize, ArcadePrize];
+}
+
+export interface ArcadeRules {
+  playsPerDay: number;
+  maxRibbonsPerGame: number;
+  /** Display order on the Arcade page. */
+  order: ArcadeGameId[];
+}
+
+/** A small pet won in the Arcade. It follows the resident it is given to. */
+export interface CompanionDef {
+  id: string;
+  name: string;
+  description: string;
 }
 
 export interface GatherSpotDef {
@@ -233,6 +276,17 @@ export interface ParcelRecord {
   guaranteed: boolean;
 }
 
+export interface ArcadeState {
+  /** Day number (see dayOf) the play counters belong to. */
+  day: number;
+  /** Plays used today, per game. */
+  plays: Partial<Record<ArcadeGameId, number>>;
+  /** Best single-round score ever, per game. */
+  best: Partial<Record<ArcadeGameId, number>>;
+  /** Prizes already granted, as "<gameId>:<index>". */
+  prizes: string[];
+}
+
 export interface GameState {
   version: number;
   homeName: string;
@@ -257,8 +311,11 @@ export interface GameState {
   expedition: ActiveExpedition | null;
   expeditionsDone: Record<string, number>;
   costumesOwned: string[];
-  /** Daily Ribbon counters; reset when the day changes. */
+  /** Daily Ribbon counters for playing with residents; reset when the day changes. (games is unused since v5.) */
   ribbonDay: { day: number; fromPlay: number; games: number };
+  arcade: ArcadeState;
+  /** Owned companions and the resident each one follows (null = resting in the Nookbook). */
+  companions: Record<string, { residentId: string | null }>;
   /** Parcel random state. Moves to the server in Milestone D so it can't be predicted. */
   rngState: number;
   nextUid: number;
@@ -280,6 +337,9 @@ export interface Content {
   gatherSpots: Record<string, GatherSpotDef>;
   costumes: Record<string, CostumeDef>;
   ribbons: RibbonRules;
+  arcade: ArcadeRules;
+  arcadeGames: Record<ArcadeGameId, ArcadeGameDef>;
+  companions: Record<string, CompanionDef>;
   expeditions: Record<string, ExpeditionDef>;
   /** Order in which new residents are housed, and the room shown first. */
   roomOrder: string[];

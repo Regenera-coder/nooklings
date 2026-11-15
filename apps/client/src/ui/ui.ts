@@ -7,7 +7,7 @@ import {
   purchaseKey,
   residentsInRoom,
   spotUnlocked,
-  ribbonToday,
+  companionOf,
   visibleCostumes,
   isUnlocked,
   levelFor,
@@ -24,6 +24,7 @@ import {
   type ResidentDef,
   type TaskDef,
 } from '@nooklings/core';
+import { Arcade } from '../arcade/arcade';
 import { artUrl, costumeArtName } from '../assets';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
@@ -31,6 +32,7 @@ import type { CommandInput } from '../store';
 
 type Tab = 'home' | 'nookbook' | 'explore' | 'tasks';
 type Filter = 'all' | 'owned' | 'missing';
+type ExploreView = 'arcade' | 'outdoors';
 
 const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph: string }> = {
   buttons: { name: 'Buttons', icon: 'icon_buttons', glyph: '●' },
@@ -122,6 +124,10 @@ export class GameUI {
   private showOdds = false;
   private toastTimer = 0;
   private revealing = false;
+  private exploreView: ExploreView = 'outdoors';
+  private readonly arcade: Arcade;
+  /** Where to return after Hide and Seek. */
+  private beforeHide: { tab: Tab; roomId: string } | null = null;
   private readonly panel = document.getElementById('panel')!;
   private readonly page = document.getElementById('page')!;
   private readonly reveal = document.getElementById('reveal')!;
@@ -154,6 +160,18 @@ export class GameUI {
         span.append(img);
       }
     }
+    this.arcade = new Arcade({
+      content,
+      getState,
+      dispatch,
+      getScene,
+      showRoomForHide: () => this.showRoomForHide(),
+      leaveRoomAfterHide: () => this.leaveRoomAfterHide(),
+      placeNow: (defId) => this.placeNow(defId),
+      openResident: (id) => this.openCharacter(id),
+      onClosed: () => this.render(),
+      errorText,
+    });
     this.applyInterfaceArt();
     this.renderRoomTabs();
     window.setInterval(() => this.tick(), 1000);
@@ -175,6 +193,11 @@ export class GameUI {
     }
     const root = document.documentElement;
     const pairs: Array<[string, string]> = [['--ui-panel', 'ui_panel'], ['--ui-button', 'ui_button'], ['--ui-button-primary', 'ui_button_primary']];
+    // Arcade pieces (used by the Arcade styles when present).
+    for (const [v, key] of [['--ui-card-frame', 'ui_card_frame'], ['--ui-play-button', 'ui_play_button']]) {
+      const url = artUrl(key!);
+      if (url) root.style.setProperty(v!, `url("${url}")`);
+    }
     let any = false;
     for (const [v, key] of pairs) {
       const url = artUrl(key);
@@ -312,11 +335,14 @@ export class GameUI {
         this.toast(`${this.content.residents[e.residentId]?.name} is back from ${this.content.expeditions[e.routeId]?.name}!`, 2400);
         break;
       case 'ribbons_earned':
-        if (e.source !== 'minigame') this.toast(`+${e.amount} Ribbon${e.amount > 1 ? 's' : ''}`);
+        // Arcade Ribbons are shown on the results card.
+        if (e.source !== 'arcade') this.toast(`+${e.amount} Ribbon${e.amount > 1 ? 's' : ''}`);
         break;
-      case 'minigame_done':
-        this.toast(e.ribbons > 0 ? `Button Catch: +${e.ribbons} Ribbons!` : 'Button Catch: no Ribbons this time', 2400);
+      case 'companion_assigned': {
+        const pet = this.content.companions[e.companionId]?.name ?? 'Companion';
+        this.toast(e.residentId ? `${pet} now follows ${this.content.residents[e.residentId]?.name}` : `${pet} is resting in the Nookbook`);
         break;
+      }
       case 'costume_bought':
         this.toast(`Bought ${this.content.costumes[e.costumeId]?.name}!`, 2200);
         break;
@@ -348,8 +374,10 @@ export class GameUI {
 
   private tick(): void {
     const hasCountdown =
-      (this.tab === 'home' && this.selection.kind === 'resident') || (this.tab === 'nookbook' && this.detailId !== null) || this.tab === 'explore';
-    if (hasCountdown && !this.revealing) this.render();
+      (this.tab === 'home' && this.selection.kind === 'resident') ||
+      (this.tab === 'nookbook' && this.detailId !== null) ||
+      (this.tab === 'explore' && this.exploreView === 'outdoors');
+    if (hasCountdown && !this.revealing && !this.arcade.isOpen) this.render();
     else this.renderBadges();
   }
 
@@ -671,7 +699,10 @@ export class GameUI {
       if (roomId) this.showRoom(roomId);
       if (isRoomOpen(this.getState(), this.content, this.roomId)) this.setBuild(true);
     } else if (target === 'nookbook') this.setTab('nookbook');
-    else if (target === 'parcels' || target === 'explore') this.setTab('explore');
+    else if (target === 'parcels' || target === 'explore') {
+      this.exploreView = 'outdoors';
+      this.setTab('explore');
+    }
     else this.page.scrollTop = 0;
   }
 
@@ -759,6 +790,8 @@ export class GameUI {
       add('Bond', bondCell);
       add('Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
       add('Lives in', this.homePicker(id, owned.room));
+      const pets = this.companionPicker(id);
+      if (pets) add('Companion', pets);
       info.append(kv, el('p', 'story', def.story));
       const actions = el('div', 'actions');
       actions.append(this.playButton(id, 'btn primary'));
@@ -817,6 +850,69 @@ export class GameUI {
     return box;
   }
 
+  /** Choose which Arcade companion follows this resident (one each). */
+  private companionPicker(id: string): HTMLElement | null {
+    const s = this.getState();
+    const owned = Object.keys(s.companions);
+    if (!owned.length) return null;
+    const current = companionOf(s, id);
+    const select = el('select', 'pick');
+    const none = el('option', '', 'None');
+    none.value = '';
+    select.append(none);
+    for (const pet of owned) {
+      const def = this.content.companions[pet];
+      if (!def) continue;
+      const with_ = s.companions[pet]?.residentId;
+      const note = with_ && with_ !== id ? ` (with ${this.content.residents[with_]?.name})` : '';
+      const opt = el('option', '', `${def.name}${note}`);
+      opt.value = pet;
+      opt.selected = pet === current;
+      select.append(opt);
+    }
+    if (!current) none.selected = true;
+    select.addEventListener('change', () => {
+      if (select.value) this.run({ type: 'assign_companion', companionId: select.value, residentId: id });
+      else if (current) this.run({ type: 'assign_companion', companionId: current, residentId: null });
+    });
+    return select;
+  }
+
+  // ---------- Arcade hooks ----------
+
+  /** Hide and Seek is played in a room of the player's home: the current one if it has enough furniture to hide behind. */
+  private showRoomForHide(): void {
+    const s = this.getState();
+    this.beforeHide = { tab: this.tab, roomId: this.roomId };
+    const spots = (roomId: string) =>
+      (s.rooms[roomId]?.placements ?? []).filter((p) => {
+        const layer = this.content.furniture[p.defId]?.layer;
+        return layer === 'floor' || layer === 'wall';
+      }).length;
+    let room = this.roomId;
+    if (spots(room) < 3) {
+      const open = this.content.roomOrder.filter((r) => isRoomOpen(s, this.content, r));
+      room = open.reduce((best, r) => (spots(r) > spots(best) ? r : best), room);
+    }
+    this.showRoom(room);
+  }
+
+  private leaveRoomAfterHide(): void {
+    const back = this.beforeHide;
+    this.beforeHide = null;
+    if (!back) return;
+    this.getScene()?.switchRoom(back.roomId);
+    this.setTab(back.tab);
+  }
+
+  /** From the prize reveal: go home in Build mode with the new item ready to place. */
+  private placeNow(defId: string): void {
+    this.setTab('home');
+    if (!isRoomOpen(this.getState(), this.content, this.roomId)) this.showRoom(this.content.roomOrder[0]!);
+    this.setBuild(true);
+    this.getScene()?.beginPlace(defId);
+  }
+
   private homePicker(id: string, current: string): HTMLElement {
     const s = this.getState();
     const select = el('select', 'pick');
@@ -861,70 +957,6 @@ export class GameUI {
       card.append(row);
     }
     this.page.append(card);
-  }
-
-  private renderMinigameCard(): void {
-    const s = this.getState();
-    const rules = this.content.ribbons;
-    const today = ribbonToday(s, Date.now());
-    const left = rules.minigame.gamesPerDay - today.games;
-    const card = el('div', 'card');
-    card.append(el('h3', '', 'Button Catch'));
-    const have = el('div', 'rewards');
-    have.append(...costChips({ ribbons: s.wallet.ribbons ?? 0 }));
-    card.append(have);
-    card.append(el('p', '', `Tap the buttons as they pop up! Every ${rules.minigame.pointsPerRibbon} points earns a Ribbon (up to ${rules.minigame.maxRibbonsPerGame} a game). Ribbons buy costumes in each resident's Wardrobe.`));
-    card.append(el('p', 'hint', `Games left today: ${left}/${rules.minigame.gamesPerDay} · Ribbons from playing with residents today: ${today.fromPlay}/${rules.playsPerDay}`));
-    card.append(button('Play', 'btn primary', () => this.startMinigame(), left <= 0));
-    this.page.append(card);
-  }
-
-  private startMinigame(): void {
-    const m = this.content.ribbons.minigame;
-    const overlay = el('div', 'minigame');
-    const hud = el('div', 'mg-hud');
-    const scoreEl = el('b', '', '0');
-    const timeEl = el('span', 'timer', `${m.secondsLong}s`);
-    hud.append(el('span', '', 'Score '), scoreEl, timeEl);
-    const field = el('div', 'mg-field');
-    overlay.append(hud, field);
-    document.body.append(overlay);
-    let score = 0;
-    let remaining = m.secondsLong;
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const icon = artUrl('icon_buttons');
-    const spawn = () => {
-      const b = el('button', 'mg-btn');
-      if (icon) { const img = el('img'); img.src = icon; img.alt = ''; b.append(img); } else b.textContent = '●';
-      const golden = Math.random() < 0.15;
-      if (golden) b.classList.add('gold');
-      b.style.left = `${8 + Math.random() * 80}%`;
-      b.style.top = `${8 + Math.random() * 74}%`;
-      b.setAttribute('aria-label', golden ? 'Golden button, 3 points' : 'Button, 1 point');
-      b.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        score += golden ? 3 : 1;
-        scoreEl.textContent = String(score);
-        b.remove();
-      }, { once: true });
-      field.append(b);
-      window.setTimeout(() => b.remove(), reduced ? 1600 : 1100);
-    };
-    const spawner = window.setInterval(spawn, 450);
-    const clock = window.setInterval(() => {
-      remaining -= 1;
-      timeEl.textContent = `${remaining}s`;
-      if (remaining <= 0) finish();
-    }, 1000);
-    const finish = () => {
-      window.clearInterval(spawner);
-      window.clearInterval(clock);
-      field.replaceChildren();
-      this.run({ type: 'play_minigame', score, at: Date.now() });
-      const done = el('div', 'mg-done');
-      done.append(el('h3', '', `You caught ${score} points!`), button('Done', 'btn primary', () => { overlay.remove(); this.render(); }));
-      overlay.append(done);
-    };
   }
 
   private tripResident = '';
@@ -991,9 +1023,23 @@ export class GameUI {
     const s = this.getState();
     const head = el('div', 'page-h');
     head.append(el('h2', '', 'Explore'));
+    const seg = el('div', 'filters');
+    for (const [view, label] of [['arcade', 'Arcade'], ['outdoors', 'Outdoors & parcels']] as Array<[ExploreView, string]>) {
+      const b = button(label, `filter${this.exploreView === view ? ' on' : ''}`, () => {
+        this.exploreView = view;
+        this.page.scrollTop = 0;
+        this.render();
+      });
+      b.setAttribute('aria-pressed', String(this.exploreView === view));
+      seg.append(b);
+    }
+    head.append(seg);
     this.page.append(head);
+    if (this.exploreView === 'arcade') {
+      this.arcade.renderHub(this.page);
+      return;
+    }
     this.renderGathering();
-    this.renderMinigameCard();
     this.renderExpeditions();
     for (const pool of Object.values(this.content.parcels)) {
       const card = el('div', 'card');

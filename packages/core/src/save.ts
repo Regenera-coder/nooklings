@@ -1,8 +1,8 @@
 import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
-import type { Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
+import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -17,6 +17,8 @@ const MIGRATIONS: Record<number, Migration> = {
   2: (raw) => ({ ...raw, version: 3 }),
   // v3 -> v4: costumes and Ribbons (new fields default to empty).
   3: (raw) => ({ ...raw, version: 4 }),
+  // v4 -> v5 (Milestone D): the Arcade and companions (new fields default to empty).
+  4: (raw) => ({ ...raw, version: 5 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -56,6 +58,8 @@ export function newGame(content: Content): GameState {
     expeditionsDone: {},
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
+    arcade: { day: 0, plays: {}, best: {}, prizes: [] },
+    companions: {},
     rngState: content.starter.rngSeed >>> 0,
     nextUid,
     appliedCommandIds: [],
@@ -164,6 +168,27 @@ export function deserialize(text: string, content: Content): GameState {
   const rd = (data.ribbonDay ?? {}) as Raw;
   const ribbonDay = { day: nonNegInt(rd.day), fromPlay: nonNegInt(rd.fromPlay), games: nonNegInt(rd.games) };
 
+  // Arcade: keep only known games and prizes; scores within each game's range.
+  const ra = (data.arcade ?? {}) as Raw;
+  const isGame = (k: string): k is ArcadeGameId => k in content.arcadeGames;
+  const arcade: ArcadeState = { day: nonNegInt(ra.day), plays: {}, best: {}, prizes: [] };
+  for (const [k, v] of Object.entries((ra.plays ?? {}) as Raw)) if (isGame(k)) arcade.plays[k] = Math.min(content.arcade.playsPerDay, nonNegInt(v));
+  for (const [k, v] of Object.entries((ra.best ?? {}) as Raw)) if (isGame(k)) arcade.best[k] = Math.min(content.arcadeGames[k].maxScore, nonNegInt(v));
+  arcade.prizes = strings(ra.prizes).filter((key, i, all) => {
+    const [g, n] = key.split(':');
+    return !!g && isGame(g) && /^[012]$/.test(n ?? '') && all.indexOf(key) === i;
+  });
+  // Companions: known ones only, following an owned resident, at most one per resident.
+  const companions: GameState['companions'] = {};
+  const following = new Set<string>();
+  for (const [id, c] of Object.entries((data.companions ?? {}) as Record<string, Raw>)) {
+    if (!content.companions[id] || !c) continue;
+    let residentId = typeof c.residentId === 'string' && c.residentId in residents ? c.residentId : null;
+    if (residentId && following.has(residentId)) residentId = null;
+    if (residentId) following.add(residentId);
+    companions[id] = { residentId };
+  }
+
   const usedUids = Object.values(rooms).flatMap((r) => r.placements.map((p) => Number(p.uid.slice(1)) || 0));
   const nextUid = Math.max(num(data.nextUid, 1), ...usedUids.map((n) => n + 1), 1);
   const taskIds = new Set(content.tasks.map((t) => t.id));
@@ -189,6 +214,8 @@ export function deserialize(text: string, content: Content): GameState {
     expeditionsDone,
     costumesOwned,
     ribbonDay,
+    arcade,
+    companions,
     rngState: typeof data.rngState === 'number' ? data.rngState >>> 0 : fresh.rngState,
     nextUid,
     appliedCommandIds: strings(data.appliedCommandIds),
