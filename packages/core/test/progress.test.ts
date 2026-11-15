@@ -68,7 +68,7 @@ describe('first session flow', () => {
     expect(Object.keys(steps.afterParcel!.residents).sort()).toEqual(['mischi', 'snug', 'tinker']);
     expect(parcelEvents[0]).toMatchObject({ type: 'parcel_opened', record: { kind: 'resident', id: 'mischi', guaranteed: true, duplicate: false } });
     expect(steps.end!.residents.snug!.form).toBe('decorated');
-    expect(taskStates(steps.end!, content).every((t) => t.status === 'claimed')).toBe(true);
+    expect(taskStates(steps.end!, content).slice(0, 7).every((t) => t.status === 'claimed')).toBe(true);
     for (const v of Object.values(steps.end!.wallet)) expect(v).toBeGreaterThanOrEqual(0);
   });
 

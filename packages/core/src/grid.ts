@@ -28,7 +28,7 @@ export function cellsOf(def: FurnitureDef, col: number, row: number): Cell[] {
 export function inBounds(room: RoomDef, def: FurnitureDef, col: number, row: number): boolean {
   if (!Number.isInteger(col) || !Number.isInteger(row)) return false;
   if (col < 0 || col + def.w > room.cols) return false;
-  if (def.layer === 'wall') return row === 0;
+  if (def.layer === 'wall') return row === 0 && room.walls !== false;
   return row >= 0 && row + def.h <= room.rows;
 }
 

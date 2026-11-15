@@ -7,7 +7,7 @@ export interface Cell {
   row: number;
 }
 
-export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread';
+export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread' | 'keepsakes';
 export type Cost = Partial<Record<Currency, number>>;
 
 export interface FurnitureDef {
@@ -32,6 +32,34 @@ export interface RoomDef {
   rows: number;
   /** Floor cell in front of the doorway. Must always stay free and reachable. */
   door: Cell;
+  /** false for outdoor spaces: no back wall, so no wall items. Default true. */
+  walls?: boolean;
+  /** Placeholder look until room art exists. */
+  theme: 'living' | 'sunroom' | 'yard';
+  /** Room must be opened: needs a level unlock, then a one-off purchase. */
+  access?: { unlock: string; cost: Cost };
+  /** Optional expansion: before it is bought only the first baseCols columns are usable. */
+  expansion?: { unlock: string; cost: Cost; baseCols: number };
+}
+
+export interface GatherSpotDef {
+  id: string;
+  name: string;
+  roomId: string;
+  yield: Cost;
+  cooldownMs: number;
+  requiresUnlock?: string;
+}
+
+export interface ExpeditionDef {
+  id: string;
+  name: string;
+  description: string;
+  durationMs: number;
+  reward: Cost & { hearts?: number };
+  requiresUnlock: string;
+  /** The first time this route is completed, this resident comes home with the traveller. */
+  firstTimeResident?: string;
 }
 
 export type Rarity = 'Common' | 'Rare' | 'Epic' | 'Secret';
@@ -83,6 +111,10 @@ export interface InvitationDef {
   /** Short welcome step: a small gift, paid when sending the invitation. */
   welcomeGift: Cost;
   welcomeText: string;
+  /** Furniture that must be placed in roomId. */
+  requiresPlaced?: string[];
+  /** Residents the player must already have. */
+  requiresOwned?: string[];
 }
 
 export type TaskCondition =
@@ -91,7 +123,12 @@ export type TaskCondition =
   | { kind: 'parcels_opened'; count: number }
   | { kind: 'flag'; flag: string }
   | { kind: 'bond_level'; level: number }
-  | { kind: 'form'; residentId: string; form: Form };
+  | { kind: 'form'; residentId: string; form: Form }
+  | { kind: 'purchased'; key: string }
+  | { kind: 'room_items'; roomId: string; count: number }
+  | { kind: 'gathered'; count: number }
+  | { kind: 'expeditions_done'; count: number }
+  | { kind: 'residents_owned'; count: number };
 
 export interface TaskDef {
   id: string;
@@ -100,7 +137,7 @@ export interface TaskDef {
   condition: TaskCondition;
   reward: Cost & { hearts?: number };
   /** Where the "Go" button sends the player. */
-  goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations';
+  goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations' | 'explore';
 }
 
 export interface ParcelPoolDef {
@@ -151,6 +188,15 @@ export interface OwnedResident {
   form: Form;
   /** Timestamp (ms) of the last Play. Supplied by the caller; the server will supply it later. */
   lastPlayAt: number;
+  /** Room this resident lives in. */
+  room: string;
+}
+
+export interface ActiveExpedition {
+  routeId: string;
+  residentId: string;
+  startAt: number;
+  endAt: number;
 }
 
 export interface ParcelRecord {
@@ -178,6 +224,13 @@ export interface GameState {
   flags: string[];
   parcelsOpened: number;
   parcelLog: ParcelRecord[];
+  /** One-off purchases such as "sunroom:open" and "yard:expand". */
+  purchases: string[];
+  /** When each gathering spot is ready again (ms). */
+  gatherReadyAt: Record<string, number>;
+  gatherCount: number;
+  expedition: ActiveExpedition | null;
+  expeditionsDone: Record<string, number>;
   /** Parcel random state. Moves to the server in Milestone D so it can't be predicted. */
   rngState: number;
   nextUid: number;
@@ -196,12 +249,17 @@ export interface Content {
   parcels: Record<string, ParcelPoolDef>;
   bond: BondDef;
   formUpgrades: FormUpgradeDef[];
+  gatherSpots: Record<string, GatherSpotDef>;
+  expeditions: Record<string, ExpeditionDef>;
+  /** Order in which new residents are housed, and the room shown first. */
+  roomOrder: string[];
   /** Hearts and caps used by the progress rules. PROPOSED values. */
   rules: {
     heartsPerNewResident: number;
     heartsPerFirstCraft: number;
     maxCopiesCounted: number;
     maxActiveResidents: number;
+    maxResidentsPerRoom: number;
   };
   starter: {
     homeName: string;

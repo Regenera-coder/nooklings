@@ -3,7 +3,13 @@ import {
   addCost,
   bondLevel,
   canAfford,
+  effectiveRoom,
+  homeForNewResident,
   invitationStatus,
+  isRoomOpen,
+  purchaseKey,
+  residentsInRoom,
+  spotUnlocked,
   isUnlocked,
   levelFor,
   nextRandom,
@@ -31,7 +37,12 @@ export type Command =
   | { id: string; type: 'open_parcel'; poolId: string }
   | { id: string; type: 'play'; residentId: string; at: number }
   | { id: string; type: 'upgrade_form'; residentId: string }
-  | { id: string; type: 'set_flag'; flag: string };
+  | { id: string; type: 'set_flag'; flag: string }
+  | { id: string; type: 'buy_room'; roomId: string; kind: 'open' | 'expand' }
+  | { id: string; type: 'gather'; spotId: string; at: number }
+  | { id: string; type: 'start_expedition'; routeId: string; residentId: string; at: number }
+  | { id: string; type: 'collect_expedition'; at: number }
+  | { id: string; type: 'move_resident'; residentId: string; roomId: string };
 
 export type CommandError =
   | PlacementError
@@ -49,7 +60,12 @@ export type CommandError =
   | 'already_done'
   | 'not_owned'
   | 'cooldown'
-  | 'bad_flag';
+  | 'bad_flag'
+  | 'unknown_spot'
+  | 'unknown_route'
+  | 'room_full'
+  | 'busy'
+  | 'away';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -58,7 +74,12 @@ export type GameEvent =
   | { type: 'stored'; roomId: string; uid: string; defId: string }
   | { type: 'crafted'; recipeId: string; furnitureId: string }
   | { type: 'task_claimed'; taskId: string; reward: Cost & { hearts?: number } }
-  | { type: 'resident_joined'; residentId: string; via: 'invitation' | 'parcel' }
+  | { type: 'resident_joined'; residentId: string; via: 'invitation' | 'parcel' | 'expedition'; roomId: string }
+  | { type: 'room_bought'; roomId: string; kind: 'open' | 'expand' }
+  | { type: 'gathered'; spotId: string; yield: Cost }
+  | { type: 'expedition_started'; routeId: string; residentId: string; endAt: number }
+  | { type: 'expedition_done'; routeId: string; residentId: string; reward: Cost & { hearts?: number } }
+  | { type: 'resident_moved'; residentId: string; roomId: string }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
@@ -84,13 +105,14 @@ function addHearts(d: Draft, amount: number, content: Content): void {
   for (let l = before + 1; l <= after; l++) d.events.push({ type: 'level_up', level: l });
 }
 
-function grantResident(d: Draft, content: Content, residentId: string, via: 'invitation' | 'parcel'): void {
+function grantResident(d: Draft, content: Content, residentId: string, via: 'invitation' | 'parcel' | 'expedition'): void {
+  const room = homeForNewResident(d.state, content);
   d.state = {
     ...d.state,
-    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0 } },
+    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, room } },
     residentOrder: [...d.state.residentOrder, residentId],
   };
-  d.events.push({ type: 'resident_joined', residentId, via });
+  d.events.push({ type: 'resident_joined', residentId, via, roomId: room });
   addHearts(d, content.rules.heartsPerNewResident, content);
 }
 
@@ -118,9 +140,10 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
     case 'move':
     case 'flip':
     case 'store': {
-      const roomDef = content.rooms[cmd.roomId];
+      const roomDef = effectiveRoom(state, content, cmd.roomId);
       const room = state.rooms[cmd.roomId];
       if (!roomDef || !room) return fail('unknown_room');
+      if (!isRoomOpen(state, content, cmd.roomId) && cmd.type !== 'store') return fail('locked');
       const setRoom = (placements: Placement[], inventory = state.inventory, nextUid = state.nextUid) => {
         d.state = { ...state, rooms: { ...state.rooms, [cmd.roomId]: { placements } }, inventory, nextUid };
       };
@@ -235,6 +258,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const owned = state.residents[cmd.residentId];
       if (!content.residents[cmd.residentId]) return fail('unknown_resident');
       if (!owned) return fail('not_owned');
+      if (state.expedition?.residentId === cmd.residentId) return fail('away');
       if (!Number.isFinite(cmd.at) || cmd.at < playReadyAt(state, content, cmd.residentId)) return fail('cooldown');
       const before = bondLevel(owned.bondXp, content);
       const bondXp = owned.bondXp + 1;
@@ -265,6 +289,84 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'form_upgraded', residentId: cmd.residentId, form: 'decorated' });
       addHearts(d, upgrade.hearts, content);
+      return done();
+    }
+
+    case 'buy_room': {
+      const room = content.rooms[cmd.roomId];
+      if (!room) return fail('unknown_room');
+      const option = cmd.kind === 'open' ? room.access : room.expansion;
+      if (!option) return fail('unknown_room');
+      const key = purchaseKey(cmd.roomId, cmd.kind);
+      if (state.purchases.includes(key)) return fail('already_done');
+      if (cmd.kind === 'expand' && !isRoomOpen(state, content, cmd.roomId)) return fail('locked');
+      if (!isUnlocked(state, content, option.unlock)) return fail('locked');
+      if (!canAfford(state, option.cost)) return fail('cannot_afford');
+      d.state = { ...state, wallet: addCost(state.wallet, option.cost, -1), purchases: [...state.purchases, key] };
+      d.events.push({ type: 'room_bought', roomId: cmd.roomId, kind: cmd.kind });
+      return done();
+    }
+
+    case 'gather': {
+      const spot = content.gatherSpots[cmd.spotId];
+      if (!spot) return fail('unknown_spot');
+      if (!spotUnlocked(state, content, cmd.spotId)) return fail('locked');
+      if (!Number.isFinite(cmd.at) || cmd.at < (state.gatherReadyAt[cmd.spotId] ?? 0)) return fail('cooldown');
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, spot.yield, 1),
+        gatherReadyAt: { ...state.gatherReadyAt, [cmd.spotId]: cmd.at + spot.cooldownMs },
+        gatherCount: state.gatherCount + 1,
+      };
+      d.events.push({ type: 'gathered', spotId: cmd.spotId, yield: spot.yield });
+      return done();
+    }
+
+    case 'start_expedition': {
+      const route = content.expeditions[cmd.routeId];
+      if (!route) return fail('unknown_route');
+      if (!isUnlocked(state, content, route.requiresUnlock)) return fail('locked');
+      if (!state.residents[cmd.residentId]) return fail('not_owned');
+      if (state.expedition) return fail('busy');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      const expedition = { routeId: route.id, residentId: cmd.residentId, startAt: cmd.at, endAt: cmd.at + route.durationMs };
+      d.state = { ...state, expedition };
+      d.events.push({ type: 'expedition_started', routeId: route.id, residentId: cmd.residentId, endAt: expedition.endAt });
+      return done();
+    }
+
+    case 'collect_expedition': {
+      const trip = state.expedition;
+      if (!trip) return fail('not_ready');
+      if (!Number.isFinite(cmd.at) || cmd.at < trip.endAt) return fail('not_ready');
+      const route = content.expeditions[trip.routeId];
+      if (!route) return fail('unknown_route');
+      const { hearts = 0, ...cost } = route.reward;
+      const firstTime = !state.expeditionsDone[route.id];
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, cost, 1),
+        expedition: null,
+        expeditionsDone: { ...state.expeditionsDone, [route.id]: (state.expeditionsDone[route.id] ?? 0) + 1 },
+      };
+      d.events.push({ type: 'expedition_done', routeId: route.id, residentId: trip.residentId, reward: route.reward });
+      addHearts(d, hearts, content);
+      if (firstTime && route.firstTimeResident && !(route.firstTimeResident in d.state.residents)) {
+        grantResident(d, content, route.firstTimeResident, 'expedition');
+      }
+      return done();
+    }
+
+    case 'move_resident': {
+      const owned = state.residents[cmd.residentId];
+      if (!content.residents[cmd.residentId]) return fail('unknown_resident');
+      if (!owned) return fail('not_owned');
+      if (!content.rooms[cmd.roomId]) return fail('unknown_room');
+      if (!isRoomOpen(state, content, cmd.roomId)) return fail('locked');
+      if (owned.room === cmd.roomId) return fail('already_done');
+      if (residentsInRoom(state, cmd.roomId).length >= content.rules.maxResidentsPerRoom) return fail('room_full');
+      d.state = { ...state, residents: { ...state.residents, [cmd.residentId]: { ...owned, room: cmd.roomId } } };
+      d.events.push({ type: 'resident_moved', residentId: cmd.residentId, roomId: cmd.roomId });
       return done();
     }
 

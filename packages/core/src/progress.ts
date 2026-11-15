@@ -1,5 +1,6 @@
 import type {
   Content,
+  RoomDef,
   Cost,
   Currency,
   GameState,
@@ -10,7 +11,7 @@ import type {
   TaskDef,
 } from './types';
 
-export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread'];
+export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes'];
 
 // ---------- levels ----------
 
@@ -29,6 +30,46 @@ export function nextLevel(state: GameState, content: Content): { level: number; 
   const level = levelFor(state.hearts, content);
   const next = content.levels.filter((l) => l.level > level).sort((a, b) => a.level - b.level)[0];
   return next ? { level: next.level, hearts: next.hearts } : null;
+}
+
+// ---------- rooms ----------
+
+export function purchaseKey(roomId: string, kind: 'open' | 'expand'): string {
+  return `${roomId}:${kind}`;
+}
+
+/** Can the player use this room yet (level unlock and, if needed, the opening purchase)? */
+export function isRoomOpen(state: GameState, content: Content, roomId: string): boolean {
+  const room = content.rooms[roomId];
+  if (!room) return false;
+  return !room.access || state.purchases.includes(purchaseKey(roomId, 'open'));
+}
+
+/** The room as it can currently be used: before an expansion only the first baseCols are usable. */
+export function effectiveRoom(state: GameState, content: Content, roomId: string): RoomDef | undefined {
+  const room = content.rooms[roomId];
+  if (!room) return undefined;
+  if (room.expansion && !state.purchases.includes(purchaseKey(roomId, 'expand'))) {
+    return { ...room, cols: room.expansion.baseCols };
+  }
+  return room;
+}
+
+/** Residents living in a room who are at home (not away on an expedition). */
+export function residentsAtHome(state: GameState, roomId: string): string[] {
+  return state.residentOrder.filter((id) => state.residents[id]?.room === roomId && state.expedition?.residentId !== id);
+}
+
+export function residentsInRoom(state: GameState, roomId: string): string[] {
+  return state.residentOrder.filter((id) => state.residents[id]?.room === roomId);
+}
+
+/** First open room with space, in the content's room order. */
+export function homeForNewResident(state: GameState, content: Content): string {
+  for (const id of content.roomOrder) {
+    if (isRoomOpen(state, content, id) && residentsInRoom(state, id).length < content.rules.maxResidentsPerRoom) return id;
+  }
+  return content.roomOrder[0]!;
 }
 
 // ---------- wallet ----------
@@ -72,7 +113,10 @@ export interface InvitationStatus {
   def: InvitationDef;
   owned: boolean;
   levelOk: boolean;
+  roomOpen: boolean;
   atmosphere: Array<{ tag: string; have: number; need: number; ok: boolean }>;
+  placed: Array<{ furnitureId: string; ok: boolean }>;
+  friends: Array<{ residentId: string; ok: boolean }>;
   giftOk: boolean;
   ready: boolean;
 }
@@ -85,7 +129,13 @@ export function invitationStatus(state: GameState, content: Content, residentId:
   const atm = atmosphere(state, content, def.roomId);
   const rows = Object.entries(def.atmosphere).map(([tag, need]) => ({ tag, have: atm[tag] ?? 0, need, ok: (atm[tag] ?? 0) >= need }));
   const giftOk = canAfford(state, def.welcomeGift);
-  return { def, owned, levelOk, atmosphere: rows, giftOk, ready: !owned && levelOk && giftOk && rows.every((r) => r.ok) };
+  const roomOpen = isRoomOpen(state, content, def.roomId);
+  const inRoom = new Set((state.rooms[def.roomId]?.placements ?? []).map((p) => p.defId));
+  const placed = (def.requiresPlaced ?? []).map((furnitureId) => ({ furnitureId, ok: inRoom.has(furnitureId) }));
+  const friends = (def.requiresOwned ?? []).map((residentId) => ({ residentId, ok: residentId in state.residents }));
+  const ready =
+    !owned && levelOk && roomOpen && giftOk && rows.every((r) => r.ok) && placed.every((p) => p.ok) && friends.every((f) => f.ok);
+  return { def, owned, levelOk, roomOpen, atmosphere: rows, placed, friends, giftOk, ready };
 }
 
 // ---------- bond ----------
@@ -128,6 +178,16 @@ export function conditionMet(state: GameState, content: Content, c: TaskConditio
       return Object.values(state.residents).some((r) => bondLevel(r.bondXp, content) >= c.level);
     case 'form':
       return state.residents[c.residentId]?.form === c.form;
+    case 'purchased':
+      return state.purchases.includes(c.key);
+    case 'room_items':
+      return (state.rooms[c.roomId]?.placements.length ?? 0) >= c.count;
+    case 'gathered':
+      return state.gatherCount >= c.count;
+    case 'expeditions_done':
+      return Object.values(state.expeditionsDone).reduce((a, b) => a + b, 0) >= c.count;
+    case 'residents_owned':
+      return Object.keys(state.residents).length >= c.count;
   }
 }
 
@@ -206,4 +266,18 @@ export function pickOutcome(odds: ParcelOutcome[], roll: number): ParcelOutcome 
 
 export function poolCanOpen(state: GameState, content: Content, pool: ParcelPoolDef): boolean {
   return isUnlocked(state, content, pool.requiresUnlock) && canAfford(state, pool.cost);
+}
+
+// ---------- gathering and expeditions ----------
+
+export function gatherReadyIn(state: GameState, content: Content, spotId: string, now: number): number {
+  const spot = content.gatherSpots[spotId];
+  if (!spot) return Infinity;
+  return Math.max(0, (state.gatherReadyAt[spotId] ?? 0) - now);
+}
+
+export function spotUnlocked(state: GameState, content: Content, spotId: string): boolean {
+  const spot = content.gatherSpots[spotId];
+  if (!spot) return false;
+  return (!spot.requiresUnlock || isUnlocked(state, content, spot.requiresUnlock)) && isRoomOpen(state, content, spot.roomId);
 }

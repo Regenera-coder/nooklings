@@ -31,10 +31,15 @@ const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph:
   fabric: { name: 'Fabric', icon: 'icon_fabric', glyph: '◈' },
   wishStamps: { name: 'Wish Stamps', icon: 'icon_wish_stamp', glyph: '✉' },
   mendingThread: { name: 'Mending Thread', icon: 'icon_mending_thread', glyph: '✂' },
+  keepsakes: { name: 'Keepsakes', icon: 'icon_keepsake', glyph: '❖' },
   hearts: { name: 'Home Hearts', icon: 'icon_home_heart', glyph: '♥' },
 };
 
-const UNLOCK_NAMES: Record<string, string> = { crafting: 'Crafting', parcels: 'Mystery Parcels' };
+const UNLOCK_NAMES: Record<string, string> = {
+  crafting: 'Crafting', parcels: 'Mystery Parcels', sunroom: 'The Sunroom', gardening: 'Gardening',
+  yard_expansion: 'Bigger yard', rain_decor: 'Rainy-day decor', expeditions: 'Expeditions',
+  tranquil_decor: 'Tranquil decor', heirloom: 'Heirloom restoring', exterior: 'Wishing Lantern',
+};
 
 const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' }> = [
   { label: 'Furniture', layer: 'floor' },

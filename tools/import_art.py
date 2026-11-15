@@ -163,8 +163,9 @@ def main() -> int:
     best: dict[str, tuple[int, Path]] = {}
     unknown: list[str] = []
     superseded: list[str] = []
+    import fnmatch
     for f in sorted(src.glob("*.png")):
-        if f.name in excluded:
+        if any(fnmatch.fnmatch(f.name, pat) for pat in excluded):
             continue
         m = re.match(r"^(.*?)(?:_v(\d+))?$", f.stem)
         assert m
