@@ -258,8 +258,9 @@ export class Resident {
       y = fp.y;
       depth = 100 + y;
       if (mode.kind === 'walk' && !this.reducedMotion) {
-        this.bobT += dt * 12;
-        y -= Math.abs(Math.sin(this.bobT)) * l.cw * 0.06;
+        // Step cadence follows walking speed: two steps per cycle, a small hop on each.
+        this.bobT += dt * 5.5 * this.def.speed;
+        y -= Math.abs(Math.sin(this.bobT)) * l.cw * 0.09;
       }
     }
     this.container.setPosition(x, y).setDepth(depth);
@@ -282,8 +283,8 @@ export class Resident {
 
   /**
    * Uses production art when it exists, otherwise the placeholder drawing.
-   * Poses are single static images: walking shows the walk pose with a small bob,
-   * flipped when moving left. Front-facing poses (idle, happy, sit) are never flipped,
+   * Poses are single images: walking alternates the walk pose (foot lifted) and the idle pose
+   * (feet down) on each step, with a waddle and a hop, flipped when moving left. Front-facing poses (idle, happy, sit) are never flipped,
    * so accessories stay on their side. Sleeping faces the bed's pillow end.
    */
   private updateSprite(walking: boolean, _dt: number, now: number): void {
@@ -291,6 +292,7 @@ export class Resident {
     if (!idleKey || !this.scene.textures.exists(idleKey)) {
       this.sprite.setVisible(false);
       this.body.setVisible(true);
+      this.body.setRotation(walking && !this.reducedMotion ? Math.sin(this.bobT) * 0.09 : 0);
       return;
     }
     let pose: Pose = 'idle';
@@ -309,7 +311,24 @@ export class Resident {
     let flip = 1;
     if (pose === 'walk') flip = this.facing;
     if (pose === 'sleep') flip = this.restFlip;
-    this.sprite.setOrigin(0.5, 0.96).setScale(scale * flip, scale).setVisible(true);
+    let sx = 1;
+    let sy = 1;
+    let tilt = 0;
+    if (walking && pose === 'walk' && !this.reducedMotion) {
+      // Two-frame step: lifted-leg walk pose while in the air, feet-down idle pose on each footfall,
+      // with a side-to-side waddle and a little squash as each foot lands.
+      const lift = Math.abs(Math.sin(this.bobT));
+      const stepKey = lift > 0.35 ? key : charKey(this.def.id, 'idle', this.decorated) ?? key;
+      if (stepKey !== this.shownKey && this.scene.textures.exists(stepKey)) {
+        this.sprite.setTexture(stepKey);
+        this.shownKey = stepKey;
+      }
+      tilt = Math.sin(this.bobT) * 0.09;
+      const land = 1 - lift;
+      sy = 1 - land * 0.06;
+      sx = 1 + land * 0.04;
+    }
+    this.sprite.setOrigin(0.5, 0.96).setScale(scale * flip * sx, scale * sy).setRotation(tilt).setVisible(true);
     this.body.setVisible(false);
   }
 

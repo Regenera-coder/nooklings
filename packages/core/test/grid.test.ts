@@ -47,9 +47,9 @@ describe('validatePlacement', () => {
 
   it('places wall items by slot and rejects wall overlap', () => {
     const placed = [at('w', 'round_window', 4, 0)];
-    expect(validatePlacement(room, placed, content, { defId: 'moon_lantern', col: 5, row: 0 })).toEqual({ ok: false, reason: 'overlap' });
-    expect(validatePlacement(room, placed, content, { defId: 'moon_lantern', col: 6, row: 0 })).toEqual({ ok: true });
-    expect(validatePlacement(room, placed, content, { defId: 'moon_lantern', col: 6, row: 2 })).toEqual({ ok: false, reason: 'out_of_bounds' });
+    expect(validatePlacement(room, placed, content, { defId: 'picture_frame', col: 5, row: 0 })).toEqual({ ok: false, reason: 'overlap' });
+    expect(validatePlacement(room, placed, content, { defId: 'picture_frame', col: 6, row: 0 })).toEqual({ ok: true });
+    expect(validatePlacement(room, placed, content, { defId: 'picture_frame', col: 6, row: 2 })).toEqual({ ok: false, reason: 'out_of_bounds' });
   });
 });
 

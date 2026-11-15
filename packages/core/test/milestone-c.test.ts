@@ -125,3 +125,25 @@ describe('invited residents', () => {
     expect(s.residents.bloomi!.room).toBe(SUNROOM_ID);
   });
 });
+
+describe('wall coverings and hanging items', () => {
+  const base = () => {
+    const g = rich(3);
+    return { ...g, inventory: { ...g.inventory, round_window: 2, soft_curtains: 2, moon_lantern: 2, cloud_bed: 1 } };
+  };
+
+  it('lets curtains hang over a window, but not over other curtains', () => {
+    let s = ok(base(), { type: 'place', roomId: LIVING_ROOM_ID, defId: 'round_window', col: 2, row: 0 });
+    s = ok(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'soft_curtains', col: 2, row: 0 });
+    expect(err(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'soft_curtains', col: 3, row: 0 })).toBe('overlap');
+    expect(err(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'round_window', col: 3, row: 0 })).toBe('overlap');
+  });
+
+  it('hangs the Moon Lantern anywhere indoors, even over furniture, without blocking paths', () => {
+    let s = ok(base(), { type: 'place', roomId: LIVING_ROOM_ID, defId: 'cloud_bed', col: 4, row: 3 });
+    s = ok(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'moon_lantern', col: 4, row: 3 });
+    s = ok(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'moon_lantern', col: 10, row: 0 }); // over the doorway is fine
+    expect(err(s, { type: 'place', roomId: LIVING_ROOM_ID, defId: 'floor_lamp', col: 4, row: 3 })).toBe('overlap');
+    expect(err({ ...s, inventory: { ...s.inventory, moon_lantern: 1 } }, { type: 'place', roomId: YARD_ID, defId: 'moon_lantern', col: 2, row: 2 })).toBe('out_of_bounds');
+  });
+});

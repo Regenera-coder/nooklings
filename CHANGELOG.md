@@ -2,6 +2,13 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.3.2 — Playtest fixes (15 Nov 2026), local commit only, not pushed
+
+### Implemented
+- Soft Curtains can hang over a window (or any other wall item). Two curtains still can't overlap.
+- The Moon Lantern now hangs from the ceiling over any floor cell indoors, even above furniture, and never blocks walking. Existing lanterns on the wall move to hang just in front of it. New "Hanging" group in the Build tray.
+- Residents now step instead of gliding: the walk pose (foot lifted) and the standing pose (feet down) alternate on each step, with a small hop, a side-to-side waddle and a squash as each foot lands. Step speed follows each resident's walking speed. Turned off when the device asks for reduced motion.
+
 ## 0.3.1 — Mischi redesign (15 Nov 2026), local commit only, not pushed or deployed
 
 ### Implemented

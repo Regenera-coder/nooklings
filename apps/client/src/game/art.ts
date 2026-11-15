@@ -41,7 +41,7 @@ export function furnitureImageSize(def: FurnitureDef, l: RoomLayout, texW: numbe
   if (def.layer === 'rug') return { w: def.w * l.cw, h: def.h * l.ch * 1.05 };
   const widthFrac = def.w === 1 ? 0.9 : 0.94;
   let scale = (def.w * l.cw * widthFrac) / texW;
-  const maxH = def.layer === 'wall' ? l.wallH * 0.82 : l.cw * 2.3;
+  const maxH = def.layer === 'wall' ? l.wallH * (def.overlay ? 0.95 : 0.82) : def.layer === 'ceiling' ? l.cw * 0.95 : l.cw * 2.3;
   if (texH * scale > maxH) scale = maxH / texH;
   return { w: texW * scale, h: texH * scale };
 }
@@ -67,8 +67,10 @@ export function seatPoint(scene: Phaser.Scene, def: FurnitureDef, p: Placement, 
 }
 
 export function furnitureDepth(def: FurnitureDef, p: Pick<Placement, 'row'>, l: RoomLayout): number {
-  if (def.layer === 'wall') return 5;
+  if (def.layer === 'wall') return def.overlay ? 6 : 5;
   if (def.layer === 'rug') return 10 + p.row;
+  // Hanging items sort with their row, just in front of anyone standing underneath.
+  if (def.layer === 'ceiling') return 100 + l.floorTop + (p.row + 1) * l.ch + 0.5;
   return 100 + l.floorTop + (p.row + def.h) * l.ch;
 }
 
@@ -91,6 +93,13 @@ export function drawFurniture(
   const back = -dpx + ch * 0.18;
   const front = -ch * 0.08;
   let top = 0;
+
+  if (def.layer === 'ceiling') {
+    g.fillStyle(0xfff0a8, 0.25).fillCircle(0, -cw * 0.3, cw * 0.4);
+    g.fillStyle(0xffe38a, 1).fillCircle(0, -cw * 0.3, cw * 0.24);
+    g.fillStyle(0xf6ead7, 1).fillCircle(cw * 0.1, -cw * 0.36, cw * 0.2);
+    return hang(scene, c, g, def, p, l, cw * 0.8, cw * 0.6);
+  }
 
   if (def.layer === 'wall') {
     const cx = l.ox + (p.col + def.w / 2) * cw;
@@ -284,8 +293,9 @@ function drawFurnitureImage(
   if (def.layer === 'wall') {
     const cy = l.wallTop + l.wallH * 0.46;
     c.setPosition(cx, cy);
-    return { container: c, bounds: { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }, depth: 5 };
+    return { container: c, bounds: { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }, depth: furnitureDepth(def, p, l) };
   }
+  if (def.layer === 'ceiling') return hang(scene, c, img, def, p, l, w, h);
   if (def.layer === 'rug') {
     const cy = l.floorTop + (p.row + def.h / 2) * l.ch;
     c.setPosition(cx, cy);
@@ -449,4 +459,29 @@ function label(scene: Phaser.Scene, text: string, width: number, cell: number): 
       wordWrap: { width: Math.max(20, width - 4) },
     })
     .setOrigin(0.5, 0.5);
+}
+
+/** Hanging item: the lamp floats above its floor cell on a cord that runs up out of view. */
+function hang(
+  scene: Phaser.Scene,
+  c: Phaser.GameObjects.Container,
+  item: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics,
+  def: FurnitureDef,
+  p: Pick<Placement, 'col' | 'row'>,
+  l: RoomLayout,
+  w: number,
+  h: number,
+): DrawnItem {
+  const cx = l.ox + (p.col + def.w / 2) * l.cw;
+  const groundY = l.floorTop + (p.row + 0.6) * l.ch;
+  const bottom = groundY - l.cw * 1.45; // above a resident's head
+  const top = bottom - h;
+  const cord = scene.add.graphics();
+  cord.lineStyle(Math.max(1.5, l.cw * 0.03), 0x6b5a4a, 1).lineBetween(0, l.wallTop - bottom, 0, -h * 0.85);
+  // Soft glow spot on the floor so it's clear which cell the lamp hangs over.
+  cord.fillStyle(0xfff0a8, 0.22).fillEllipse(0, groundY - bottom, l.cw * 0.8, l.ch * 0.4);
+  if (item instanceof Phaser.GameObjects.Image) item.setOrigin(0.5, 1);
+  c.addAt(cord, 0);
+  c.setPosition(cx, bottom);
+  return { container: c, bounds: { x0: cx - w / 2, y0: top, x1: cx + w / 2, y1: bottom }, depth: furnitureDepth(def, p, l) };
 }

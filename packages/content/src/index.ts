@@ -49,8 +49,8 @@ const furniture: FurnitureDef[] = [
   { id: 'toy_chest', name: 'Toy Chest', layer: 'floor', w: 1, h: 1, tags: { Playful: 2 }, canFlip: true },
   { id: 'star_rug', name: 'Star Rug', layer: 'rug', w: 2, h: 2, tags: { Dreamy: 2 }, canFlip: false },
   { id: 'round_window', name: 'Round Window', layer: 'wall', w: 2, h: 1, tags: { Dreamy: 1 }, canFlip: false },
-  { id: 'moon_lantern', name: 'Moon Lantern', layer: 'wall', w: 1, h: 1, tags: { Dreamy: 2, Calm: 1 }, canFlip: false },
-  { id: 'soft_curtains', name: 'Soft Curtains', layer: 'wall', w: 2, h: 1, tags: { Dreamy: 1, Calm: 2 }, canFlip: false },
+  { id: 'moon_lantern', name: 'Moon Lantern', layer: 'ceiling', w: 1, h: 1, tags: { Dreamy: 2, Calm: 1 }, canFlip: false },
+  { id: 'soft_curtains', name: 'Soft Curtains', layer: 'wall', w: 2, h: 1, tags: { Dreamy: 1, Calm: 2 }, canFlip: false, overlay: true },
   { id: 'picture_frame', name: 'Picture Frame', layer: 'wall', w: 1, h: 1, tags: { Warm: 1 }, canFlip: true },
   // Milestone C
   { id: 'tea_table', name: 'Tea Table', layer: 'floor', w: 2, h: 1, tags: { Calm: 1, Warm: 1 }, canFlip: false },

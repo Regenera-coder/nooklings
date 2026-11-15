@@ -29,6 +29,7 @@ export function inBounds(room: RoomDef, def: FurnitureDef, col: number, row: num
   if (!Number.isInteger(col) || !Number.isInteger(row)) return false;
   if (col < 0 || col + def.w > room.cols) return false;
   if (def.layer === 'wall') return row === 0 && room.walls !== false;
+  if (def.layer === 'ceiling' && room.walls === false) return false; // outdoors: nothing to hang from
   return row >= 0 && row + def.h <= room.rows;
 }
 
@@ -148,6 +149,8 @@ export function validatePlacement(
   for (const other of others) {
     const otherDef = content.furniture[other.defId];
     if (!otherDef || otherDef.layer !== def.layer) continue;
+    // A covering item (curtains) may hang over one ordinary wall item, never over another covering.
+    if (def.layer === 'wall' && !!def.overlay !== !!otherDef.overlay) continue;
     if (rectsOverlap(candidate, def, other, otherDef)) return { ok: false, reason: 'overlap' };
   }
 
@@ -155,7 +158,7 @@ export function validatePlacement(
     const coversDoor = room.door.row === 0 && candidate.col <= room.door.col && room.door.col < candidate.col + def.w;
     return coversDoor ? { ok: false, reason: 'blocks_door' } : { ok: true };
   }
-  if (def.layer === 'rug') return { ok: true };
+  if (def.layer === 'rug' || def.layer === 'ceiling') return { ok: true };
 
   const next: Placement[] = [...others, { uid: '__candidate__', flipped: false, ...candidate }];
   const blocked = blockedGrid(room, next, content);

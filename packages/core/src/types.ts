@@ -1,6 +1,7 @@
 /** Shared data shapes. Definitions (content) are static; GameState is the saved, mutable part. */
 
-export type Layer = 'floor' | 'rug' | 'wall';
+/** floor blocks walking; rug is flat and walkable; wall hangs on the back wall; ceiling hangs above a floor cell. */
+export type Layer = 'floor' | 'rug' | 'wall' | 'ceiling';
 
 export interface Cell {
   col: number;
@@ -23,6 +24,8 @@ export interface FurnitureDef {
   canFlip: boolean;
   /** Optional resident interaction this furniture offers. */
   rest?: 'sleep' | 'sit';
+  /** Wall items only: can hang over another wall item (curtains over a window). */
+  overlay?: boolean;
 }
 
 export interface RoomDef {

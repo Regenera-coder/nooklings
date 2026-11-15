@@ -46,10 +46,11 @@ const UNLOCK_NAMES: Record<string, string> = {
   tranquil_decor: 'Tranquil decor', heirloom: 'Heirloom restoring', exterior: 'Wishing Lantern',
 };
 
-const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' }> = [
+const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' | 'ceiling' }> = [
   { label: 'Furniture', layer: 'floor' },
   { label: 'Rugs', layer: 'rug' },
   { label: 'Wall', layer: 'wall' },
+  { label: 'Hanging', layer: 'ceiling' },
 ];
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -454,7 +455,7 @@ export class GameUI {
     const room = this.content.rooms[this.roomId]!;
     panel.append(el('h2', '', `Build · ${room.name}`));
     panel.append(el('p', 'sub', 'Tap an item to place it, or tap furniture in the room to move it.'));
-    if (room.walls === false) panel.append(el('p', 'hint', 'Outdoors: no wall items here.'));
+    if (room.walls === false) panel.append(el('p', 'hint', 'Outdoors: no wall or hanging items here.'));
     if (room.expansion && !s.purchases.includes(purchaseKey(room.id, 'expand'))) {
       const unlocked = isUnlocked(s, this.content, room.expansion.unlock);
       const lvl = this.content.levels.find((l) => l.unlocks.includes(room.expansion!.unlock))?.level;
@@ -492,7 +493,7 @@ export class GameUI {
 
     const inv = s.inventory;
     for (const group of GROUPS) {
-      if (group.layer === 'wall' && room.walls === false) continue;
+      if ((group.layer === 'wall' || group.layer === 'ceiling') && room.walls === false) continue;
       const defs = Object.values(this.content.furniture).filter((d) => d.layer === group.layer && (inv[d.id] ?? 0) > 0);
       panel.append(el('h3', '', group.label));
       if (defs.length === 0) {
@@ -529,7 +530,7 @@ export class GameUI {
     const def = this.content.furniture[defId];
     if (!def) return;
     panel.append(el('h2', '', def.name));
-    panel.append(el('p', 'sub', `${def.w}×${def.h} · ${def.layer === 'wall' ? 'Wall' : def.layer === 'rug' ? 'Rug' : 'Floor'}`));
+    panel.append(el('p', 'sub', `${def.w}×${def.h} · ${def.layer === 'wall' ? (def.overlay ? 'Wall, can hang over a window' : 'Wall') : def.layer === 'rug' ? 'Rug' : def.layer === 'ceiling' ? 'Hangs from the ceiling, anywhere in the room' : 'Floor'}`));
     panel.append(tagChips(def.tags));
     if (def.rest) panel.append(el('p', 'hint', def.rest === 'sleep' ? 'Residents nap here.' : 'Residents sit here.'));
     const acts = el('div', 'acts');
