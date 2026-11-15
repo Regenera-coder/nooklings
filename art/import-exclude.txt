@@ -1,4 +1,5 @@
 # Source files the importer must skip, with the reason. One file name per line before " # ".
 char_tinker_idle_v2.png # design differs from the approved Tinker (new snout face, curly fleece, red scarf, flatter style)
 char_mischi_idle_v2.png # still front-facing, no improvement over the current idle
-char_mischi_*_v[2-9]*.png # HELD: Mischief Star redesign — all new Mischi versions wait until the full set of 11 is accepted, so the two designs never mix
+char_mischi_master_v2.png # rejected: five-point star, white patch and pink smudge (replaced by master_v3)
+char_mischi_portrait_v2.png # rejected: five-point star (replaced by portrait_v3)

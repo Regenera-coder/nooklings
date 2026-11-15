@@ -2,6 +2,12 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.3.1 — Mischi redesign (15 Nov 2026), local commit only, not pushed or deployed
+
+### Implemented
+- Mischi switched to the approved four-point Mischief Star design: all 11 files (master v3, portrait v3, idle v3, and v2 of walk, sit, sleep, happy and the four Decorated poses). Decorated Mischi wears the asymmetrical scarf knot with one bell.
+- master_v2 and portrait_v2 rejected on review (five-point star). No other character changed.
+
 ## 0.3.0 — Milestone C: the whole First Residents series (15 Nov 2026), local commits only, not pushed or deployed
 
 ### Implemented

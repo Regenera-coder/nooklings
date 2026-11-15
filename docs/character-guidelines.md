@@ -52,3 +52,7 @@ Also affected, outside the asset folder:
 5. `char_mischi_decorated_walk_v2`, `_decorated_sit_v2`, `_decorated_sleep_v2` — star and collar, copying from 1 and 3.
 
 The game switches to the new Mischi only when the whole set of 11 is approved, so she never shows a skull in one pose and a star in another.
+
+## Status (15 Nov 2026)
+
+The four-point Mischief Star design is now live in the game build (local commit). All 11 assets passed review; see `docs/art-review-milestone-b.md`. The old skull-charm art is no longer used.

@@ -62,3 +62,19 @@ Code: Decorated residents now use Decorated art for idle, walk, sit and sleep (h
 Remaining minor notes (no action needed for acceptance):
 - Mischi Decorated sit reads slightly larger than her original sit (bigger scarf and collar); within tolerance.
 - Tinker and Mischi still switch from a side view (walk) to a front view (idle) when they stop. Optional future fix: a three-quarter idle that keeps the approved design.
+
+## Mischi redesign (four-point Mischief Star), 15 Nov 2026
+
+All 11 replacement files reviewed against brief 06 (approved 15 Nov). Mischi now uses the new design everywhere; the old skull-charm files are superseded and no longer in the game. No other character changed.
+
+| Asset | File used | Result |
+|---|---|---|
+| Master turnaround | `char_mischi_master_v3.png` | Pass. Four-point star with purple cross stitch on the front and side views; back view shows the bow only. Normalized to 2048×1024 (reference only). |
+| Portrait | `char_mischi_portrait_v3.png` | Pass. Star and stitch clear at portrait size. |
+| Idle | `char_mischi_idle_v3.png` | Pass. Same framing and three-quarter facing as the previous idle. |
+| Walk, sit, sleep, happy | `_v2` of each | Pass. Pose and facing match the previous set, so movement and flipping need no code change. |
+| Decorated idle, walk, sit, sleep | `_v2` of each | Pass. Asymmetrical scarf knot with a single gold bell; wing stars kept from the approved Decorated look. |
+
+Rejected: `char_mischi_master_v2.png` (five-point star, white patch, pink smudge) and `char_mischi_portrait_v2.png` (five-point star). `char_mischi_idle_v2.png` stays rejected.
+
+Checks: all poses 1024×1024 with transparency, feet on the shared line at 96%, one scale for the character. Minor note, not blocking: in Decorated walk the bow under the star is drawn as a flatter stitched band; it is barely visible at in-game size.
