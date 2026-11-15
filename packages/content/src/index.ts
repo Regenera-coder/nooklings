@@ -232,11 +232,11 @@ const costumes: CostumeDef[] = [
     description: 'A little felt umbrella so Mopey can enjoy the rain anywhere.', cost: { ribbons: 12 }, requiresLevel: 6,
   },
   {
-    id: 'mischi_bat_wings', residentId: 'mischi', name: 'Mischief Wings',
+    id: 'mischi_wings', residentId: 'mischi', name: 'Mischief Wings',
     description: 'Little stitched bat wings for extra mischief.', cost: { ribbons: 15 }, requiresLevel: 3, hidden: true,
   },
   {
-    id: 'hush_moon_wings', residentId: 'hush', name: 'Moonlit Wings',
+    id: 'hush_wings', residentId: 'hush', name: 'Moonlit Wings',
     description: 'Soft night wings for quiet moonlit flutters.', cost: { ribbons: 15 }, requiresLevel: 8, hidden: true,
   },
 ];

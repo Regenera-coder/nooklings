@@ -1,8 +1,8 @@
-# 08 ART BRIEF — Pippo and Glim reworks, Mopey umbrella costume, Ribbon icon
+# 08 ART BRIEF — Pippo and Glim reworks, wings and umbrella become costumes, Ribbon icon
 
-Approved by Marcus on 15 Nov 2026. All rules from **04 ART BRIEF** and **07 ART BRIEF** still apply: same felt-and-stitch plush style, plain white background, one subject per file, same framing and scale as the existing files, no text or logos. Upload to **03 ART INBOX — Milestone C**. Because these replace existing files, name every file with `_v2` (or the next free number), for example `char_pippo_idle_v2.png`. Total: 33 files.
+Approved by Marcus on 15 Nov 2026. All rules from **04 ART BRIEF** and **07 ART BRIEF** still apply: same felt-and-stitch plush style, plain white background, one subject per file, same framing and scale as the existing files, no text or logos. Upload to **03 ART INBOX — Milestone C**. Because these replace existing files, name every file with `_v2` (or the next free number), for example `char_pippo_idle_v2.png`. Total: 69 files.
 
-Do not change Snug, Tinker, Mischi, Bloomi, Hush, Patcha or Luma. Do not remove Mischi's or Hush's wings yet (that decision is on hold).
+Do not change Snug, Tinker, Bloomi, Patcha or Luma. For Mischi and Hush, change only what Part 5 asks for.
 
 ## Part 1 — Pippo: replace the goggles (13 files)
 
@@ -32,6 +32,16 @@ The tiny umbrella is now an earnable costume, so it should no longer be part of 
 ## Part 4 — Ribbon icon (1 file)
 
 `icon_ribbon.png`, 1024×1024: a small soft satin bow in pink with a stitched edge, same style and framing as the other currency icons (buttons, wood, fabric, keepsake).
+
+## Part 5 — Mischi and Hush: wings become a costume (26 + 10 files)
+
+Mischi's and Hush's wings are now an earnable costume, so their normal looks must have **no wings**.
+
+1. Redo every Mischi and Hush pose **without wings**, keeping everything else identical (same pose, framing, scale, colours and details). For Mischi this means the four-point Mischief Star with the purple stitch, the scarf, and in Decorated the asymmetrical scarf knot with one bell all stay exactly as they are. Mischi's Decorated wing stars move onto the scarf as two small stitched stars. 13 files each, using the next free version number:
+   `char_mischi_` and `char_hush_` + `master`, `idle`, `walk`, `walk2`, `sit`, `sleep`, `happy`, `portrait`, `decorated_idle`, `decorated_walk`, `decorated_walk2`, `decorated_sit`, `decorated_sleep`.
+2. New wing costume sets, Original look plus wings, same framing and scale as the normal poses. Five files each:
+   - `char_mischi_costume_wings_idle`, `_walk`, `_walk2`, `_sit`, `_sleep`: small plum-purple stitched bat wings, like the wings in the current Mischi art.
+   - `char_hush_costume_wings_idle`, `_walk`, `_walk2`, `_sit`, `_sleep`: soft lilac moth-like night wings with small stitched moons, so they look different from Mischi's.
 
 ## Checks before uploading
 - Same head size, height and foot line as the existing files of that character.

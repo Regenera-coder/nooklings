@@ -55,6 +55,6 @@ describe('costumes', () => {
 
   it('keeps hidden costumes (wings, pending decision) out of the shop', () => {
     const s = { ...newGame(content), hearts: 300, wallet: { ...newGame(content).wallet, ribbons: 99 } };
-    expect(err(s, { type: 'buy_costume', costumeId: 'mischi_bat_wings' })).toBe('unknown_costume');
+    expect(err(s, { type: 'buy_costume', costumeId: 'mischi_wings' })).toBe('unknown_costume');
   });
 });

@@ -46,7 +46,7 @@ FURNITURE = [
     "rain_chime", "travel_trunk", "paper_lanterns", "zen_stones", "heirloom_chest", "wishing_lantern",
 ]
 # Costume pose sets: char_<id>_costume_<costumeId>_<pose>
-COSTUMES = {"mopey": ["umbrella"]}
+COSTUMES = {"mopey": ["umbrella"], "mischi": ["wings"], "hush": ["wings"]}
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
 ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
