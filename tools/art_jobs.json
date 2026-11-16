@@ -2563,5 +2563,37 @@
    "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png"
   ],
   "prompt": "A single flower on a short stem, from the top of a cactus: a bowl-shaped bloom with many narrow petals in a pale neutral cream, a smooth closed bud beside it with no spines, and a small golden-cream centre. Neutral pale colour so the game can tint the petals in code. Same felt-and-stitch style as the first image. Centred, on pure white. Soft felt-and-stitch storybook style, matching the concept board, with visible stitching along the ribs. Plain pure-white background. One single object, centred, filling about 70 percent of the frame, same camera angle as the first image. No ground shadow, no contact shadow, no pot, no text, no letters, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "gymno_test2",
+  "out": "03 ART INBOX — Milestone F/gymno2_body_mature.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A mature gymnocalycium cactus seen from the side: a round ball about as tall as it is wide, with ten sharp ribs, a woolly crown of pale felt at the top and a row of short spines on every areole. Shape reference: a globular cactus, a ball with clearly separated, sharp-edged vertical ribs. Each rib carries small areoles, each with a short, stiff, straight spine radiating outward. The spines are short and neat, never long, never curly or fluffy. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code. Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "gymno_test2",
+  "out": "03 ART INBOX — Milestone F/gymno2_body_young.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/gymno2_body_mature.png"
+  ],
+  "prompt": "The same cactus as the first image, but younger: about two-thirds of its width, seven ribs, the same short spines, and a smaller woolly crown. Same style, same colour and same camera angle as the first image. Shape reference: a globular cactus, a ball with clearly separated, sharp-edged vertical ribs. Each rib carries small areoles, each with a short, stiff, straight spine radiating outward. The spines are short and neat, never long, never curly or fluffy. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code. Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "gymno_test2",
+  "out": "03 ART INBOX — Milestone F/gymno2_body_seedling.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/gymno2_body_mature.png"
+  ],
+  "prompt": "A seedling of the same cactus: a small smooth ball about one third of the width of the first image, four faint ribs, a few tiny spine dots, no crown, sitting in the lower middle of the frame. Same style, same colour and same camera angle as the first image. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code. Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "gymno_test2",
+  "out": "03 ART INBOX — Milestone F/gymno2_flower.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A single flower bloom alone, with no cactus under it: a bowl-shaped flower with many narrow, pointed petals in a pale neutral cream, a golden-cream centre with a ring of short stamens, and a small pale green bud beside it, all in felt with fine stitching. Centred, on pure white. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code. Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
  }
 ]

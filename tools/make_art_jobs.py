@@ -256,5 +256,31 @@ GYMNO_TEST = [
 for name, refs, prompt in GYMNO_TEST:
     jobs.append({"stage": "gymno_test", "out": f"{F}/gymno_test_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt + GYMNO_RULES})
 
+# Gymno Garden art test, round 2: the first set looked like plush pompoms on a pumpkin. These prompts describe the real plant:
+# a ribbed ball with short stiff spines in neat rows, a woolly crown, and a smooth bud. Body and bloom only; patterns come later.
+GYMNO2_RULES = (
+    " Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left."
+    " Plain pure-white background. One single object, centred, filling about 70 percent of the frame."
+    " No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+)
+GYMNO2_COLOUR = " Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+GYMNO2_SHAPE = (
+    " Shape reference: a globular cactus, a ball with clearly separated, sharp-edged vertical ribs."
+    " Each rib carries small areoles, each with a short, stiff, straight spine radiating outward. The spines are short and neat, never long, never curly or fluffy."
+)
+GYMNO2_BODY = f"{F}/gymno2_body_mature.png"
+GYMNO2 = [
+    ("body_mature", [],
+     "A mature gymnocalycium cactus seen from the side: a round ball about as tall as it is wide, with ten sharp ribs, a woolly crown of pale felt at the top and a row of short spines on every areole." + GYMNO2_SHAPE + GYMNO2_COLOUR + GYMNO2_RULES),
+    ("body_young", [GYMNO2_BODY],
+     "The same cactus as the first image, but younger: about two-thirds of its width, seven ribs, the same short spines, and a smaller woolly crown. Same style, same colour and same camera angle as the first image." + GYMNO2_SHAPE + GYMNO2_COLOUR + GYMNO2_RULES),
+    ("body_seedling", [GYMNO2_BODY],
+     "A seedling of the same cactus: a small smooth ball about one third of the width of the first image, four faint ribs, a few tiny spine dots, no crown, sitting in the lower middle of the frame. Same style, same colour and same camera angle as the first image." + GYMNO2_COLOUR + GYMNO2_RULES),
+    ("flower", [],
+     "A single flower bloom alone, with no cactus under it: a bowl-shaped flower with many narrow, pointed petals in a pale neutral cream, a golden-cream centre with a ring of short stamens, and a small pale green bud beside it, all in felt with fine stitching. Centred, on pure white." + GYMNO2_COLOUR + GYMNO2_RULES),
+]
+for name, refs, prompt in GYMNO2:
+    jobs.append({"stage": "gymno_test2", "out": f"{F}/gymno2_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
