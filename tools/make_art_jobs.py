@@ -40,7 +40,7 @@ POSES = {
     "portrait": "Head and shoulders only, facing slightly right, friendly expression.",
     "idle": "Standing still, three-quarter view facing right.",
     "walk": "Walking to the right, one foot forward.",
-    "walk2": "Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied.",
+    "walk2": "The second frame of a two-frame walk cycle, walking to the right. The LEGS ARE SWAPPED compared with the first walking image supplied: the leg that is forward and lifted there is now back with its foot flat on the ground, and the leg that is back there now swings forward, lifted, with the sole of the foot showing. The two images must look clearly different below the waist.",
     "sit": "Sitting upright facing the viewer, feet forward.",
     "sleep": "Lying curled up asleep, head on the right, eyes closed.",
     "happy": "Standing, joyful, arms up.",
@@ -66,7 +66,7 @@ for cid, name, where, notes, deco in CHARS:
         extra = "The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design."
         if pose == "walk2":
             refs.append(f"{F}/char_{cid}_walk.png")
-            extra += f" The fourth image is {name}'s first walking image: match it exactly apart from the legs."
+            extra += f" The fourth image is {name}'s FIRST walking frame. Keep the head, body, arms, tail and everything above the waist in exactly the same place and size as in it, but do NOT copy its legs: swap them as described, the way the two legs differ between the Snug image and a normal first step."
         elif pose != "idle" and pose != "portrait":
             refs.append(f"{F}/char_{cid}_idle.png")
             extra += f" The fourth image is {name} standing: keep the same head size, body size and details."

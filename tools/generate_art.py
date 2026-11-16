@@ -18,7 +18,8 @@ Options:
     --jobs FILE      job list (default: art_jobs.json next to this script)
     --base FOLDER    the Drive handover folder (default: the folder this script is in)
     --stage NAME     masters | poses | redraws | all   (default: all)
-    --only TEXT      only jobs whose output name contains TEXT (e.g. --only crumb)
+    --only TEXT      only jobs whose output name contains TEXT (e.g. --only crumb); several, separated by commas
+    --redo           draw the matching images again even if they already exist (use with --only)
     --model ID       image model (default below)
     --quality Q      low | medium | high  (default: high)
     --dry-run        show what would be generated and check the reference files, without calling the API
@@ -97,7 +98,11 @@ def main() -> int:
     model, quality = arg("--model", DEFAULT_MODEL), arg("--quality", "high")
     dry = "--dry-run" in sys.argv
 
-    jobs = [j for j in json.loads(jobs_file.read_text(encoding="utf-8")) if stage in ("all", j["stage"]) and (not only or only in j["out"])]
+    wanted = [t.strip() for t in (only or "").split(",") if t.strip()]
+    redo = "--redo" in sys.argv
+    if redo and not wanted:
+        sys.exit("--redo needs --only, so it cannot redraw everything by accident.")
+    jobs = [j for j in json.loads(jobs_file.read_text(encoding="utf-8")) if stage in ("all", j["stage"]) and (not wanted or any(t in j["out"] for t in wanted))]
     if not jobs:
         print("No jobs match.")
         return 0
@@ -109,7 +114,7 @@ def main() -> int:
     for n, job in enumerate(jobs, 1):
         out = base / job["out"]
         label = f"[{n}/{len(jobs)}] {Path(job['out']).name}"
-        if out.exists():
+        if out.exists() and not redo:
             skipped += 1
             continue
         refs = [base / r for r in job["refs"]]
