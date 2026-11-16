@@ -93,6 +93,8 @@ COSTUMES = {
     "mopey": ["umbrella", "boots"], "mischi": ["wings", "party"], "hush": ["wings", "cloak"],
     "snug": ["cape"], "tinker": ["apron"], "bloomi": ["bonnet"], "glim": ["comet"],
     "pippo": ["pack"], "patcha": ["quilt"], "luma": ["crown"],
+    # Series 2 (Teatime Friends)
+    "crumb": ["chef"], "whisk": ["bee"], "mallow": ["pyjamas"], "pekoe": ["robe"], "jammy": ["picker"], "dumple": ["snow"], "sprinkle": ["tutu"], "toffee": ["coat"], "souffle": ["hat"], "cherri": ["sundae"],
 }
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Files delivered with a baked-in ground shadow; the importer strips it (flagged for redraw).

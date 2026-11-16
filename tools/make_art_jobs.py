@@ -174,5 +174,33 @@ jobs.append({
     "prompt": "The two reference images are square scene cards for trips in a game. Draw a new card in exactly the same style, framing and corner shape: the Moonlit Market, a tiny night market under a big cream moon, with three felt stalls with striped awnings selling sweets, strings of glowing paper lanterns, and a cobbled path leading in. Deep blue and plum night colours with warm lantern light. No characters, no text, no logo, no watermark.",
 })
 
+
+# Teatime Friends costumes: one each, five poses, drawn over the approved normal poses.
+TEA_COSTUMES = [
+    ('crumb', 'chef', 'Grand Chef Whites', "a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief"),
+    ('whisk', 'bee', 'Honeybee Hoodie', 'a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back'),
+    ('mallow', 'pyjamas', 'Marshmallow Pyjamas', 'a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet'),
+    ('pekoe', 'robe', 'Garden Tea Robe', 'a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat'),
+    ('jammy', 'picker', 'Berry Picker', 'a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps'),
+    ('dumple', 'snow', 'Snow Day Knits', 'a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf'),
+    ('sprinkle', 'tutu', 'Sugar Plum Tutu', 'a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears'),
+    ('toffee', 'coat', 'Market Day Coat', "a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie"),
+    ('souffle', 'hat', 'Garden Party Hat', 'a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief'),
+    ('cherri', 'sundae', 'Sundae Best', 'a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back'),
+]
+NAMES = {c[0]: c[1] for c in CHARS}
+for cid, word, cname, art in TEA_COSTUMES:
+    name = NAMES[cid]
+    for pose in ("idle", "walk", "walk2", "sit", "sleep"):
+        refs = [f"{F}/char_{cid}_{pose}.png", f"{F}/char_{cid}_master.png"]
+        extra = ""
+        if pose != "idle":
+            refs.append(f"{F}/char_{cid}_costume_{word}_idle.png")
+            extra = f" The third image shows {name} already wearing this costume while standing: draw the costume exactly the same way, same colours and details."
+        jobs.append({
+            "stage": "costumes", "out": f"{F}/char_{cid}_costume_{word}_{pose}.png", "size": "1024x1024", "refs": refs,
+            "prompt": f"The first image is an approved pose of {name}, a plush character. Redraw this exact image with {name} wearing the '{cname}' costume: {art}. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is {name}'s reference sheet, for the character's own details only.{extra}" + RULES,
+        })
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items")})
+print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes")})

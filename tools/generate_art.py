@@ -9,6 +9,7 @@ Uses only the Python standard library: no installs.
     python generate_art.py --stage masters         (10 images: look at them before going on)
     python generate_art.py --stage poses
     python generate_art.py --stage redraws
+    python generate_art.py --stage costumes        (50 images: one costume for each Teatime Friend)
     python generate_art.py --stage items           (27 images: Series 2 furniture, icons, parcel, trip card)
 
 Each job sends a prompt plus reference images and saves one PNG. A job whose output file already

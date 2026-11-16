@@ -1,6 +1,7 @@
 import type {
   BakeRecipeDef,
   Content,
+  CostumeDef,
   ExpeditionDef,
   FurnitureDef,
   InvitationDef,
@@ -257,6 +258,50 @@ const parcels: ParcelPoolDef[] = [
   },
 ];
 
+// One costume per Teatime Friend. Each stays `hidden` until all five of its poses are imported and reviewed.
+const costumes: CostumeDef[] = [
+  {
+    id: 'crumb_chef', residentId: 'crumb', name: 'Grand Chef Whites', hidden: true,
+    description: "A tall puffy chef's hat and a white double-buttoned jacket with a red neckerchief.", cost: { ribbons: 12 }, requiresLevel: 11,
+  },
+  {
+    id: 'whisk_bee', residentId: 'whisk', name: 'Honeybee Hoodie', hidden: true,
+    description: 'A stripy yellow-and-brown hooded cape with two bobbly antennae.', cost: { ribbons: 12 }, requiresLevel: 12,
+  },
+  {
+    id: 'mallow_pyjamas', residentId: 'mallow', name: 'Marshmallow Pyjamas', hidden: true,
+    description: 'A pastel pink nightcap with a pom-pom and matching fluffy slippers.', cost: { ribbons: 12 }, requiresLevel: 12,
+  },
+  {
+    id: 'pekoe_robe', residentId: 'pekoe', name: 'Garden Tea Robe', hidden: true,
+    description: 'A sage-green wrap robe with a cream sash and a woven sun hat.', cost: { ribbons: 15 }, requiresLevel: 13,
+  },
+  {
+    id: 'jammy_picker', residentId: 'jammy', name: 'Berry Picker', hidden: true,
+    description: 'A wide straw hat with a strawberry ribbon and a little wicker basket on the back.', cost: { ribbons: 15 }, requiresLevel: 14,
+  },
+  {
+    id: 'dumple_snow', residentId: 'dumple', name: 'Snow Day Knits', hidden: true,
+    description: 'A pale blue bobble hat, mittens and a long knitted scarf.', cost: { ribbons: 15 }, requiresLevel: 15,
+  },
+  {
+    id: 'sprinkle_tutu', residentId: 'sprinkle', name: 'Sugar Plum Tutu', hidden: true,
+    description: 'A lilac tutu with sugar-crystal sparkles and a tiny tiara.', cost: { ribbons: 18 }, requiresLevel: 16,
+  },
+  {
+    id: 'toffee_coat', residentId: 'toffee', name: 'Market Day Coat', hidden: true,
+    description: "A long plum trader's coat with gold buttons and a paper lantern on a stick.", cost: { ribbons: 18 }, requiresLevel: 17,
+  },
+  {
+    id: 'souffle_hat', residentId: 'souffle', name: 'Garden Party Hat', hidden: true,
+    description: 'A wide-brimmed cream hat piled with roses, and a rose corsage.', cost: { ribbons: 20 }, requiresLevel: 18,
+  },
+  {
+    id: 'cherri_sundae', residentId: 'cherri', name: 'Sundae Best', hidden: true,
+    description: 'A whipped-cream swirl hat with sprinkles and a little wafer cape.', cost: { ribbons: 20 }, requiresLevel: 20,
+  },
+];
+
 const L = (n: number) => n;
 const tasks: TaskDef[] = [
   {
@@ -351,6 +396,7 @@ export function withSeries2(base: Content): Content {
     tasks: [...base.tasks, ...tasks],
     parcels: add(base.parcels, parcels, (p) => p.id),
     expeditions: add(base.expeditions, expeditions, (e) => e.id),
+    costumes: add(base.costumes, costumes, (c) => c.id),
     roomOrder: [...base.roomOrder, KITCHEN_ID, TEA_GARDEN_ID],
     baking: {
       roomId: KITCHEN_ID,

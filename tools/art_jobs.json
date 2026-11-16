@@ -1838,5 +1838,545 @@
    "03 ART INBOX — Milestone C/exp_meadow.png"
   ],
   "prompt": "The two reference images are square scene cards for trips in a game. Draw a new card in exactly the same style, framing and corner shape: the Moonlit Market, a tiny night market under a big cream moon, with three felt stalls with striped awnings selling sweets, strings of glowing paper lanterns, and a cobbled path leading in. Deep blue and plum night colours with warm lantern light. No characters, no text, no logo, no watermark."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_crumb_costume_chef_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_idle.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb wearing the 'Grand Chef Whites' costume: a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Crumb's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_crumb_costume_chef_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_walk.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_costume_chef_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb wearing the 'Grand Chef Whites' costume: a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Crumb's reference sheet, for the character's own details only. The third image shows Crumb already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_crumb_costume_chef_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_walk2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_costume_chef_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb wearing the 'Grand Chef Whites' costume: a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Crumb's reference sheet, for the character's own details only. The third image shows Crumb already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_crumb_costume_chef_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_sit.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_costume_chef_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb wearing the 'Grand Chef Whites' costume: a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Crumb's reference sheet, for the character's own details only. The third image shows Crumb already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_crumb_costume_chef_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_sleep.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_costume_chef_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb wearing the 'Grand Chef Whites' costume: a tall puffy white chef's toque (replacing the small cap) and a white double-breasted chef's jacket with two rows of red buttons and a small red neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Crumb's reference sheet, for the character's own details only. The third image shows Crumb already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_whisk_costume_bee_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_idle.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk wearing the 'Honeybee Hoodie' costume: a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Whisk's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_whisk_costume_bee_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_walk.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_costume_bee_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk wearing the 'Honeybee Hoodie' costume: a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Whisk's reference sheet, for the character's own details only. The third image shows Whisk already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_whisk_costume_bee_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_walk2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_costume_bee_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk wearing the 'Honeybee Hoodie' costume: a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Whisk's reference sheet, for the character's own details only. The third image shows Whisk already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_whisk_costume_bee_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_sit.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_costume_bee_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk wearing the 'Honeybee Hoodie' costume: a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Whisk's reference sheet, for the character's own details only. The third image shows Whisk already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_whisk_costume_bee_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_sleep.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_costume_bee_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk wearing the 'Honeybee Hoodie' costume: a short hooded cape in soft yellow and chocolate-brown stripes with the hood up, two bobbly felt antennae on the hood and a pair of tiny round felt wings on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Whisk's reference sheet, for the character's own details only. The third image shows Whisk already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_idle.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow wearing the 'Marshmallow Pyjamas' costume: a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Mallow's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_walk.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow wearing the 'Marshmallow Pyjamas' costume: a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Mallow's reference sheet, for the character's own details only. The third image shows Mallow already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_walk2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow wearing the 'Marshmallow Pyjamas' costume: a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Mallow's reference sheet, for the character's own details only. The third image shows Mallow already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_sit.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow wearing the 'Marshmallow Pyjamas' costume: a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Mallow's reference sheet, for the character's own details only. The third image shows Mallow already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_sleep.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_costume_pyjamas_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow wearing the 'Marshmallow Pyjamas' costume: a floppy pastel-pink nightcap with a white pom-pom worn behind the whipped-cream swirl, a pink-and-white striped pyjama top, and fluffy pink slippers on the feet. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Mallow's reference sheet, for the character's own details only. The third image shows Mallow already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_costume_robe_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe wearing the 'Garden Tea Robe' costume: a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Pekoe's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_costume_robe_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_walk.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_costume_robe_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe wearing the 'Garden Tea Robe' costume: a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Pekoe's reference sheet, for the character's own details only. The third image shows Pekoe already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_costume_robe_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_walk2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_costume_robe_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe wearing the 'Garden Tea Robe' costume: a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Pekoe's reference sheet, for the character's own details only. The third image shows Pekoe already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_costume_robe_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_sit.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_costume_robe_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe wearing the 'Garden Tea Robe' costume: a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Pekoe's reference sheet, for the character's own details only. The third image shows Pekoe already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_costume_robe_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_sleep.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_costume_robe_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe wearing the 'Garden Tea Robe' costume: a sage-green wrap robe with a cream sash and embroidered tea leaves on the hem, and a small round woven straw sun hat replacing the teapot-lid hat. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Pekoe's reference sheet, for the character's own details only. The third image shows Pekoe already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_jammy_costume_picker_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_idle.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy wearing the 'Berry Picker' costume: a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Jammy's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_jammy_costume_picker_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_walk.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_costume_picker_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy wearing the 'Berry Picker' costume: a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Jammy's reference sheet, for the character's own details only. The third image shows Jammy already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_jammy_costume_picker_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_walk2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_costume_picker_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy wearing the 'Berry Picker' costume: a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Jammy's reference sheet, for the character's own details only. The third image shows Jammy already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_jammy_costume_picker_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_sit.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_costume_picker_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy wearing the 'Berry Picker' costume: a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Jammy's reference sheet, for the character's own details only. The third image shows Jammy already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_jammy_costume_picker_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_sleep.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_costume_picker_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy wearing the 'Berry Picker' costume: a wide-brimmed straw sun hat with a red strawberry-print ribbon (replacing the bonnet) and a small wicker basket full of strawberries carried on the back with two straps. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Jammy's reference sheet, for the character's own details only. The third image shows Jammy already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_dumple_costume_snow_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_idle.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple wearing the 'Snow Day Knits' costume: a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Dumple's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_dumple_costume_snow_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_walk.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_costume_snow_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple wearing the 'Snow Day Knits' costume: a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Dumple's reference sheet, for the character's own details only. The third image shows Dumple already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_dumple_costume_snow_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_walk2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_costume_snow_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple wearing the 'Snow Day Knits' costume: a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Dumple's reference sheet, for the character's own details only. The third image shows Dumple already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_dumple_costume_snow_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_sit.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_costume_snow_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple wearing the 'Snow Day Knits' costume: a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Dumple's reference sheet, for the character's own details only. The third image shows Dumple already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_dumple_costume_snow_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_sleep.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_costume_snow_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple wearing the 'Snow Day Knits' costume: a pale-blue knitted bobble hat pulled over the bun on the head with the bun shape still showing, matching pale-blue mittens, and a long cream-and-blue striped knitted scarf. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Dumple's reference sheet, for the character's own details only. The third image shows Dumple already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle wearing the 'Sugar Plum Tutu' costume: a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Sprinkle's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_walk.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle wearing the 'Sugar Plum Tutu' costume: a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Sprinkle's reference sheet, for the character's own details only. The third image shows Sprinkle already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_walk2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle wearing the 'Sugar Plum Tutu' costume: a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Sprinkle's reference sheet, for the character's own details only. The third image shows Sprinkle already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_sit.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle wearing the 'Sugar Plum Tutu' costume: a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Sprinkle's reference sheet, for the character's own details only. The third image shows Sprinkle already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_sleep.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_costume_tutu_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle wearing the 'Sugar Plum Tutu' costume: a fluffy lilac ballet tutu dotted with sugar-crystal sparkles, lilac ribbon ballet slippers, and a tiny silver tiara between the ears. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Sprinkle's reference sheet, for the character's own details only. The third image shows Sprinkle already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_toffee_costume_coat_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_idle.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee wearing the 'Market Day Coat' costume: a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Toffee's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_toffee_costume_coat_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_walk.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_costume_coat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee wearing the 'Market Day Coat' costume: a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Toffee's reference sheet, for the character's own details only. The third image shows Toffee already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_toffee_costume_coat_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_walk2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_costume_coat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee wearing the 'Market Day Coat' costume: a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Toffee's reference sheet, for the character's own details only. The third image shows Toffee already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_toffee_costume_coat_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_sit.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_costume_coat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee wearing the 'Market Day Coat' costume: a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Toffee's reference sheet, for the character's own details only. The third image shows Toffee already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_toffee_costume_coat_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_sleep.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_costume_coat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee wearing the 'Market Day Coat' costume: a long plum-purple trader's coat with gold buttons and a turned-up collar over the body, and a small glowing paper lantern on a short stick held in one paw instead of the cookie. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Toffee's reference sheet, for the character's own details only. The third image shows Toffee already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_souffle_costume_hat_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_idle.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé wearing the 'Garden Party Hat' costume: a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Soufflé's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_souffle_costume_hat_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_walk.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_costume_hat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé wearing the 'Garden Party Hat' costume: a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Soufflé's reference sheet, for the character's own details only. The third image shows Soufflé already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_souffle_costume_hat_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_walk2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_costume_hat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé wearing the 'Garden Party Hat' costume: a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Soufflé's reference sheet, for the character's own details only. The third image shows Soufflé already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_souffle_costume_hat_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_sit.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_costume_hat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé wearing the 'Garden Party Hat' costume: a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Soufflé's reference sheet, for the character's own details only. The third image shows Soufflé already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_souffle_costume_hat_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_sleep.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_costume_hat_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé wearing the 'Garden Party Hat' costume: a wide-brimmed cream garden-party hat piled with pink felt roses and a trailing ribbon (replacing the headband), and a pink rose corsage on the chest instead of the neckerchief. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Soufflé's reference sheet, for the character's own details only. The third image shows Soufflé already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_cherri_costume_sundae_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_idle.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri wearing the 'Sundae Best' costume: a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Cherri's reference sheet, for the character's own details only. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_cherri_costume_sundae_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_walk.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_costume_sundae_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri wearing the 'Sundae Best' costume: a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Cherri's reference sheet, for the character's own details only. The third image shows Cherri already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_cherri_costume_sundae_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_walk2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_costume_sundae_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri wearing the 'Sundae Best' costume: a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Cherri's reference sheet, for the character's own details only. The third image shows Cherri already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_cherri_costume_sundae_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_sit.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_costume_sundae_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri wearing the 'Sundae Best' costume: a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Cherri's reference sheet, for the character's own details only. The third image shows Cherri already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "costumes",
+  "out": "03 ART INBOX — Milestone F/char_cherri_costume_sundae_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_sleep.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_costume_sundae_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri wearing the 'Sundae Best' costume: a small whipped-cream swirl with coloured sprinkles sitting at the base of the stem like a hat, and a short cape shaped like a golden waffle wafer fan on the back. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is Cherri's reference sheet, for the character's own details only. The third image shows Cherri already wearing this costume while standing: draw the costume exactly the same way, same colours and details. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
  }
 ]
