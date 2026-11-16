@@ -1,0 +1,1531 @@
+[
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_crumb_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Standing still, three-quarter view facing right. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_crumb_idle.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Walking to the right, one foot forward. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Crumb standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_crumb_walk.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Crumb's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_crumb_idle.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Sitting upright facing the viewer, feet forward. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Crumb standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_crumb_idle.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Crumb standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_crumb_idle.png"
+  ],
+  "prompt": "Draw the character called Crumb: the one in the top row, first from the left of the concept board (first image). A mouse baker. Keep the baker's cap, the apron and the flour on the nose. Holds nothing while walking. Pose: Standing, joyful, arms up. The second image is Crumb's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Crumb standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_idle.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb's Decorated look added: a small rolling pin tucked in the apron and a gold star stitched on the cap. Change nothing else: same pose, framing, scale, colours and details. The second image is Crumb's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_walk.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb's Decorated look added: a small rolling pin tucked in the apron and a gold star stitched on the cap. Change nothing else: same pose, framing, scale, colours and details. The second image is Crumb's reference sheet. The third image shows Crumb already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_walk2.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb's Decorated look added: a small rolling pin tucked in the apron and a gold star stitched on the cap. Change nothing else: same pose, framing, scale, colours and details. The second image is Crumb's reference sheet. The third image shows Crumb already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_sit.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb's Decorated look added: a small rolling pin tucked in the apron and a gold star stitched on the cap. Change nothing else: same pose, framing, scale, colours and details. The second image is Crumb's reference sheet. The third image shows Crumb already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_crumb_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_crumb_sleep.png",
+   "03 ART INBOX — Milestone F/char_crumb_master.png",
+   "03 ART INBOX — Milestone F/char_crumb_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Crumb, a plush character. Redraw this exact image with Crumb's Decorated look added: a small rolling pin tucked in the apron and a gold star stitched on the cap. Change nothing else: same pose, framing, scale, colours and details. The second image is Crumb's reference sheet. The third image shows Crumb already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_mallow_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Standing still, three-quarter view facing right. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_mallow_idle.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Walking to the right, one foot forward. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Mallow standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_mallow_walk.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Mallow's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_mallow_idle.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Sitting upright facing the viewer, feet forward. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Mallow standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_mallow_idle.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Mallow standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_mallow_idle.png"
+  ],
+  "prompt": "Draw the character called Mallow: the one in the top row, second from the left of the concept board (first image). A cream hamster with one toasted patch and the whipped-cream swirl on the head. Very round; the short legs must still be visible when walking. Pose: Standing, joyful, arms up. The second image is Mallow's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Mallow standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_idle.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow's Decorated look added: a cocoa-brown knitted scarf and a tiny mug charm. Change nothing else: same pose, framing, scale, colours and details. The second image is Mallow's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_walk.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow's Decorated look added: a cocoa-brown knitted scarf and a tiny mug charm. Change nothing else: same pose, framing, scale, colours and details. The second image is Mallow's reference sheet. The third image shows Mallow already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_walk2.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow's Decorated look added: a cocoa-brown knitted scarf and a tiny mug charm. Change nothing else: same pose, framing, scale, colours and details. The second image is Mallow's reference sheet. The third image shows Mallow already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_sit.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow's Decorated look added: a cocoa-brown knitted scarf and a tiny mug charm. Change nothing else: same pose, framing, scale, colours and details. The second image is Mallow's reference sheet. The third image shows Mallow already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_mallow_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_mallow_sleep.png",
+   "03 ART INBOX — Milestone F/char_mallow_master.png",
+   "03 ART INBOX — Milestone F/char_mallow_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Mallow, a plush character. Redraw this exact image with Mallow's Decorated look added: a cocoa-brown knitted scarf and a tiny mug charm. Change nothing else: same pose, framing, scale, colours and details. The second image is Mallow's reference sheet. The third image shows Mallow already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Standing still, three-quarter view facing right. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Walking to the right, one foot forward. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Pekoe standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_walk.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Pekoe's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Sitting upright facing the viewer, feet forward. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Pekoe standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Pekoe standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png"
+  ],
+  "prompt": "Draw the character called Pekoe: the one in the top row, third from the left of the concept board (first image). An otter with the teapot-lid hat and the green leaf scarf. Holds the teacup only when standing still or sitting. Pose: Standing, joyful, arms up. The second image is Pekoe's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Pekoe standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_idle.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe's Decorated look added: the lid hat in a blue-and-white porcelain pattern, and a quilted tea-cosy vest. Change nothing else: same pose, framing, scale, colours and details. The second image is Pekoe's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_walk.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe's Decorated look added: the lid hat in a blue-and-white porcelain pattern, and a quilted tea-cosy vest. Change nothing else: same pose, framing, scale, colours and details. The second image is Pekoe's reference sheet. The third image shows Pekoe already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_walk2.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe's Decorated look added: the lid hat in a blue-and-white porcelain pattern, and a quilted tea-cosy vest. Change nothing else: same pose, framing, scale, colours and details. The second image is Pekoe's reference sheet. The third image shows Pekoe already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_sit.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe's Decorated look added: the lid hat in a blue-and-white porcelain pattern, and a quilted tea-cosy vest. Change nothing else: same pose, framing, scale, colours and details. The second image is Pekoe's reference sheet. The third image shows Pekoe already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_pekoe_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_pekoe_sleep.png",
+   "03 ART INBOX — Milestone F/char_pekoe_master.png",
+   "03 ART INBOX — Milestone F/char_pekoe_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Pekoe, a plush character. Redraw this exact image with Pekoe's Decorated look added: the lid hat in a blue-and-white porcelain pattern, and a quilted tea-cosy vest. Change nothing else: same pose, framing, scale, colours and details. The second image is Pekoe's reference sheet. The third image shows Pekoe already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_jammy_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Standing still, three-quarter view facing right. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_jammy_idle.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Walking to the right, one foot forward. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Jammy standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_jammy_walk.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Jammy's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_jammy_idle.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Sitting upright facing the viewer, feet forward. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Jammy standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_jammy_idle.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Jammy standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_jammy_idle.png"
+  ],
+  "prompt": "Draw the character called Jammy: the one in the top row, fourth from the left of the concept board (first image). A strawberry-red hedgehog with the gingham bonnet. The jam-lid shield hangs at the side while walking. Pose: Standing, joyful, arms up. The second image is Jammy's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Jammy standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_idle.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy's Decorated look added: lace trim on the bonnet and a little jam spoon. Change nothing else: same pose, framing, scale, colours and details. The second image is Jammy's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_walk.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy's Decorated look added: lace trim on the bonnet and a little jam spoon. Change nothing else: same pose, framing, scale, colours and details. The second image is Jammy's reference sheet. The third image shows Jammy already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_walk2.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy's Decorated look added: lace trim on the bonnet and a little jam spoon. Change nothing else: same pose, framing, scale, colours and details. The second image is Jammy's reference sheet. The third image shows Jammy already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_sit.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy's Decorated look added: lace trim on the bonnet and a little jam spoon. Change nothing else: same pose, framing, scale, colours and details. The second image is Jammy's reference sheet. The third image shows Jammy already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_jammy_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_jammy_sleep.png",
+   "03 ART INBOX — Milestone F/char_jammy_master.png",
+   "03 ART INBOX — Milestone F/char_jammy_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Jammy, a plush character. Redraw this exact image with Jammy's Decorated look added: lace trim on the bonnet and a little jam spoon. Change nothing else: same pose, framing, scale, colours and details. The second image is Jammy's reference sheet. The third image shows Jammy already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_whisk_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Standing still, three-quarter view facing right. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_whisk_idle.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Walking to the right, one foot forward. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Whisk standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_whisk_walk.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Whisk's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_whisk_idle.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Sitting upright facing the viewer, feet forward. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Whisk standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_whisk_idle.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Whisk standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_whisk_idle.png"
+  ],
+  "prompt": "Draw the character called Whisk: the one in the top row, fifth from the left of the concept board (first image). A yellow duckling with the feather tuft, lavender bow and apron. No hat. Holds the whisk. Pose: Standing, joyful, arms up. The second image is Whisk's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Whisk standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_idle.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk's Decorated look added: a lavender neckerchief instead of the bow, and a small piping bag. Change nothing else: same pose, framing, scale, colours and details. The second image is Whisk's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_walk.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk's Decorated look added: a lavender neckerchief instead of the bow, and a small piping bag. Change nothing else: same pose, framing, scale, colours and details. The second image is Whisk's reference sheet. The third image shows Whisk already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_walk2.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk's Decorated look added: a lavender neckerchief instead of the bow, and a small piping bag. Change nothing else: same pose, framing, scale, colours and details. The second image is Whisk's reference sheet. The third image shows Whisk already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_sit.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk's Decorated look added: a lavender neckerchief instead of the bow, and a small piping bag. Change nothing else: same pose, framing, scale, colours and details. The second image is Whisk's reference sheet. The third image shows Whisk already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_whisk_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_whisk_sleep.png",
+   "03 ART INBOX — Milestone F/char_whisk_master.png",
+   "03 ART INBOX — Milestone F/char_whisk_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Whisk, a plush character. Redraw this exact image with Whisk's Decorated look added: a lavender neckerchief instead of the bow, and a small piping bag. Change nothing else: same pose, framing, scale, colours and details. The second image is Whisk's reference sheet. The third image shows Whisk already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_dumple_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Standing still, three-quarter view facing right. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_dumple_idle.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Walking to the right, one foot forward. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Dumple standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_dumple_walk.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Dumple's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_dumple_idle.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Sitting upright facing the viewer, feet forward. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Dumple standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_dumple_idle.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Curled up asleep INSIDE the bamboo steamer basket from the board, head on the right, eyes closed. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Dumple standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_dumple_idle.png"
+  ],
+  "prompt": "Draw the character called Dumple: the one in the bottom row, first from the left of the concept board (first image). A panda cub with the steamed-bun top on the head. Stands and walks WITHOUT the bamboo steamer basket. Pose: Standing, joyful, arms up. The second image is Dumple's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Dumple standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_idle.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple's Decorated look added: a small red embroidered vest with cloud-shaped buttons. Change nothing else: same pose, framing, scale, colours and details. The second image is Dumple's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_walk.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple's Decorated look added: a small red embroidered vest with cloud-shaped buttons. Change nothing else: same pose, framing, scale, colours and details. The second image is Dumple's reference sheet. The third image shows Dumple already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_walk2.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple's Decorated look added: a small red embroidered vest with cloud-shaped buttons. Change nothing else: same pose, framing, scale, colours and details. The second image is Dumple's reference sheet. The third image shows Dumple already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_sit.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple's Decorated look added: a small red embroidered vest with cloud-shaped buttons. Change nothing else: same pose, framing, scale, colours and details. The second image is Dumple's reference sheet. The third image shows Dumple already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_dumple_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_dumple_sleep.png",
+   "03 ART INBOX — Milestone F/char_dumple_master.png",
+   "03 ART INBOX — Milestone F/char_dumple_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Dumple, a plush character. Redraw this exact image with Dumple's Decorated look added: a small red embroidered vest with cloud-shaped buttons. Change nothing else: same pose, framing, scale, colours and details. The second image is Dumple's reference sheet. The third image shows Dumple already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Standing still, three-quarter view facing right. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Walking to the right, one foot forward. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Sprinkle standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_walk.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Sprinkle's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Sitting upright facing the viewer, feet forward. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Sprinkle standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Sprinkle standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png"
+  ],
+  "prompt": "Draw the character called Sprinkle: the one in the bottom row, second from the left of the concept board (first image). A pastel kitten speckled with confetti dots. The bow stays on the chest, never on an ear. The mouth stays visible. Pose: Standing, joyful, arms up. The second image is Sprinkle's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Sprinkle standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_idle.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle's Decorated look added: a candy-bead necklace and a short sprinkle-dotted cape. Change nothing else: same pose, framing, scale, colours and details. The second image is Sprinkle's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_walk.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle's Decorated look added: a candy-bead necklace and a short sprinkle-dotted cape. Change nothing else: same pose, framing, scale, colours and details. The second image is Sprinkle's reference sheet. The third image shows Sprinkle already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_walk2.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle's Decorated look added: a candy-bead necklace and a short sprinkle-dotted cape. Change nothing else: same pose, framing, scale, colours and details. The second image is Sprinkle's reference sheet. The third image shows Sprinkle already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_sit.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle's Decorated look added: a candy-bead necklace and a short sprinkle-dotted cape. Change nothing else: same pose, framing, scale, colours and details. The second image is Sprinkle's reference sheet. The third image shows Sprinkle already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_sprinkle_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_sprinkle_sleep.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_master.png",
+   "03 ART INBOX — Milestone F/char_sprinkle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Sprinkle, a plush character. Redraw this exact image with Sprinkle's Decorated look added: a candy-bead necklace and a short sprinkle-dotted cape. Change nothing else: same pose, framing, scale, colours and details. The second image is Sprinkle's reference sheet. The third image shows Sprinkle already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_toffee_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Standing still, three-quarter view facing right. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_toffee_idle.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Walking to the right, one foot forward. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Toffee standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_toffee_walk.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Toffee's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_toffee_idle.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Sitting upright facing the viewer, feet forward. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Toffee standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_toffee_idle.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Toffee standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_toffee_idle.png"
+  ],
+  "prompt": "Draw the character called Toffee: the one in the bottom row, third from the left of the concept board (first image). A caramel-striped raccoon with the flat cap. Holds the cookie only when standing still or sitting. Never an apron. Pose: Standing, joyful, arms up. The second image is Toffee's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Toffee standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_idle.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee's Decorated look added: a caramel-drizzle patterned scarf and a small cookie satchel. Change nothing else: same pose, framing, scale, colours and details. The second image is Toffee's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_walk.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee's Decorated look added: a caramel-drizzle patterned scarf and a small cookie satchel. Change nothing else: same pose, framing, scale, colours and details. The second image is Toffee's reference sheet. The third image shows Toffee already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_walk2.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee's Decorated look added: a caramel-drizzle patterned scarf and a small cookie satchel. Change nothing else: same pose, framing, scale, colours and details. The second image is Toffee's reference sheet. The third image shows Toffee already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_sit.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee's Decorated look added: a caramel-drizzle patterned scarf and a small cookie satchel. Change nothing else: same pose, framing, scale, colours and details. The second image is Toffee's reference sheet. The third image shows Toffee already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_toffee_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_toffee_sleep.png",
+   "03 ART INBOX — Milestone F/char_toffee_master.png",
+   "03 ART INBOX — Milestone F/char_toffee_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Toffee, a plush character. Redraw this exact image with Toffee's Decorated look added: a caramel-drizzle patterned scarf and a small cookie satchel. Change nothing else: same pose, framing, scale, colours and details. The second image is Toffee's reference sheet. The third image shows Toffee already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_souffle_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Standing still, three-quarter view facing right. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_souffle_idle.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Walking to the right, one foot forward. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Soufflé standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_souffle_walk.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Walking to the right with the OTHER foot forward. Everything except the legs must line up exactly with the walking image supplied. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Soufflé's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_souffle_idle.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Sitting upright facing the viewer, feet forward. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Soufflé standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_souffle_idle.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Soufflé standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_souffle_idle.png"
+  ],
+  "prompt": "Draw the character called Soufflé: the one in the bottom row, fourth from the left of the concept board (first image). A cream swan with the headband and the neckerchief. No hat. Waddles on two feet when walking. Pose: Standing, joyful, arms up. The second image is Soufflé's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Soufflé standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_idle.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé's Decorated look added: a pearl-trimmed lavender shawl. Change nothing else: same pose, framing, scale, colours and details. The second image is Soufflé's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_walk.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé's Decorated look added: a pearl-trimmed lavender shawl. Change nothing else: same pose, framing, scale, colours and details. The second image is Soufflé's reference sheet. The third image shows Soufflé already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_walk2.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé's Decorated look added: a pearl-trimmed lavender shawl. Change nothing else: same pose, framing, scale, colours and details. The second image is Soufflé's reference sheet. The third image shows Soufflé already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_sit.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé's Decorated look added: a pearl-trimmed lavender shawl. Change nothing else: same pose, framing, scale, colours and details. The second image is Soufflé's reference sheet. The third image shows Soufflé already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_souffle_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_souffle_sleep.png",
+   "03 ART INBOX — Milestone F/char_souffle_master.png",
+   "03 ART INBOX — Milestone F/char_souffle_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Soufflé, a plush character. Redraw this exact image with Soufflé's Decorated look added: a pearl-trimmed lavender shawl. Change nothing else: same pose, framing, scale, colours and details. The second image is Soufflé's reference sheet. The third image shows Soufflé already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "masters",
+  "out": "03 ART INBOX — Milestone F/char_cherri_master.png",
+  "size": "2048x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone B/char_snug_master.png"
+  ],
+  "prompt": "Draw a reference sheet of the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Show a front view and a side view side by side, full body, same size. Match the board exactly: same colours, proportions, face and accessories. The second image is a reference sheet of a different character and shows only the layout to follow. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_portrait.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_portrait.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: Head and shoulders only, facing slightly right, friendly expression. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_idle_v2.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: Standing still, three-quarter view facing right. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_walk.png",
+   "03 ART INBOX — Milestone F/char_cherri_idle.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: A small hop to the right: body slightly squashed, just leaving the ground. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Cherri standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone C/char_snug_walk2.png",
+   "03 ART INBOX — Milestone F/char_cherri_walk.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: The same hop at its top: body slightly stretched. Same position and size as the other hop image supplied. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Cherri's first walking image: match it exactly apart from the legs. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sit.png",
+   "03 ART INBOX — Milestone F/char_cherri_idle.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: Sitting upright facing the viewer, feet forward. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Cherri standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_sleep.png",
+   "03 ART INBOX — Milestone F/char_cherri_idle.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: Lying curled up asleep, head on the right, eyes closed. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Cherri standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_happy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone E/series_2_teatime_friends_concept_board_v2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone B/char_snug_happy.png",
+   "03 ART INBOX — Milestone F/char_cherri_idle.png"
+  ],
+  "prompt": "Draw the character called Cherri: the one in the bottom row, fifth from the left of the concept board (first image). A small round cherry creature with the leaf stem. Not human-like: no hair, no wings. Add a soft warm glow around the body. Pose: Standing, joyful, arms up. The second image is Cherri's approved reference sheet: match it exactly. The third image shows a different character (Snug) in this pose: copy only the pose, framing, scale and camera angle from it, never the design. The fourth image is Cherri standing: keep the same head size, body size and details. Full body unless the pose says otherwise, feet near the bottom of the image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_decorated_idle.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_idle.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri's Decorated look added: a second leaf with a tiny white blossom, and a slightly brighter glow. Change nothing else: same pose, framing, scale, colours and details. The second image is Cherri's reference sheet. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_decorated_walk.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_walk.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri's Decorated look added: a second leaf with a tiny white blossom, and a slightly brighter glow. Change nothing else: same pose, framing, scale, colours and details. The second image is Cherri's reference sheet. The third image shows Cherri already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_decorated_walk2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_walk2.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri's Decorated look added: a second leaf with a tiny white blossom, and a slightly brighter glow. Change nothing else: same pose, framing, scale, colours and details. The second image is Cherri's reference sheet. The third image shows Cherri already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_decorated_sit.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_sit.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri's Decorated look added: a second leaf with a tiny white blossom, and a slightly brighter glow. Change nothing else: same pose, framing, scale, colours and details. The second image is Cherri's reference sheet. The third image shows Cherri already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "poses",
+  "out": "03 ART INBOX — Milestone F/char_cherri_decorated_sleep.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/char_cherri_sleep.png",
+   "03 ART INBOX — Milestone F/char_cherri_master.png",
+   "03 ART INBOX — Milestone F/char_cherri_decorated_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Cherri, a plush character. Redraw this exact image with Cherri's Decorated look added: a second leaf with a tiny white blossom, and a slightly brighter glow. Change nothing else: same pose, framing, scale, colours and details. The second image is Cherri's reference sheet. The third image shows Cherri already wearing this Decorated look while standing: draw the additions exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_tinker_costume_apron_idle_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/char_tinker_idle.png",
+   "03 ART INBOX — Milestone E/char_tinker_costume_apron_walk.png"
+  ],
+  "prompt": "The first image is the approved standing pose of Tinker. The second shows Tinker correctly wearing the Workshop Apron costume while walking. Redraw the standing pose with the same apron: tan felt apron with two pockets, a tiny felt spanner and a pencil. Tinker must look exactly as in the first image: same round face, same brown aviator helmet with goggles, same olive jacket, same proportions. Do not change the face, do not add fleece, a snout or a scarf. Same pose, framing and scale as the first image. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_hush_costume_cloak_idle_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_hush_idle_v2.png",
+   "03 ART INBOX — Milestone E/char_hush_costume_cloak_walk.png"
+  ],
+  "prompt": "The first image is the approved standing pose of Hush. The second shows Hush correctly wearing the Stargazer Cloak costume while walking: a midnight-blue hooded cloak with gold stitched constellations, including the hood, and a tiny telescope. Redraw the standing pose wearing that same cloak. The hood must be midnight blue with constellations, not purple. Everything else about Hush stays as in the first image: face, ears, crescent moon, pose, framing and scale. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_luma_idle.png"
+  ],
+  "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_luma_costume_crown_walk_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_luma_walk.png",
+   "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png"
+  ],
+  "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. The second image shows Luma already wearing this crown while standing: draw the crown exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_luma_costume_crown_walk2_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_luma_walk2.png",
+   "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png"
+  ],
+  "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. The second image shows Luma already wearing this crown while standing: draw the crown exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_luma_costume_crown_sit_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_luma_sit.png",
+   "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png"
+  ],
+  "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. The second image shows Luma already wearing this crown while standing: draw the crown exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "redraws",
+  "out": "03 ART INBOX — Milestone E/char_luma_costume_crown_sleep_v2.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/char_luma_sleep_v2.png",
+   "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png"
+  ],
+  "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. The second image shows Luma already wearing this crown while standing: draw the crown exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ }
+]
