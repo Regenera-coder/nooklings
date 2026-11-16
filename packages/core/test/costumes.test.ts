@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { content } from '@nooklings/content';
-import { applyCommand, DAY_MS, deserialize, newGame, playsLeftToday, serialize, type Command, type GameState } from '@nooklings/core';
+import { applyCommand, DAY_MS, deserialize, newGame, playsLeftToday, serialize, visibleCostumes, type Command, type GameState } from '@nooklings/core';
 
 type Input = Command extends infer C ? (C extends unknown ? Omit<C, 'id'> : never) : never;
 let n = 0;
@@ -93,5 +94,43 @@ describe('costumes', () => {
     s = ok(s, { type: 'buy_costume', costumeId: 'mischi_wings' });
     s = ok(s, { type: 'wear_costume', residentId: 'mischi', costumeId: 'mischi_wings' });
     expect(s.residents.mischi!.costume).toBe('mischi_wings');
+  });
+});
+
+describe('costume release (Art Brief 10)', () => {
+  it('has the ten new costumes with the approved prices, one per resident', () => {
+    const prices: Record<string, number> = {
+      snug_cape: 12, tinker_apron: 12, bloomi_bonnet: 12, mischi_party: 15, glim_comet: 15,
+      mopey_boots: 15, pippo_pack: 18, hush_cloak: 18, patcha_quilt: 20, luma_crown: 20,
+    };
+    for (const [id, ribbons] of Object.entries(prices)) {
+      const c = content.costumes[id]!;
+      expect(c, id).toBeDefined();
+      expect(c.cost).toEqual({ ribbons });
+      expect(id.startsWith(c.residentId + '_')).toBe(true);
+      expect(c.requiresLevel).toBe(content.residents[c.residentId]!.joinLevel);
+    }
+    expect(new Set(Object.keys(prices).map((id) => content.costumes[id]!.residentId)).size).toBe(10);
+  });
+
+  it('keeps a hidden costume out of the Wardrobe and unbuyable', () => {
+    const hidden = Object.values(content.costumes).find((c) => c.hidden)!;
+    const g = newGame(content);
+    const s: GameState = {
+      ...g, hearts: content.levels[9]!.hearts, wallet: { ...g.wallet, ribbons: 99 },
+      residents: { ...g.residents, [hidden.residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } },
+    };
+    expect(err(s, { type: 'buy_costume', costumeId: hidden.id })).toBe('unknown_costume');
+    expect(visibleCostumes(content, hidden.residentId).some((c) => c.id === hidden.id)).toBe(false);
+  });
+
+  it('only shows costumes whose five poses are in the game art', () => {
+    const manifest = JSON.parse(readFileSync(new URL('../../../apps/client/public/assets/manifest.json', import.meta.url), 'utf8'));
+    const have = new Set<string>(Array.isArray(manifest) ? manifest : Object.keys(manifest.images ?? manifest));
+    for (const c of Object.values(content.costumes)) {
+      if (c.hidden) continue;
+      const word = c.id.slice(c.residentId.length + 1);
+      for (const pose of ['idle', 'walk', 'walk2', 'sit', 'sleep']) expect(have.has(`char_${c.residentId}_costume_${word}_${pose}`), `${c.id} ${pose}`).toBe(true);
+    }
   });
 });

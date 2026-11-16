@@ -723,5 +723,30 @@
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
+  },
+  "char_snug_costume_cape_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_costume_cape_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_costume_cape_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_costume_cape_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_snug_costume_cape_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
   }
 }

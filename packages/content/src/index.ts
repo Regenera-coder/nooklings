@@ -317,6 +317,49 @@ const costumes: CostumeDef[] = [
     id: 'hush_wings', residentId: 'hush', name: 'Moonlit Wings',
     description: 'Soft moth wings with stitched moons, for quiet moonlit flutters.', cost: { ribbons: 15 }, requiresLevel: 8,
   },
+  // Art Brief 10 (Milestone E): one new costume per resident. A costume stays `hidden` until all five
+  // of its poses (idle, walk, walk2, sit, sleep) have been delivered, reviewed and imported; then
+  // remove the flag. Hidden costumes are not shown in the Wardrobe and cannot be bought.
+  {
+    id: 'snug_cape', residentId: 'snug', name: 'Dreamtime Cape',
+    description: 'A quilted lavender blanket-cape with stitched stars, for naps on the go.', cost: { ribbons: 12 }, requiresLevel: 1,
+  },
+  {
+    id: 'tinker_apron', residentId: 'tinker', name: 'Workshop Apron', hidden: true,
+    description: 'A felt apron with two pockets, a tiny spanner and a pencil.', cost: { ribbons: 12 }, requiresLevel: 2,
+  },
+  {
+    id: 'bloomi_bonnet', residentId: 'bloomi', name: 'Petal Bonnet', hidden: true,
+    description: 'A sunflower-petal bonnet tied under the chin.', cost: { ribbons: 12 }, requiresLevel: 4,
+  },
+  {
+    id: 'mischi_party', residentId: 'mischi', name: 'Party Surprise', hidden: true,
+    description: 'A striped party hat with a pom-pom, and a ribbon streamer to wave.', cost: { ribbons: 15 }, requiresLevel: 3,
+  },
+  {
+    id: 'glim_comet', residentId: 'glim', name: 'Comet Scarf', hidden: true,
+    description: 'A long pale-yellow scarf that trails behind like a comet tail.', cost: { ribbons: 15 }, requiresLevel: 5,
+  },
+  {
+    id: 'mopey_boots', residentId: 'mopey', name: 'Puddle Boots', hidden: true,
+    description: 'Little yellow rain boots and a folded paper boat.', cost: { ribbons: 15 }, requiresLevel: 6,
+  },
+  {
+    id: 'pippo_pack', residentId: 'pippo', name: 'Trail Pack', hidden: true,
+    description: 'A rolled-blanket backpack with a tin mug and a compass badge.', cost: { ribbons: 18 }, requiresLevel: 7,
+  },
+  {
+    id: 'hush_cloak', residentId: 'hush', name: 'Stargazer Cloak', hidden: true,
+    description: 'A midnight-blue cloak stitched with constellations, and a tiny telescope.', cost: { ribbons: 18 }, requiresLevel: 8,
+  },
+  {
+    id: 'patcha_quilt', residentId: 'patcha', name: 'Memory Quilt', hidden: true,
+    description: 'A patchwork poncho where every square has its own stitch.', cost: { ribbons: 20 }, requiresLevel: 9,
+  },
+  {
+    id: 'luma_crown', residentId: 'luma', name: 'Wish Crown', hidden: true,
+    description: 'A small crown of folded paper stars with a soft golden glow.', cost: { ribbons: 20 }, requiresLevel: 10,
+  },
 ];
 
 const expeditions: ExpeditionDef[] = [

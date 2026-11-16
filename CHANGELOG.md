@@ -2,6 +2,17 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.6.1 — Milestone E costumes, first delivery (16 Nov 2026)
+
+### Implemented
+- **Dreamtime Cape** for Snug (12 Ribbons): five poses imported and reviewed. In the Wardrobe from Level 1.
+- **Mischi's wing costume** redrawn without the ground shadow (idle, walk, sleep).
+- The other nine Art Brief 10 costumes are configured with their approved names and prices but **hidden**: not shown, not buyable, no placeholder art. Each is released by removing its `hidden` flag once its five poses are imported. A test fails if a visible costume is missing any pose.
+- Art importer: `--add` imports a few files and leaves the rest alone; a full import now refuses a partial folder instead of clearing the game art.
+
+### Planned
+- `docs/series-2-plan.md`: Kitchen room, how each Teatime Friend joins, baking, collection progression.
+
 ## 0.6.0 — One-week pacing (16 Nov 2026)
 
 Owner decision: Home Level 1 to 10 should take about a week of short daily sittings. Before, a patient player finished everything in 55 minutes.

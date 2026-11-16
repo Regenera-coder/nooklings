@@ -82,7 +82,12 @@ ARCADE_PICTURES: dict[str, tuple[int, int]] = {
 # Design references kept in art/normalized only (screen mock-ups and the annotated difference images).
 REFERENCES = ["ui_arcade_hub", "ui_game_intro", "ui_game_frame", "ui_game_results", "ui_prize_reveal"] + [f"game_spot_scene_{i:02d}_diffs" for i in range(1, 4)]
 # Costume pose sets: char_<id>_costume_<costumeId>_<pose>
-COSTUMES = {"mopey": ["umbrella"], "mischi": ["wings"], "hush": ["wings"]}
+# Brief 08 costumes, plus the ten brief 10 costumes (one per resident).
+COSTUMES = {
+    "mopey": ["umbrella", "boots"], "mischi": ["wings", "party"], "hush": ["wings", "cloak"],
+    "snug": ["cape"], "tinker": ["apron"], "bloomi": ["bonnet"], "glim": ["comet"],
+    "pippo": ["pack"], "patcha": ["quilt"], "luma": ["crown"],
+}
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Files delivered with a baked-in ground shadow; the importer strips it (flagged for redraw).
 # Brief 08 delivered three Mischi wing poses with a ground shadow; their _v2 redraws (brief 10) are clean.

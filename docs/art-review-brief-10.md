@@ -29,3 +29,15 @@ Imported with `tools/import_art.py <folder> --add`. The importer's shadow-remova
 | 10 | Cherri (sprite) | Revise | Drawn as a little fairy girl with hair, elf ears and wings: the only human-like figure in the cast, doll-like, and not glowing. Redraw as a small round cherry-shaped plush creature with a leaf stem and a soft glow |
 
 Pose briefs (13 files per character) wait until the four revisions are approved.
+
+## Part 1 — Snug, Dreamtime Cape: PASS (5 of 5)
+
+`char_snug_costume_cape_idle`, `_walk`, `_walk2`, `_sit`, `_sleep`.
+
+- Snug is unchanged (nightcap, fleece, cloud pillow, closed eyes); only the lavender quilted cape with stars and a button is added.
+- White background, no shadow, no text. After import, idle, walk, walk2 and sit match Snug's normal poses to within 4 px.
+- `walk` and `walk2` pair correctly.
+- Sleep: Snug's head sits a little more upright than in the normal sleep pose, so the figure is about 12% taller on the bed. It reads fine in the room; no redraw needed.
+- Source sizes vary (1024, 1254 and 1448×1085); the importer normalises them.
+
+Remaining costumes (45 files): Tinker, Bloomi, Mischi, Glim, Mopey, Pippo, Hush, Patcha, Luma.
