@@ -7,6 +7,7 @@ import type {
   Currency,
   GameState,
   InvitationDef,
+  ParcelKind,
   ParcelPoolDef,
   Rarity,
   TaskCondition,
@@ -231,35 +232,53 @@ export interface ParcelOutcome {
   chance: number;
 }
 
+/** Residents a Friend Parcel from this pool can hold at the player's level. */
+function parcelFriends(state: GameState, content: Content, pool: ParcelPoolDef) {
+  const level = levelFor(state.hearts, content);
+  return Object.values(content.residents).filter((r) => r.series === pool.series && r.joinLevel <= level);
+}
+
+/** Is the next Friend Parcel from this pool the guaranteed one? */
+export function parcelGuaranteed(state: GameState, content: Content, poolId: string): boolean {
+  const pool = content.parcels[poolId];
+  return !!pool?.guaranteedFirst && (state.parcelsByPool[pool.id] ?? 0) === 0 && !(pool.guaranteedFirst in state.residents);
+}
+
+/** Could a Friend Parcel from this pool bring someone new right now? (If not, it would only hold duplicates.) */
+export function friendParcelHasNew(state: GameState, content: Content, poolId: string): boolean {
+  const pool = content.parcels[poolId];
+  if (!pool) return false;
+  return parcelFriends(state, content, pool).some((r) => !(r.id in state.residents));
+}
+
 /**
- * Exact odds for the next parcel from this pool, given the player's level.
+ * Exact odds for the next parcel of this kind from this pool, given the player's level.
  * The same list drives the draw, so the displayed odds are the real odds.
- * Characters are limited to those whose join level the player has reached.
+ * A Friend Parcel always holds a resident whose join level the player has reached;
+ * a Furniture Parcel always holds one of the pool's furniture pieces.
  */
-export function parcelOdds(state: GameState, content: Content, poolId: string): ParcelOutcome[] {
+export function parcelOdds(state: GameState, content: Content, poolId: string, kind: ParcelKind = 'friend'): ParcelOutcome[] {
   const pool = content.parcels[poolId];
   if (!pool) return [];
-  const level = levelFor(state.hearts, content);
-  if (pool.guaranteedFirst && (state.parcelsByPool[pool.id] ?? 0) === 0 && !(pool.guaranteedFirst in state.residents)) {
-    return [{ kind: 'resident', id: pool.guaranteedFirst, chance: 1 }];
+  if (kind === 'furniture') {
+    const furniture = pool.furniture.filter((id) => content.furniture[id]).sort();
+    return furniture.map((id) => ({ kind: 'furniture' as const, id, chance: 1 / furniture.length }));
   }
-  const eligible = Object.values(content.residents).filter((r) => r.series === pool.series && r.joinLevel <= level);
+  if (parcelGuaranteed(state, content, poolId)) return [{ kind: 'resident', id: pool.guaranteedFirst!, chance: 1 }];
   const byRarity = new Map<Rarity, string[]>();
-  for (const r of eligible) byRarity.set(r.rarity, [...(byRarity.get(r.rarity) ?? []), r.id]);
+  for (const r of parcelFriends(state, content, pool)) byRarity.set(r.rarity, [...(byRarity.get(r.rarity) ?? []), r.id]);
   const rarityTotal = [...byRarity.keys()].reduce((sum, rar) => sum + (pool.rarityWeights[rar] ?? 0), 0);
-  const furniture = pool.furniture.filter((id) => content.furniture[id]);
-  const charW = rarityTotal > 0 ? pool.categoryWeights.character : 0;
-  const furnW = furniture.length > 0 ? pool.categoryWeights.furniture : 0;
-  const catTotal = charW + furnW;
-  if (catTotal === 0) return [];
-
+  if (rarityTotal === 0) return [];
   const out: ParcelOutcome[] = [];
   for (const [rarity, ids] of [...byRarity.entries()].sort()) {
-    const rarityChance = (charW / catTotal) * ((pool.rarityWeights[rarity] ?? 0) / rarityTotal);
+    const rarityChance = (pool.rarityWeights[rarity] ?? 0) / rarityTotal;
     for (const id of [...ids].sort()) out.push({ kind: 'resident', id, chance: rarityChance / ids.length });
   }
-  for (const id of [...furniture].sort()) out.push({ kind: 'furniture', id, chance: furnW / catTotal / furniture.length });
   return out;
+}
+
+export function parcelCost(pool: ParcelPoolDef, kind: ParcelKind): Cost {
+  return kind === 'furniture' ? pool.furnitureCost : pool.cost;
 }
 
 /** Deterministic random number generator (mulberry32). Returns [value in 0..1, next state]. */
@@ -281,8 +300,10 @@ export function pickOutcome(odds: ParcelOutcome[], roll: number): ParcelOutcome 
   return odds[odds.length - 1] ?? null;
 }
 
-export function poolCanOpen(state: GameState, content: Content, pool: ParcelPoolDef): boolean {
-  return isUnlocked(state, content, pool.requiresUnlock) && canAfford(state, pool.cost);
+/** Can this parcel be opened now: unlocked, affordable, and (for a Friend Parcel) able to bring someone new? */
+export function poolCanOpen(state: GameState, content: Content, pool: ParcelPoolDef, kind: ParcelKind = 'friend'): boolean {
+  if (!isUnlocked(state, content, pool.requiresUnlock) || !canAfford(state, parcelCost(pool, kind))) return false;
+  return kind === 'furniture' ? parcelOdds(state, content, pool.id, 'furniture').length > 0 : friendParcelHasNew(state, content, pool.id);
 }
 
 // ---------- gathering and expeditions ----------

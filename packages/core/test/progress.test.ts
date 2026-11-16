@@ -152,33 +152,73 @@ describe('parcels', () => {
     expect(chars).toEqual(['mischi', 'snug', 'tinker']);
   });
 
-  it('observed results match the displayed odds over many opens', () => {
-    let s = atLevel3();
-    const odds = parcelOdds(s, content, 'first_residents');
+  /** Level 4 with Bloomi still to find, so a Friend Parcel can bring someone new. */
+  const atLevel4 = () => {
+    const s = atLevel3();
+    return { ...s, hearts: content.levels.find((l) => l.level === 4)!.hearts, wallet: { ...s.wallet, buttons: 1_000_000 } };
+  };
+
+  it('a Friend Parcel always holds a friend and matches the displayed odds over many opens', () => {
+    const base = atLevel4();
+    const odds = parcelOdds(base, content, 'first_residents', 'friend');
+    expect(odds.every((o) => o.kind === 'resident')).toBe(true);
+    expect(odds.map((o) => o.id).sort()).toEqual(['bloomi', 'mischi', 'snug', 'tinker']);
     const counts: Record<string, number> = {};
     const N = 4000;
+    let rngState = base.rngState;
     for (let i = 0; i < N; i++) {
-      const res = run(s, { type: 'open_parcel', poolId: 'first_residents' });
-      s = res.state;
+      // Same home every time (Bloomi never moves in), only the dice move on.
+      const res = run({ ...base, rngState }, { type: 'open_parcel', poolId: 'first_residents', kind: 'friend' });
+      rngState = res.state.rngState;
       const ev = res.events[0];
+      expect(ev?.type === 'parcel_opened' && ev.record.kind).toBe('resident');
       if (ev?.type === 'parcel_opened') counts[ev.record.id] = (counts[ev.record.id] ?? 0) + 1;
     }
     for (const o of odds) expect(Math.abs((counts[o.id] ?? 0) / N - o.chance)).toBeLessThan(0.03);
   });
 
+  it('a Furniture Parcel always holds furniture, at its own price, with even odds', () => {
+    const base = atLevel4();
+    const odds = parcelOdds(base, content, 'first_residents', 'furniture');
+    expect(odds.every((o) => o.kind === 'furniture')).toBe(true);
+    expect(odds.reduce((a, o) => a + o.chance, 0)).toBeCloseTo(1, 10);
+    const counts: Record<string, number> = {};
+    let s = base;
+    const N = 2800;
+    for (let i = 0; i < N; i++) {
+      const res = run(s, { type: 'open_parcel', poolId: 'first_residents', kind: 'furniture' });
+      const ev = res.events[0];
+      expect(ev?.type === 'parcel_opened' && ev.record.kind).toBe('furniture');
+      if (ev?.type === 'parcel_opened') counts[ev.record.id] = (counts[ev.record.id] ?? 0) + 1;
+      s = res.state;
+    }
+    expect(base.wallet.buttons - s.wallet.buttons).toBe(N * content.parcels.first_residents!.furnitureCost.buttons!);
+    expect(s.wallet.wishStamps).toBe(base.wallet.wishStamps);
+    expect(Object.keys(s.residents)).toEqual(Object.keys(base.residents));
+    for (const o of odds) expect(Math.abs((counts[o.id] ?? 0) / N - o.chance)).toBeLessThan(0.03);
+  });
+
+  it('a Friend Parcel is not sold when it could only hold duplicates', () => {
+    // At Level 3 the player already has everyone this parcel can bring.
+    expect(fails(atLevel3(), { type: 'open_parcel', poolId: 'first_residents', kind: 'friend' })).toBe('nothing_new');
+    expect(fails(atLevel3(), { type: 'open_parcel', poolId: 'first_residents' })).toBe('nothing_new');
+    expect(fails({ ...atLevel3(), wallet: { ...atLevel3().wallet, buttons: 500 } }, { type: 'open_parcel', poolId: 'first_residents', kind: 'furniture' })).toBe('ok');
+  });
+
   it('duplicates give Mending Thread, spend exactly one stamp, and replay cannot double-award', () => {
-    const s = atLevel3();
+    const s = atLevel4();
     let found: GameState | null = null;
-    let cur = s;
+    let rngState = s.rngState;
     for (let i = 0; i < 50 && !found; i++) {
+      const cur = { ...s, rngState };
       const res = run(cur, { type: 'open_parcel', poolId: 'first_residents' });
+      rngState = res.state.rngState;
       const ev = res.events[0];
       if (ev?.type === 'parcel_opened' && ev.record.duplicate) {
         expect(res.state.wallet.mendingThread - cur.wallet.mendingThread).toBe(5);
         expect(cur.wallet.wishStamps - res.state.wallet.wishStamps).toBe(1);
         found = res.state;
       }
-      cur = res.state;
     }
     expect(found).not.toBeNull();
     const cmd: Command = { id: 'replay-me', type: 'open_parcel', poolId: 'first_residents' };
@@ -187,6 +227,15 @@ describe('parcels', () => {
     const twice = applyCommand(once.state, cmd, content);
     expect(twice.ok && twice.duplicate).toBe(true);
     if (twice.ok) expect(twice.state.wallet.wishStamps).toBe(once.state.wallet.wishStamps);
+  });
+
+  it('Mending Thread trades for a Wish Stamp at the set rate', () => {
+    const need = content.rules.threadPerStamp;
+    const s = { ...atLevel3(), wallet: { ...atLevel3().wallet, mendingThread: need + 3, wishStamps: 0 } };
+    const res = run(s, { type: 'trade_thread' });
+    expect(res.state.wallet.mendingThread).toBe(3);
+    expect(res.state.wallet.wishStamps).toBe(1);
+    expect(fails(res.state, { type: 'trade_thread' })).toBe('cannot_afford');
   });
 
   it('cannot open without a stamp', () => {

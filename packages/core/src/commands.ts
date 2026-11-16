@@ -23,6 +23,9 @@ import {
   levelFor,
   nextRandom,
   parcelOdds,
+  parcelCost,
+  friendParcelHasNew,
+  parcelGuaranteed,
   pickOutcome,
   playReadyAt,
   playsLeftToday,
@@ -33,7 +36,7 @@ import {
   seriesProgress,
   treatGivenToday,
 } from './progress';
-import type { ArcadeGameId, Content, Cost, GameState, ParcelRecord, Placement } from './types';
+import type { ArcadeGameId, Content, Cost, GameState, ParcelKind, ParcelRecord, Placement } from './types';
 
 /**
  * Every change to the game goes through a command with a unique id.
@@ -49,7 +52,8 @@ export type Command =
   | { id: string; type: 'craft'; recipeId: string }
   | { id: string; type: 'claim_task'; taskId: string }
   | { id: string; type: 'invite'; residentId: string }
-  | { id: string; type: 'open_parcel'; poolId: string }
+  | { id: string; type: 'open_parcel'; poolId: string; kind?: ParcelKind }
+  | { id: string; type: 'trade_thread' }
   | { id: string; type: 'play'; residentId: string; at: number }
   | { id: string; type: 'upgrade_form'; residentId: string }
   | { id: string; type: 'set_flag'; flag: string }
@@ -94,7 +98,8 @@ export type CommandError =
   | 'unknown_game'
   | 'unknown_companion'
   | 'unknown_bake'
-  | 'unknown_series';
+  | 'unknown_series'
+  | 'nothing_new';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -119,6 +124,7 @@ export type GameEvent =
   | { type: 'baking_started'; recipeId: string; bakerId: string | null; endAt: number }
   | { type: 'baking_done'; recipeId: string; bakerId: string | null; treats: number; bonus: number }
   | { type: 'treat_given'; residentId: string; bondUp: boolean; newBondLevel: number }
+  | { type: 'thread_traded'; thread: number; wishStamps: number }
   | { type: 'series_claimed'; seriesId: string; reward: Cost; furnitureId: string | null }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
@@ -277,16 +283,20 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const pool = content.parcels[cmd.poolId];
       if (!pool) return fail('unknown_pool');
       if (!isUnlocked(state, content, pool.requiresUnlock)) return fail('locked');
-      if (!canAfford(state, pool.cost)) return fail('cannot_afford');
-      const odds = parcelOdds(state, content, cmd.poolId);
+      const kind: ParcelKind = cmd.kind === 'furniture' ? 'furniture' : 'friend';
+      const price = parcelCost(pool, kind);
+      if (!canAfford(state, price)) return fail('cannot_afford');
+      // A Friend Parcel that could only hold duplicates is not sold.
+      if (kind === 'friend' && !friendParcelHasNew(state, content, cmd.poolId)) return fail('nothing_new');
+      const odds = parcelOdds(state, content, cmd.poolId, kind);
       const openedHere = state.parcelsByPool[pool.id] ?? 0;
-      const guaranteed = odds.length === 1 && odds[0]!.chance === 1 && openedHere === 0;
+      const guaranteed = kind === 'friend' && parcelGuaranteed(state, content, cmd.poolId);
       const [roll, rngState] = guaranteed ? [0, state.rngState] : nextRandom(state.rngState);
       const outcome = pickOutcome(odds, roll);
       if (!outcome) return fail('not_ready');
       const duplicate = outcome.kind === 'resident' && outcome.id in state.residents;
       const record: ParcelRecord = { n: state.parcelsOpened + 1, poolId: pool.id, kind: outcome.kind, id: outcome.id, duplicate, guaranteed };
-      let wallet = addCost(state.wallet, pool.cost, -1);
+      let wallet = addCost(state.wallet, price, -1);
       let inventory = state.inventory;
       const threadGranted = duplicate ? pool.duplicateThread : 0;
       if (duplicate) wallet = addCost(wallet, { mendingThread: threadGranted }, 1);
@@ -302,6 +312,15 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'parcel_opened', record, threadGranted });
       if (outcome.kind === 'resident' && !duplicate) grantResident(d, content, outcome.id, 'parcel');
+      return done();
+    }
+
+    case 'trade_thread': {
+      const need = content.rules.threadPerStamp;
+      if (!(need > 0)) return fail('locked');
+      if (state.wallet.mendingThread < need) return fail('cannot_afford');
+      d.state = { ...state, wallet: addCost(addCost(state.wallet, { mendingThread: need }, -1), { wishStamps: 1 }, 1) };
+      d.events.push({ type: 'thread_traded', thread: need, wishStamps: 1 });
       return done();
     }
 

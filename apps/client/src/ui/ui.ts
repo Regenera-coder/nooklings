@@ -22,12 +22,16 @@ import {
   bakingOpen,
   canBake,
   seriesProgress,
+  friendParcelHasNew,
+  parcelCost,
+  parcelGuaranteed,
   treatGivenToday,
   type Content,
   type Cost,
   type Currency,
   type GameEvent,
   type GameState,
+  type ParcelKind,
   type ResidentDef,
   type TaskDef,
 } from '@nooklings/core';
@@ -39,7 +43,8 @@ import type { CommandInput } from '../store';
 
 type Tab = 'home' | 'nookbook' | 'explore' | 'tasks';
 type Filter = 'all' | 'owned' | 'missing';
-type ExploreView = 'arcade' | 'outdoors';
+type ExploreView = 'arcade' | 'outdoors' | 'kitchen' | 'parcels';
+type TasksView = 'tasks' | 'invitations';
 
 const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph: string }> = {
   buttons: { name: 'Buttons', icon: 'icon_buttons', glyph: '●' },
@@ -100,7 +105,8 @@ function costChips(cost: Cost & { hearts?: number }, cls = 'reward'): HTMLElemen
   for (const [k, v] of Object.entries(cost) as Array<[Currency | 'hearts', number | undefined]>) {
     if (!v) continue;
     const chip = el('span', cls);
-    chip.append(icon(k), document.createTextNode(` ${v} ${CURRENCY[k].name}`));
+    const name = CURRENCY[k].name;
+    chip.append(icon(k), document.createTextNode(` ${v} ${v === 1 && name.endsWith('s') ? name.slice(0, -1) : name}`));
     out.push(chip);
   }
   return out;
@@ -135,7 +141,6 @@ export class GameUI {
   /** Nookbook tab (a series id). */
   private seriesTab = '';
   private bakerPick = '';
-  private showOdds = false;
   private toastTimer = 0;
   private revealing = false;
   private exploreView: ExploreView = 'outdoors';
@@ -389,6 +394,9 @@ export class GameUI {
       case 'treat_given':
         this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved it and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the Treat`, 2200);
         break;
+      case 'thread_traded':
+        this.toast(`Stitched ${e.thread} Mending Thread into a Wish Stamp`, 2400);
+        break;
       case 'series_claimed': {
         const gift = e.furnitureId ? this.content.furniture[e.furnitureId]?.name : null;
         this.toast(`Series complete!${gift ? ` ${gift} is in your storage.` : ''}`, 3200);
@@ -412,7 +420,7 @@ export class GameUI {
     const hasCountdown =
       (this.tab === 'home' && this.selection.kind === 'resident') ||
       (this.tab === 'nookbook' && this.detailId !== null) ||
-      (this.tab === 'explore' && this.exploreView === 'outdoors');
+      (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen'));
     if (hasCountdown && !this.revealing && !this.arcade.isOpen) this.render();
     else this.renderBadges();
   }
@@ -468,11 +476,7 @@ export class GameUI {
       taskStates(s, this.content).some((t) => t.status === 'claimable') ||
       Object.keys(this.content.invitations).some((id) => invitationStatus(s, this.content, id)?.ready);
     const now = Date.now();
-    const parcelDue =
-      Object.values(this.content.parcels).some((p) => poolCanOpen(s, this.content, p)) ||
-      Object.keys(this.content.gatherSpots).some((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0) ||
-      (!!s.expedition && s.expedition.endAt <= now) ||
-      (!!s.baking && s.baking.endAt <= now);
+    const parcelDue = this.parcelsDue() || this.outdoorsDue(now) || (!!s.baking && s.baking.endAt <= now);
     const bookDue =
       s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug') ||
       this.content.series.some((x) => x.reward && seriesProgress(s, this.content, x.id).complete && !s.seriesClaimed.includes(x.id));
@@ -657,12 +661,53 @@ export class GameUI {
 
   // ---------- Tasks page ----------
 
+  private tasksView: TasksView = 'tasks';
+
   private renderTasks(): void {
     const s = this.getState();
+    const open = Object.keys(this.content.invitations).filter((id) => {
+      const st = invitationStatus(s, this.content, id);
+      return !!st && !st.owned && st.def.requiresLevel <= levelFor(s.hearts, this.content) + 1;
+    });
+    const ready = open.some((id) => invitationStatus(s, this.content, id)?.ready);
+    const claimable = taskStates(s, this.content).some((t) => t.status === 'claimable');
     const head = el('div', 'page-h');
-    head.append(el('h2', '', 'Tasks'), el('span', 'grow'), el('span', 'muted', 'Finish a task to unlock the next one.'));
+    head.append(el('h2', '', this.tasksView === 'tasks' ? 'Tasks' : 'Invitations'));
+    const seg = el('div', 'filters');
+    for (const [view, label, due] of [['tasks', 'Tasks', claimable], ['invitations', `Invitations${open.length ? ` (${open.length})` : ''}`, ready]] as Array<[TasksView, string, boolean]>) {
+      const b = button(label, `filter${this.tasksView === view ? ' on' : ''}`, () => {
+        this.tasksView = view;
+        this.page.scrollTop = 0;
+        this.render();
+      });
+      b.setAttribute('aria-pressed', String(this.tasksView === view));
+      if (due && this.tasksView !== view) b.append(el('span', 'dot'));
+      seg.append(b);
+    }
+    head.append(seg);
     this.page.append(head);
+    if (this.tasksView === 'invitations') return this.renderInvitations();
+    this.page.append(el('p', 'muted', 'Finish a task to unlock the next one.'));
 
+    // Current task first, then what's coming, then finished ones at the bottom.
+    const order: Record<string, number> = { claimable: 0, active: 0, locked: 1, claimed: 2 };
+    const all = taskStates(s, this.content);
+    const sorted = [...all].sort((a, b) => order[a.status]! - order[b.status]!);
+    let shownLocked = 0;
+    for (const { def, status } of sorted) {
+      if (status === 'locked' && ++shownLocked > 1) continue;
+      this.page.append(this.taskCard(def, status));
+    }
+    const doneCount = all.filter((t) => t.status === 'claimed').length;
+    if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'Every task is done. Your home is complete!'));
+    const extra = this.tasksExtra?.();
+    if (extra) this.page.append(extra);
+  }
+
+  /** Friends who can be invited now, and a peek at the next one. */
+  private renderInvitations(): void {
+    const s = this.getState();
+    let shown = 0;
     for (const id of Object.keys(this.content.invitations)) {
       const st = invitationStatus(s, this.content, id);
       if (!st || st.owned) continue;
@@ -700,22 +745,11 @@ export class GameUI {
       row.append(img, body, cell);
       card.append(row);
       this.page.append(card);
+      shown++;
     }
-
-    // Current task first, then what's coming, then finished ones at the bottom.
-    const order: Record<string, number> = { claimable: 0, active: 0, locked: 1, claimed: 2 };
-    const all = taskStates(s, this.content);
-    const sorted = [...all].sort((a, b) => order[a.status]! - order[b.status]!);
-    let shownLocked = 0;
-    for (const { def, status } of sorted) {
-      if (status === 'locked' && ++shownLocked > 1) continue;
-      this.page.append(this.taskCard(def, status));
-    }
-    const doneCount = all.filter((t) => t.status === 'claimed').length;
-    if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'Every task is done. Your home is complete!'));
-    const extra = this.tasksExtra?.();
-    if (extra) this.page.append(extra);
+    if (!shown) this.page.append(el('p', 'muted', 'Nobody is waiting for an invitation right now. New friends can be invited as your Home Level rises.'));
   }
+
 
   private taskCard(def: TaskDef, status: string): HTMLElement {
     const card = el('div', `card task ${status}`);
@@ -744,11 +778,14 @@ export class GameUI {
       if (roomId) this.showRoom(roomId);
       if (isRoomOpen(this.getState(), this.content, this.roomId)) this.setBuild(true);
     } else if (target === 'nookbook') this.setTab('nookbook');
-    else if (target === 'parcels' || target === 'explore') {
-      this.exploreView = 'outdoors';
+    else if (target === 'parcels' || target === 'explore' || target === 'kitchen') {
+      this.exploreView = target === 'explore' ? 'outdoors' : target;
       this.setTab('explore');
+    } else {
+      this.tasksView = 'invitations';
+      this.page.scrollTop = 0;
+      this.render();
     }
-    else this.page.scrollTop = 0;
   }
 
   // ---------- Nookbook ----------
@@ -1193,34 +1230,70 @@ export class GameUI {
 
   private renderExplore(): void {
     const s = this.getState();
+    const level = levelFor(s.hearts, this.content);
     const head = el('div', 'page-h');
     head.append(el('h2', '', 'Explore'));
+    // One short tab per activity, so nothing has to be scrolled past to reach something else.
+    const bakingAt = this.content.baking ? this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99 : 99;
+    const now = Date.now();
+    const views: Array<[ExploreView, string, boolean]> = [
+      ['arcade', 'Arcade', false],
+      ['outdoors', 'Outdoors', this.outdoorsDue(now)],
+    ];
+    if (this.content.baking && level >= bakingAt - 1) views.push(['kitchen', 'Kitchen', !!s.baking && s.baking.endAt <= now]);
+    views.push(['parcels', 'Parcels', this.parcelsDue()]);
+    if (!views.some(([v]) => v === this.exploreView)) this.exploreView = 'outdoors';
     const seg = el('div', 'filters');
-    for (const [view, label] of [['arcade', 'Arcade'], ['outdoors', 'Outdoors & parcels']] as Array<[ExploreView, string]>) {
+    for (const [view, label, due] of views) {
       const b = button(label, `filter${this.exploreView === view ? ' on' : ''}`, () => {
         this.exploreView = view;
         this.page.scrollTop = 0;
         this.render();
       });
       b.setAttribute('aria-pressed', String(this.exploreView === view));
+      if (due && this.exploreView !== view) b.append(el('span', 'dot'));
       seg.append(b);
     }
     head.append(seg);
     this.page.append(head);
-    if (this.exploreView === 'arcade') {
-      this.arcade.renderHub(this.page);
-      return;
-    }
+    if (this.exploreView === 'arcade') return this.arcade.renderHub(this.page);
+    if (this.exploreView === 'kitchen') return this.renderBaking();
+    if (this.exploreView === 'parcels') return this.renderParcels();
     this.renderGathering();
     this.renderExpeditions();
-    this.renderBaking();
+  }
+
+  /** Something outdoors is ready: a gathering spot, or a friend back from a trip. */
+  private outdoorsDue(now: number): boolean {
+    const s = this.getState();
+    return (
+      Object.keys(this.content.gatherSpots).some((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0) ||
+      (!!s.expedition && s.expedition.endAt <= now)
+    );
+  }
+
+  /** A Friend Parcel that can bring someone new is affordable. */
+  private parcelsDue(): boolean {
+    const s = this.getState();
+    return Object.values(this.content.parcels).some((p) => poolCanOpen(s, this.content, p, 'friend'));
+  }
+
+  // ---------- Explore: Parcels ----------
+
+  /** Which parcel's odds are open, as "<pool>:<kind>". */
+  private oddsOpen = '';
+
+  private renderParcels(): void {
+    const s = this.getState();
+    const level = levelFor(s.hearts, this.content);
     for (const pool of Object.values(this.content.parcels)) {
       const card = el('div', 'card');
+      const title = pool.id === 'first_residents' ? 'Mystery Parcels' : pool.name;
       if (!isUnlocked(s, this.content, pool.requiresUnlock)) {
         const at = this.content.levels.find((l) => l.unlocks.includes(pool.requiresUnlock))?.level ?? 99;
         // Pools from a later chapter stay out of sight until the level before they open.
-        if (at > levelFor(s.hearts, this.content) + 1 && pool.id !== 'first_residents') continue;
-        card.append(el('h3', '', pool.id === 'first_residents' ? 'Mystery Parcels' : pool.name), el('p', '', `Unlock at Home Level ${at}. Keep finishing tasks to earn Home Hearts.`));
+        if (at > level + 1 && pool.id !== 'first_residents') continue;
+        card.append(el('h3', '', title), el('p', '', `Unlock at Home Level ${at}. Keep finishing tasks to earn Home Hearts.`));
         this.page.append(card);
         continue;
       }
@@ -1228,31 +1301,46 @@ export class GameUI {
       wrap.append(this.parcelArt(pool.id === 'first_residents' ? 'parcel_closed' : `parcel_${pool.id}_closed`));
       const info = el('div');
       info.append(el('h3', '', pool.name));
-      const cost = el('p');
-      const payWith = (Object.keys(pool.cost) as Currency[])[0] ?? 'wishStamps';
-      cost.append(document.createTextNode('Costs '), ...costChips(pool.cost, ''), document.createTextNode(` · You have ${s.wallet[payWith]}`));
-      info.append(cost);
-      const odds = parcelOdds(s, this.content, pool.id);
-      if (odds.length === 1 && odds[0]!.chance === 1) {
-        info.append(el('p', '', `Your first parcel is guaranteed: ${this.content.residents[odds[0]!.id]?.name}.`));
-      } else {
-        info.append(el('p', '', 'Duplicates turn into Mending Thread. Every character can also be earned without parcels.'));
-      }
-      const actions = el('div', 'actions');
-      actions.append(
-        button(payWith === 'wishStamps' ? 'Open (1 Wish Stamp)' : `Open (${pool.cost[payWith]} ${CURRENCY[payWith].name})`, 'btn primary', () => this.openParcel(pool.id), !canAfford(s, pool.cost)),
-        button(this.showOdds ? 'Hide odds' : 'See odds', 'btn', () => { this.showOdds = !this.showOdds; this.render(); }),
-      );
-      info.append(actions);
-      if (this.showOdds) {
-        const table = el('table', 'odds');
-        for (const o of odds) {
-          const tr = el('tr');
-          const name = o.kind === 'resident' ? `${this.content.residents[o.id]?.name} (${this.content.residents[o.id]?.rarity})` : `${this.content.furniture[o.id]?.name} (furniture)`;
-          tr.append(el('td', '', name), el('td', '', `${(o.chance * 100).toFixed(1)}%`));
-          table.append(tr);
+      for (const kind of ['friend', 'furniture'] as ParcelKind[]) {
+        const price = parcelCost(pool, kind);
+        const odds = parcelOdds(s, this.content, pool.id, kind);
+        if (!odds.length) continue;
+        const row = el('div', 'spot-row');
+        const body = el('div', 'grow');
+        body.append(el('b', '', kind === 'friend' ? 'Friend Parcel' : 'Furniture Parcel'));
+        const hasNew = kind === 'furniture' || friendParcelHasNew(s, this.content, pool.id);
+        let note: string;
+        if (kind === 'furniture') note = 'Always a piece of furniture.';
+        else if (!hasNew && seriesProgress(s, this.content, pool.series).complete) note = 'You have every friend in this series.';
+        else if (!hasNew) note = 'You have every friend this parcel can bring right now. New friends appear in it as your Home Level rises.';
+        else if (parcelGuaranteed(s, this.content, pool.id)) note = `Your first one is guaranteed: ${this.content.residents[odds[0]!.id]?.name}.`;
+        else note = 'Always a friend. A friend you already have turns into Mending Thread.';
+        body.append(el('p', '', note));
+        const cost = el('div', 'rewards');
+        const chip = el('span', canAfford(s, price) ? 'muted' : 'no');
+        const payWith = (Object.keys(price) as Currency[])[0] ?? 'wishStamps';
+        chip.append(document.createTextNode('Costs '), ...costChips(price, ''), document.createTextNode(` · You have ${s.wallet[payWith]}`));
+        cost.append(chip);
+        body.append(cost);
+        const key = `${pool.id}:${kind}`;
+        const acts = el('div', 'actions');
+        acts.style.flexDirection = 'column';
+        acts.append(
+          button('Open', 'btn primary', () => this.openParcel(pool.id, kind), !poolCanOpen(s, this.content, pool, kind)),
+          button(this.oddsOpen === key ? 'Hide odds' : 'Odds', 'btn', () => { this.oddsOpen = this.oddsOpen === key ? '' : key; this.render(); }),
+        );
+        row.append(body, acts);
+        info.append(row);
+        if (this.oddsOpen === key) {
+          const table = el('table', 'odds');
+          for (const o of odds) {
+            const tr = el('tr');
+            const name = o.kind === 'resident' ? `${this.content.residents[o.id]?.name} (${this.content.residents[o.id]?.rarity})${o.id in s.residents ? ' · have' : ''}` : `${this.content.furniture[o.id]?.name}`;
+            tr.append(el('td', '', name), el('td', '', `${(o.chance * 100).toFixed(1)}%`));
+            table.append(tr);
+          }
+          info.append(table);
         }
-        info.append(table);
       }
       const recent = s.parcelLog.filter((r) => r.poolId === pool.id).slice(-5).reverse();
       if (recent.length) {
@@ -1260,6 +1348,23 @@ export class GameUI {
       }
       wrap.append(info);
       card.append(wrap);
+      this.page.append(card);
+    }
+    // Mending Thread from duplicate friends buys Wish Stamps.
+    const need = this.content.rules.threadPerStamp;
+    if (need > 0 && (s.wallet.mendingThread > 0 || s.parcelLog.some((r) => r.duplicate))) {
+      const card = el('div', 'card');
+      card.append(el('h3', '', 'Mending Thread'));
+      const row = el('div', 'spot-row');
+      const body = el('div', 'grow');
+      body.append(el('p', '', 'Thread from duplicate friends can be stitched into a new Wish Stamp.'));
+      const rewards = el('div', 'rewards');
+      const have = el('span', s.wallet.mendingThread >= need ? 'muted' : 'no');
+      have.append(...costChips({ mendingThread: need }, ''), document.createTextNode(` · You have ${s.wallet.mendingThread}`));
+      rewards.append(have, el('span', 'muted', '→'), ...costChips({ wishStamps: 1 }));
+      body.append(rewards);
+      row.append(body, button('Trade', 'btn primary', () => this.run({ type: 'trade_thread' }), s.wallet.mendingThread < need));
+      card.append(row);
       this.page.append(card);
     }
   }
@@ -1283,9 +1388,9 @@ export class GameUI {
     return kind === 'resident' ? this.content.residents[id]?.name ?? id : this.content.furniture[id]?.name ?? id;
   }
 
-  private openParcel(poolId: string): void {
+  private openParcel(poolId: string, kind: ParcelKind): void {
     if (this.revealing) return;
-    const events = this.run({ type: 'open_parcel', poolId });
+    const events = this.run({ type: 'open_parcel', poolId, kind });
     const opened = events?.find((e): e is Extract<GameEvent, { type: 'parcel_opened' }> => e.type === 'parcel_opened');
     if (!opened) return;
     this.revealing = true;

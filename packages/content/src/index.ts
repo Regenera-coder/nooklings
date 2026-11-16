@@ -468,7 +468,7 @@ const tasks: TaskDef[] = [
 const parcels: ParcelPoolDef[] = [
   {
     id: 'first_residents', name: 'First Residents Parcel', cost: { wishStamps: 1 }, requiresUnlock: 'parcels',
-    categoryWeights: { character: 60, furniture: 40 },
+    furnitureCost: { buttons: 100 },
     rarityWeights: { Common: 70, Rare: 25, Epic: 4, Secret: 1 },
     series: SERIES_1,
     furniture: ['potted_fern', 'side_table', 'picture_frame', 'moon_lantern', 'toy_chest', 'hanging_plant', 'tea_table'],
@@ -508,7 +508,7 @@ export const content: Content = {
   baking: null,
   series: [{ id: SERIES_1, name: 'First Residents' }],
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
-  rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, dayOffsetMs: 0 },
+  rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, threadPerStamp: 10, dayOffsetMs: 0 },
   starter: {
     homeName: 'Little Cottage',
     wallet: { buttons: 50 },

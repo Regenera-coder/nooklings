@@ -146,6 +146,8 @@ describe('Teatime Parcel and series rewards', () => {
     const odds = parcelOdds(r.state, c2, 'teatime');
     expect(odds.reduce((a, o) => a + o.chance, 0)).toBeCloseTo(1);
     expect(odds.filter((o) => o.kind === 'resident').every((o) => c2.residents[o.id]!.series === SERIES_2 && c2.residents[o.id]!.joinLevel <= 12)).toBe(true);
+    expect(odds.every((o) => o.kind === 'resident')).toBe(true);
+    expect(parcelOdds(r.state, c2, 'teatime', 'furniture').every((o) => o.kind === 'furniture' && !!c2.furniture[o.id])).toBe(true);
   });
 
   it('a series reward is given once, only when the series is complete', () => {

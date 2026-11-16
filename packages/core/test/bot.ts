@@ -97,7 +97,7 @@ export function playWholeGame(content: Content, schedule?: Schedule, opts: { giv
     for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
     const active = taskStates(s, content).find((ts) => ts.status === 'active');
     const c = active?.def.condition;
-    if (c?.kind === 'parcels_opened') tryRun({ type: 'open_parcel', poolId: 'first_residents' });
+    if (c?.kind === 'parcels_opened') tryRun({ type: 'open_parcel', poolId: 'first_residents', kind: 'friend' });
     // Later pools: the guaranteed first parcel as soon as it can be opened
     for (const pool of Object.values(content.parcels)) {
       if (pool.id !== 'first_residents' && pool.guaranteedFirst && !(pool.guaranteedFirst in s.residents)) tryRun({ type: 'open_parcel', poolId: pool.id });

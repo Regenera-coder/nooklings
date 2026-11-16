@@ -248,8 +248,9 @@ const bakes: BakeRecipeDef[] = [
 
 const parcels: ParcelPoolDef[] = [
   {
-    id: 'teatime', name: 'Teatime Parcel', cost: { treats: 8 }, requiresUnlock: 'teatime_parcels',
-    categoryWeights: { character: 60, furniture: 40 },
+    // A Friend Parcel always holds a friend, so it costs about what a friend cost on average
+    // when parcels were a 60/40 mix at 8 Treats.
+    id: 'teatime', name: 'Teatime Parcel', cost: { treats: 12 }, furnitureCost: { treats: 4 }, requiresUnlock: 'teatime_parcels',
     rarityWeights: { Common: 70, Rare: 25, Epic: 4, Secret: 1 },
     series: SERIES_2,
     furniture: ['spice_rack', 'flour_sacks', 'cake_stand', 'jam_shelf', 'cookie_jar', 'teacup_planter', 'checkered_rug'],
@@ -310,7 +311,7 @@ const tasks: TaskDef[] = [
   },
   {
     id: 'first_bake', title: 'First batch', description: 'Bake something in the Kitchen and collect the Treats.', fromLevel: L(11),
-    condition: { kind: 'baked', count: 1 }, reward: { buttons: 40, fabric: 4, hearts: 4 }, goTo: 'explore',
+    condition: { kind: 'baked', count: 1 }, reward: { buttons: 40, fabric: 4, hearts: 4 }, goTo: 'kitchen',
   },
   {
     id: 'meet_crumb', title: 'Flour everywhere', description: 'Invite Crumb to the Kitchen.', fromLevel: L(11),
@@ -342,7 +343,7 @@ const tasks: TaskDef[] = [
   },
   {
     id: 'bakers_dozen', title: "Baker's habit", description: 'Collect 8 batches from the oven.', fromLevel: L(15),
-    condition: { kind: 'baked', count: 8 }, reward: { buttons: 80, wishStamps: 1, hearts: 6 }, goTo: 'explore',
+    condition: { kind: 'baked', count: 8 }, reward: { buttons: 80, wishStamps: 1, hearts: 6 }, goTo: 'kitchen',
   },
   {
     id: 'meet_sprinkle', title: 'Confetti', description: 'Invite Sprinkle (Home Level 16).', fromLevel: L(16),

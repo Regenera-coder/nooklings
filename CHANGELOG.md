@@ -2,7 +2,18 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## 0.8.1 — Teatime Friends costumes (16 Nov 2026)
+## 0.9.0 — Tidy-up: separate Friend and Furniture Parcels, Explore tabs, Invitations (16 Nov 2026)
+
+### Implemented
+- **Parcels are split.** Each parcel pool now sells a **Friend Parcel** (always a friend, same rarity odds and guaranteed first friend as before) and a **Furniture Parcel** (always furniture, even odds). Prices: First Residents 1 Wish Stamp / 100 Buttons; Teatime 12 Treats / 4 Treats. The Teatime Friend Parcel went from 8 to 12 Treats because it no longer has a 40% chance of furniture (8 Treats at 60% was about 13 per friend).
+- A Friend Parcel **is not sold when it could only hold duplicates** (the player already has every friend it can bring at their level).
+- **Mending Thread has a use:** 10 Thread trade for 1 Wish Stamp, on the Parcels tab.
+- **Explore has four short tabs** (Arcade, Outdoors, Kitchen, Parcels) instead of one long "Outdoors & parcels" page; a dot marks a tab with something ready.
+- **Invitations moved off the Tasks list** into their own view on the Tasks page, with a count and a dot when someone can be invited.
+- Amounts of one read correctly ("1 Wish Stamp").
+- No save format change. Pacing by the scripted player is unchanged (Level 10 on day 7, Level 20 on day 19).
+
+
 
 ### Implemented
 - One costume for each Teatime Friend, bought with Ribbons in the Wardrobe: **Grand Chef Whites** (Crumb, 12), **Honeybee Hoodie** (Whisk, 12), **Marshmallow Pyjamas** (Mallow, 12), **Garden Tea Robe** (Pekoe, 15), **Berry Picker** (Jammy, 15), **Snow Day Knits** (Dumple, 15), **Sugar Plum Tutu** (Sprinkle, 18), **Market Day Coat** (Toffee, 18), **Garden Party Hat** (Soufflé, 20), **Sundae Best** (Cherri, 20). All 50 images reviewed and imported.

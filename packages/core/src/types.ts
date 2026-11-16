@@ -209,18 +209,21 @@ export interface TaskDef {
   condition: TaskCondition;
   reward: Cost & { hearts?: number };
   /** Where the "Go" button sends the player. */
-  goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations' | 'explore';
+  goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations' | 'explore' | 'kitchen';
   /** Shown and counted only from this Home Level (later chapters). */
   fromLevel?: number;
 }
+
+/** A pool sells two parcels: one that always holds a friend, one that always holds furniture. */
+export type ParcelKind = 'friend' | 'furniture';
 
 export interface ParcelPoolDef {
   id: string;
   name: string;
   cost: Cost;
   requiresUnlock: string;
-  /** Chance of a character draw versus a furniture draw. PROPOSED. */
-  categoryWeights: { character: number; furniture: number };
+  /** Price of a Furniture Parcel from this pool (`cost` is the price of a Friend Parcel). */
+  furnitureCost: Cost;
   /** Character rarity weights, handover section 8 (provisional). */
   rarityWeights: Record<Rarity, number>;
   series: string;
@@ -420,6 +423,8 @@ export interface Content {
     maxCopiesCounted: number;
     maxActiveResidents: number;
     maxResidentsPerRoom: number;
+    /** Mending Thread (from duplicate friends) needed to trade for one Wish Stamp. */
+    threadPerStamp: number;
     /** Added to timestamps before splitting them into days, so daily limits reset at the player's local midnight. 0 = UTC. */
     dayOffsetMs: number;
   };
