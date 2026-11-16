@@ -325,7 +325,7 @@ const costumes: CostumeDef[] = [
     description: 'A quilted lavender blanket-cape with stitched stars, for naps on the go.', cost: { ribbons: 12 }, requiresLevel: 1,
   },
   {
-    id: 'tinker_apron', residentId: 'tinker', name: 'Workshop Apron', hidden: true,
+    id: 'tinker_apron', residentId: 'tinker', name: 'Workshop Apron',
     description: 'A felt apron with two pockets, a tiny spanner and a pencil.', cost: { ribbons: 12 }, requiresLevel: 2,
   },
   {
@@ -349,7 +349,7 @@ const costumes: CostumeDef[] = [
     description: 'A rolled-blanket backpack with a tin mug and a compass badge.', cost: { ribbons: 18 }, requiresLevel: 7,
   },
   {
-    id: 'hush_cloak', residentId: 'hush', name: 'Stargazer Cloak', hidden: true,
+    id: 'hush_cloak', residentId: 'hush', name: 'Stargazer Cloak',
     description: 'A midnight-blue cloak stitched with constellations, and a tiny telescope.', cost: { ribbons: 18 }, requiresLevel: 8,
   },
   {
@@ -357,7 +357,7 @@ const costumes: CostumeDef[] = [
     description: 'A patchwork poncho where every square has its own stitch.', cost: { ribbons: 20 }, requiresLevel: 9,
   },
   {
-    id: 'luma_crown', residentId: 'luma', name: 'Wish Crown', hidden: true,
+    id: 'luma_crown', residentId: 'luma', name: 'Wish Crown',
     description: 'A small crown of folded paper stars with a soft golden glow.', cost: { ribbons: 20 }, requiresLevel: 10,
   },
 ];

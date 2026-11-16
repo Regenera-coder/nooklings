@@ -2,6 +2,12 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.7.2 — All ten brief 10 costumes (16 Nov 2026)
+
+### Implemented
+- Released the last three costumes after their redraws: **Workshop Apron** (Tinker, 12), **Stargazer Cloak** (Hush, 18) and **Wish Crown** (Luma, 20). Every Nookling now has a new costume.
+- `tools/generate_art.py` and `tools/art_jobs.json`: art is now generated through the OpenAI Images API from a job list, with reference images per job, resume and `--redo`. Run by the owner on his PC (this workspace cannot reach the API).
+
 ## 0.7.1 — Six more costumes (16 Nov 2026)
 
 ### Implemented

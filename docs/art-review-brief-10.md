@@ -93,3 +93,23 @@ Crumb is now the only character with a chef-style hat. Pose brief: `art-brief-12
 - `room_teagarden_background.png` (2400×886): empty stone patio with moss in the gaps, trellis fence with roses, hedge, gate at the far left. Same sky and layout as the Yard, and clearly different from it.
 
 Not imported yet: they go into the game with the Series 2 rooms.
+
+## Redraws generated through the OpenAI API (16 Nov): PASS (7 of 7)
+
+- `char_tinker_costume_apron_idle_v2`: the approved Tinker, now with the apron. Matches the other four poses.
+- `char_hush_costume_cloak_idle_v2`: navy hood with constellations, matching the other four poses.
+- `char_luma_costume_crown_*_v2` (five poses): a wreath of large gold paper stars, clearly visible at game size, the same in every pose.
+
+All ten brief 10 costumes are now released.
+
+## Brief 12 — Series 2 pose sets, generated through the OpenAI API (16 Nov): PASS (130 of 130)
+
+Ten reference sheets and 120 poses, all 1024×1024 (sheets 2048×1024), white background, no shadows, nothing cropped. Every character matches its reference sheet and the approved board in every pose; sleeping poses have the head on the right; each Decorated pose lines up with its normal pose.
+
+Notes, none blocking:
+- Walk pairs: the second frame is drawn from Snug's second-step reference, not from the first frame (drawing it from the first frame made the model copy the legs). All pairs now differ clearly; Mallow's is the weakest because its legs are tiny.
+- Jammy's Decorated look (lace trim, jam spoon and strap) is subtle at game size.
+- Dumple sleeps inside its bamboo steamer, as briefed. It will sit on top of beds in the game; check how that looks once the rooms are built.
+- Whisk's Decorated look swaps the whisk for a piping bag.
+
+Not imported into the game yet: that happens with the Series 2 build.
