@@ -162,6 +162,14 @@ export function playReadyAt(state: GameState, content: Content, residentId: stri
   return r ? r.lastPlayAt + content.bond.playCooldownMs : Infinity;
 }
 
+/** Plays left today with one resident. */
+export function playsLeftToday(state: GameState, content: Content, residentId: string, at: number): number {
+  const r = state.residents[residentId];
+  if (!r) return 0;
+  const used = dayOf(r.lastPlayAt) === dayOf(at) ? r.playsToday : 0;
+  return Math.max(0, content.bond.playsPerDay - used);
+}
+
 // ---------- tasks ----------
 
 export function conditionMet(state: GameState, content: Content, c: TaskCondition): boolean {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { content } from '@nooklings/content';
-import { applyCommand, DAY_MS, deserialize, newGame, serialize, type Command, type GameState } from '@nooklings/core';
+import { applyCommand, DAY_MS, deserialize, newGame, playsLeftToday, serialize, type Command, type GameState } from '@nooklings/core';
 
 type Input = Command extends infer C ? (C extends unknown ? Omit<C, 'id'> : never) : never;
 let n = 0;
@@ -9,19 +9,46 @@ const ok = (s: GameState, cmd: Input) => { const r = run(s, cmd); if (!r.ok) thr
 const err = (s: GameState, cmd: Input) => { const r = run(s, cmd); return r.ok ? 'ok' : r.error; };
 const withMopey = (): GameState => {
   const g = newGame(content);
-  return { ...g, hearts: 100, residents: { ...g.residents, mopey: { bondXp: 0, form: 'original', lastPlayAt: 0, room: 'living_room', costume: null } }, residentOrder: [...g.residentOrder, 'mopey'] };
+  return { ...g, hearts: content.levels[5]!.hearts, residents: { ...g.residents, mopey: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...g.residentOrder, 'mopey'] };
 };
 
 describe('Ribbons', () => {
   it('come from playing, up to five a day, and reset the next day', () => {
-    let s = newGame(content);
+    let s = withMopey();
     const day = 20_000 * DAY_MS;
-    for (let i = 0; i < 7; i++) s = ok(s, { type: 'play', residentId: 'snug', at: day + i * 60_000 });
+    // Three plays each with two residents: six plays, five Ribbons.
+    for (let i = 0; i < 3; i++) for (const residentId of ['snug', 'mopey']) s = ok(s, { type: 'play', residentId, at: day + i * 60_000 });
     expect(s.wallet.ribbons).toBe(5);
     s = ok(s, { type: 'play', residentId: 'snug', at: day + DAY_MS + 1 });
     expect(s.wallet.ribbons).toBe(6);
   });
 
+});
+
+describe('playing', () => {
+  it('counts three plays per resident per day, each resident separately, and resets the next day', () => {
+    let s = withMopey();
+    const day = 20_000 * DAY_MS;
+    expect(playsLeftToday(s, content, 'snug', day)).toBe(3);
+    for (let i = 0; i < 3; i++) s = ok(s, { type: 'play', residentId: 'snug', at: day + i * 60_000 });
+    expect(playsLeftToday(s, content, 'snug', day + 200_000)).toBe(0);
+    expect(err(s, { type: 'play', residentId: 'snug', at: day + 200_000 })).toBe('daily_limit');
+    expect(err(s, { type: 'play', residentId: 'mopey', at: day + 200_000 })).toBe('ok');
+    expect(s.residents.snug!.bondXp).toBe(3);
+    expect(playsLeftToday(s, content, 'snug', day + DAY_MS)).toBe(3);
+    s = ok(s, { type: 'play', residentId: 'snug', at: day + DAY_MS });
+    expect(s.residents.snug!.playsToday).toBe(1);
+  });
+
+  it('loads an older save with no plays counted today and clamps a tampered count', () => {
+    const raw = JSON.parse(serialize(withMopey()));
+    raw.version = 6;
+    delete raw.residents.snug.playsToday;
+    raw.residents.mopey.playsToday = 99;
+    const back = deserialize(JSON.stringify(raw), content);
+    expect(back.residents.snug!.playsToday).toBe(0);
+    expect(back.residents.mopey!.playsToday).toBe(content.bond.playsPerDay);
+  });
 });
 
 describe('costumes', () => {
@@ -44,9 +71,9 @@ describe('costumes', () => {
 
   it('sells Mischi her wings as a costume once she lives with you', () => {
     const g = newGame(content);
-    let s: GameState = { ...g, hearts: 30, wallet: { ...g.wallet, ribbons: 20 } };
+    let s: GameState = { ...g, hearts: content.levels[2]!.hearts, wallet: { ...g.wallet, ribbons: 20 } };
     expect(err(s, { type: 'buy_costume', costumeId: 'mischi_wings' })).toBe('not_owned');
-    s = { ...s, residents: { ...s.residents, mischi: { bondXp: 0, form: 'original', lastPlayAt: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, 'mischi'] };
+    s = { ...s, residents: { ...s.residents, mischi: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, 'mischi'] };
     s = ok(s, { type: 'buy_costume', costumeId: 'mischi_wings' });
     s = ok(s, { type: 'wear_costume', residentId: 'mischi', costumeId: 'mischi_wings' });
     expect(s.residents.mischi!.costume).toBe('mischi_wings');

@@ -16,7 +16,7 @@ const err = (s: GameState, cmd: Input) => {
 };
 const rich = (level: number): GameState => {
   const g = newGame(content);
-  const hearts = [0, 0, 10, 25, 45, 70, 100, 130, 165, 200, 240][level]!;
+  const hearts = level <= 1 ? 0 : content.levels[level - 1]!.hearts;
   return { ...g, hearts, wallet: { ...g.wallet, buttons: 5000, wood: 500, fabric: 500, keepsakes: 50 } };
 };
 
@@ -49,9 +49,9 @@ describe('gathering', () => {
     let s = rich(1);
     const wood = s.wallet.wood;
     s = ok(s, { type: 'gather', spotId: 'woodpile', at: 1000 });
-    expect(s.wallet.wood).toBe(wood + 3);
+    expect(s.wallet.wood).toBe(wood + content.gatherSpots.woodpile!.yield.wood!);
     expect(err(s, { type: 'gather', spotId: 'woodpile', at: 2000 })).toBe('cooldown');
-    ok(s, { type: 'gather', spotId: 'woodpile', at: 1000 + 90_000 });
+    ok(s, { type: 'gather', spotId: 'woodpile', at: 1000 + content.gatherSpots.woodpile!.cooldownMs });
     expect(err(s, { type: 'gather', spotId: 'cotton_patch', at: 1000 })).toBe('locked');
   });
 });
@@ -64,11 +64,11 @@ describe('expeditions', () => {
     expect(err(s, { type: 'start_expedition', routeId: 'meadow', residentId: 'snug', at: 1 })).toBe('busy');
     expect(err(s, { type: 'play', residentId: 'snug', at: 1_000_000 })).toBe('away');
     expect(err(s, { type: 'collect_expedition', at: 60_000 })).toBe('not_ready');
-    s = ok(s, { type: 'collect_expedition', at: 10 * 60_000 });
+    s = ok(s, { type: 'collect_expedition', at: content.expeditions.old_mill!.durationMs });
     expect('pippo' in s.residents).toBe(true);
     expect(s.wallet.keepsakes).toBe(53);
     s = ok(s, { type: 'start_expedition', routeId: 'old_mill', residentId: 'snug', at: 0 });
-    s = ok(s, { type: 'collect_expedition', at: 10 * 60_000 });
+    s = ok(s, { type: 'collect_expedition', at: content.expeditions.old_mill!.durationMs });
     expect(s.expeditionsDone.old_mill).toBe(2);
   });
 });
@@ -83,7 +83,7 @@ describe('residents and rooms', () => {
     expect(s.residents.snug!.room).toBe(SUNROOM_ID);
     const full: GameState = {
       ...s,
-      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, room: LIVING_ROOM_ID, costume: null }])),
+      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: LIVING_ROOM_ID, costume: null }])),
       residentOrder: ['a', 'b', 'c', 'd'],
     };
     expect(err({ ...full, residents: { ...full.residents, snug: s.residents.snug! } }, { type: 'move_resident', residentId: 'snug', roomId: LIVING_ROOM_ID })).toBe('room_full');

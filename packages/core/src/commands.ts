@@ -25,6 +25,7 @@ import {
   parcelOdds,
   pickOutcome,
   playReadyAt,
+  playsLeftToday,
   taskStates,
 } from './progress';
 import type { ArcadeGameId, Content, Cost, GameState, ParcelRecord, Placement } from './types';
@@ -142,7 +143,7 @@ function grantResident(
       : homeForNewResident(d.state, content);
   d.state = {
     ...d.state,
-    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, room, costume: null } },
+    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room, costume: null } },
     residentOrder: [...d.state.residentOrder, residentId],
   };
   d.events.push({ type: 'resident_joined', residentId, via, roomId: room });
@@ -293,13 +294,16 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!owned) return fail('not_owned');
       if (state.expedition?.residentId === cmd.residentId) return fail('away');
       if (!Number.isFinite(cmd.at) || cmd.at < playReadyAt(state, content, cmd.residentId)) return fail('cooldown');
+      const playsLeft = playsLeftToday(state, content, cmd.residentId, cmd.at);
+      if (playsLeft <= 0) return fail('daily_limit');
+      const playsToday = content.bond.playsPerDay - playsLeft + 1;
       const before = bondLevel(owned.bondXp, content);
       const bondXp = owned.bondXp + 1;
       const after = bondLevel(bondXp, content);
       d.state = {
         ...state,
         wallet: addCost(state.wallet, content.bond.playReward, 1),
-        residents: { ...state.residents, [cmd.residentId]: { ...owned, bondXp, lastPlayAt: cmd.at } },
+        residents: { ...state.residents, [cmd.residentId]: { ...owned, bondXp, lastPlayAt: cmd.at, playsToday } },
       };
       d.events.push({ type: 'played', residentId: cmd.residentId, bondUp: after > before, newBondLevel: after });
       // Ribbons for playing, up to a daily limit.

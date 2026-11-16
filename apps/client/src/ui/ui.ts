@@ -14,6 +14,7 @@ import {
   nextLevel,
   parcelOdds,
   playReadyAt,
+  playsLeftToday,
   poolCanOpen,
   taskStates,
   type Content,
@@ -609,7 +610,9 @@ export class GameUI {
     const wait = playReadyAt(this.getState(), this.content, id) - Date.now();
     const def = this.content.residents[id]!;
     if (this.getState().expedition?.residentId === id) return button(`${def.name} is exploring`, cls, () => undefined, true);
-    return button(wait > 0 ? `Play in ${seconds(wait)}` : `Play with ${def.name}`, cls, () => {
+    const left = playsLeftToday(this.getState(), this.content, id, Date.now());
+    if (left <= 0) return button('Play again tomorrow', cls, () => undefined, true);
+    return button(wait > 0 ? `Play in ${seconds(wait)}` : `Play · ${left} left today`, cls, () => {
       this.run({ type: 'play', residentId: id, at: Date.now() });
     }, wait > 0);
   }
@@ -1006,7 +1009,7 @@ export class GameUI {
       const thumb = cardArt(`exp_${route.id}`);
       if (thumb) row.append(thumb);
       const body = el('div', 'grow');
-      body.append(el('b', '', `${route.name} · ${Math.round(route.durationMs / 60_000)} min`), el('p', '', route.description));
+      body.append(el('b', '', `${route.name} · ${route.durationMs >= 3_600_000 ? `${Math.round(route.durationMs / 360_000) / 10} h` : `${Math.round(route.durationMs / 60_000)} min`}`), el('p', '', route.description));
       const rewards = el('div', 'rewards');
       rewards.append(...costChips(route.reward));
       if (route.firstTimeResident && !s.expeditionsDone[route.id] && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
@@ -1218,6 +1221,11 @@ function errorText(error: string): string {
 
 function clock(ms: number): string {
   const total = Math.max(1, Math.ceil(ms / 1000));
+  if (total >= 3600) {
+    const mins = Math.ceil(total / 60);
+    const rest = mins % 60;
+    return rest ? `${Math.floor(mins / 60)} h ${rest} min` : `${Math.floor(mins / 60)} h`;
+  }
   const m = Math.floor(total / 60);
   const sec = total % 60;
   return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`;

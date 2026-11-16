@@ -225,13 +225,13 @@ const levels: LevelDef[] = [
   { level: 1, hearts: 0, unlocks: [], label: 'Living Room and a tiny yard' },
   { level: 2, hearts: 10, unlocks: ['crafting'], label: 'Crafting' },
   { level: 3, hearts: 25, unlocks: ['parcels', 'sunroom'], label: 'Mystery Parcels and the Sunroom' },
-  { level: 4, hearts: 45, unlocks: ['gardening'], label: 'Gardening' },
-  { level: 5, hearts: 70, unlocks: ['yard_expansion'], label: 'Bigger yard' },
-  { level: 6, hearts: 100, unlocks: ['rain_decor'], label: 'Rainy-day decor' },
-  { level: 7, hearts: 130, unlocks: ['expeditions'], label: 'Expeditions' },
-  { level: 8, hearts: 165, unlocks: ['tranquil_decor'], label: 'Tranquil decor' },
-  { level: 9, hearts: 200, unlocks: ['heirloom'], label: 'Heirloom restoring' },
-  { level: 10, hearts: 240, unlocks: ['exterior'], label: 'Wishing Lantern' },
+  { level: 4, hearts: 55, unlocks: ['gardening'], label: 'Gardening' },
+  { level: 5, hearts: 90, unlocks: ['yard_expansion'], label: 'Bigger yard' },
+  { level: 6, hearts: 125, unlocks: ['rain_decor'], label: 'Rainy-day decor' },
+  { level: 7, hearts: 160, unlocks: ['expeditions'], label: 'Expeditions' },
+  { level: 8, hearts: 195, unlocks: ['tranquil_decor'], label: 'Tranquil decor' },
+  { level: 9, hearts: 230, unlocks: ['heirloom'], label: 'Heirloom restoring' },
+  { level: 10, hearts: 270, unlocks: ['exterior'], label: 'Wishing Lantern' },
 ];
 
 const recipes: RecipeDef[] = [
@@ -297,9 +297,9 @@ const invitations: InvitationDef[] = [
 ];
 
 const gatherSpots: GatherSpotDef[] = [
-  { id: 'woodpile', name: 'Woodpile', roomId: YARD_ID, yield: { wood: 3 }, cooldownMs: 90_000 },
-  { id: 'berry_bush', name: 'Button Berry Bush', roomId: YARD_ID, yield: { buttons: 25 }, cooldownMs: 90_000 },
-  { id: 'cotton_patch', name: 'Cotton Patch', roomId: YARD_ID, yield: { fabric: 2 }, cooldownMs: 120_000, requiresUnlock: 'gardening' },
+  { id: 'woodpile', name: 'Woodpile', roomId: YARD_ID, yield: { wood: 12 }, cooldownMs: 4 * 3_600_000 },
+  { id: 'berry_bush', name: 'Button Berry Bush', roomId: YARD_ID, yield: { buttons: 100 }, cooldownMs: 4 * 3_600_000 },
+  { id: 'cotton_patch', name: 'Cotton Patch', roomId: YARD_ID, yield: { fabric: 8 }, cooldownMs: 4 * 3_600_000, requiresUnlock: 'gardening' },
 ];
 
 // Costumes: bought once with Ribbons, worn over a resident's Original or Decorated look.
@@ -322,11 +322,11 @@ const costumes: CostumeDef[] = [
 const expeditions: ExpeditionDef[] = [
   {
     id: 'meadow', name: 'Clover Meadow', description: 'A short stroll for wildflowers and lost buttons.',
-    durationMs: 3 * 60_000, reward: { wood: 4, fabric: 2, keepsakes: 1, ribbons: 2, hearts: 2 }, requiresUnlock: 'expeditions',
+    durationMs: 60 * 60_000, reward: { wood: 4, fabric: 2, keepsakes: 1, ribbons: 2, hearts: 2 }, requiresUnlock: 'expeditions',
   },
   {
     id: 'old_mill', name: 'The Old Mill', description: 'A longer trip to the creaky mill by the stream. Something there is waiting to be found.',
-    durationMs: 10 * 60_000, reward: { buttons: 60, keepsakes: 3, ribbons: 4, hearts: 4 }, requiresUnlock: 'expeditions',
+    durationMs: 4 * 60 * 60_000, reward: { buttons: 60, keepsakes: 3, ribbons: 4, hearts: 4 }, requiresUnlock: 'expeditions',
     firstTimeResident: 'pippo',
   },
 ];
@@ -453,7 +453,7 @@ export const content: Content = {
   invitations: byId(invitations, (i) => i.residentId),
   tasks,
   parcels: byId(parcels, (p) => p.id),
-  bond: { thresholds: [0, 3, 8, 15, 25], playCooldownMs: 30_000, playReward: { buttons: 5 }, heartsPerBondLevel: 3 },
+  bond: { thresholds: [0, 3, 6, 12, 21], playCooldownMs: 30_000, playsPerDay: 3, playReward: { buttons: 10 }, heartsPerBondLevel: 3 },
   formUpgrades: [{ form: 'decorated', requiresBond: 2, cost: { buttons: 60, fabric: 3 }, hearts: 5 }],
   gatherSpots: byId(gatherSpots, (g) => g.id),
   costumes: byId(costumes, (c) => c.id),

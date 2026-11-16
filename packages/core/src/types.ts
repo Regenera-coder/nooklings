@@ -228,6 +228,8 @@ export interface BondDef {
   /** Bond XP needed to reach level 1..5. */
   thresholds: number[];
   playCooldownMs: number;
+  /** Plays that count per resident per day. */
+  playsPerDay: number;
   playReward: Cost;
   heartsPerBondLevel: number;
 }
@@ -256,6 +258,8 @@ export interface OwnedResident {
   form: Form;
   /** Timestamp (ms) of the last Play. Supplied by the caller; the server will supply it later. */
   lastPlayAt: number;
+  /** Plays on the day of lastPlayAt (see dayOf). */
+  playsToday: number;
   /** Room this resident lives in. */
   room: string;
   /** Costume being worn, if any. */

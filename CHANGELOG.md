@@ -2,6 +2,26 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.6.0 — One-week pacing (16 Nov 2026)
+
+Owner decision: Home Level 1 to 10 should take about a week of short daily sittings. Before, a patient player finished everything in 55 minutes.
+
+### Implemented
+- **Three plays per Nookling per day** (`bond.playsPerDay`). The button shows "Play · 3 left today", then "Play again tomorrow". Each play now gives 10 Buttons (was 5). Bond levels need 3, 6, 12 and 21 plays (were 3, 8, 15, 25).
+- **Gathering refills every 4 hours** (was 90 seconds to 2 minutes) and gives four times as much: 12 Wood, 100 Buttons, 8 Fabric.
+- **Trips take longer**: Clover Meadow 1 hour (was 3 minutes), the Old Mill 4 hours (was 10 minutes). Rewards unchanged.
+- **Heart targets** for Levels 4 to 10 raised to 55, 90, 125, 160, 195, 230, 270 (were 45, 70, 100, 130, 165, 200, 240).
+- Waiting times over an hour read as "3 h 20 min".
+- Save format v7 (old saves carry over).
+
+### Measured (scripted player, `packages/core/test/bot.ts`)
+- Two 10-minute sittings a day: Levels 1 to 4 on day 1, then one level a day, Level 10 and all ten Nooklings on day 7.
+- One 90-minute sitting a day cannot rush it: Level 10 no earlier than day 5.
+- Both are now tests, so later content changes that break the pacing fail the checks.
+
+### Known
+- "A day" is a UTC day, so daily limits reset at 8 am Singapore time, not midnight.
+
 ## 0.5.1 — Daily Arcade Ribbon cap (16 Nov 2026)
 
 ### Implemented

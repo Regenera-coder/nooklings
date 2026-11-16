@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { content } from '@nooklings/content';
 import {
-  applyCommand, arcadePlaysLeft, arcadeRibbonsLeft, companionOf, DAY_MS, deserialize, newGame, ribbonsForScore, serialize,
+  applyCommand, SAVE_VERSION, arcadePlaysLeft, arcadeRibbonsLeft, companionOf, DAY_MS, deserialize, newGame, ribbonsForScore, serialize,
   type ArcadeGameId, type Command, type GameState,
 } from '@nooklings/core';
 
@@ -14,7 +14,7 @@ const AT = 25_000 * DAY_MS;
 const levelHearts = (level: number) => content.levels.find((l) => l.level === level)!.hearts;
 const atLevel = (level: number): GameState => ({ ...newGame(content), hearts: levelHearts(level) });
 const withResident = (s: GameState, id: string): GameState => ({
-  ...s, residents: { ...s.residents, [id]: { bondXp: 0, form: 'original', lastPlayAt: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, id],
+  ...s, residents: { ...s.residents, [id]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, id],
 });
 
 describe('Arcade content', () => {
@@ -163,7 +163,7 @@ describe('save v5', () => {
     delete v4.arcade;
     delete v4.companions;
     const s = deserialize(JSON.stringify(v4), content);
-    expect(s.version).toBe(6);
+    expect(s.version).toBe(SAVE_VERSION);
     expect(s.arcade).toEqual({ day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] });
     expect(s.companions).toEqual({});
   });

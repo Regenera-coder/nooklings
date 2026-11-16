@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -21,6 +21,8 @@ const MIGRATIONS: Record<number, Migration> = {
   4: (raw) => ({ ...raw, version: 5 }),
   // v5 -> v6: daily Arcade Ribbon cap (today's Arcade Ribbons start at 0).
   5: (raw) => ({ ...raw, version: 6 }),
+  // v6 -> v7: plays per resident per day (today's plays start at 0).
+  6: (raw) => ({ ...raw, version: 7 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -31,7 +33,7 @@ export function newGame(content: Content): GameState {
   const wallet = emptyWallet();
   for (const c of CURRENCIES) wallet[c] = content.starter.wallet[c] ?? 0;
   const residents: Record<string, OwnedResident> = {};
-  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, room: content.roomOrder[0]!, costume: null };
+  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: content.roomOrder[0]!, costume: null };
   let nextUid = 1;
   const rooms: GameState['rooms'] = {};
   for (const roomId of Object.keys(content.rooms)) {
@@ -138,7 +140,7 @@ export function deserialize(text: string, content: Content): GameState {
     for (const [id, r] of Object.entries(rawResidents)) {
       if (!content.residents[id] || !r) continue;
       const room = typeof r.room === 'string' && content.rooms[r.room] ? r.room : content.roomOrder[0]!;
-      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), room, costume: typeof r.costume === 'string' ? r.costume : null };
+      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), playsToday: Math.min(content.bond.playsPerDay, nonNegInt(r.playsToday)), room, costume: typeof r.costume === 'string' ? r.costume : null };
     }
   } else {
     Object.assign(residents, fresh.residents);
