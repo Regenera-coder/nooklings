@@ -40,6 +40,22 @@ describe('playing', () => {
     expect(s.residents.snug!.playsToday).toBe(1);
   });
 
+  it('resets at local midnight when the device supplies its time zone', () => {
+    // Singapore is UTC+8: local midnight is 16:00 UTC.
+    const sg = { ...content, rules: { ...content.rules, dayOffsetMs: 8 * 3_600_000 } };
+    const localMidnight = 20_000 * DAY_MS - 8 * 3_600_000;
+    let s = withMopey();
+    for (let i = 0; i < 3; i++) {
+      const r = applyCommand(s, { id: `sg${i}`, type: 'play', residentId: 'snug', at: localMidnight - 3_600_000 + i * 60_000 }, sg);
+      if (!r.ok) throw new Error(r.error);
+      s = r.state;
+    }
+    expect(playsLeftToday(s, sg, 'snug', localMidnight - 1)).toBe(0);
+    expect(playsLeftToday(s, sg, 'snug', localMidnight)).toBe(3);
+    // In UTC days the same moments fall on one day, so nothing would have reset.
+    expect(playsLeftToday(s, content, 'snug', localMidnight)).toBe(0);
+  });
+
   it('loads an older save with no plays counted today and clamps a tampered count', () => {
     const raw = JSON.parse(serialize(withMopey()));
     raw.version = 6;

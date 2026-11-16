@@ -463,7 +463,7 @@ export const content: Content = {
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
-  rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4 },
+  rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, dayOffsetMs: 0 },
   starter: {
     homeName: 'Little Cottage',
     wallet: { buttons: 50 },

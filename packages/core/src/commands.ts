@@ -307,12 +307,12 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'played', residentId: cmd.residentId, bondUp: after > before, newBondLevel: after });
       // Ribbons for playing, up to a daily limit.
-      const today = ribbonToday(d.state, cmd.at);
+      const today = ribbonToday(d.state, content, cmd.at);
       if (today.fromPlay < content.ribbons.playsPerDay && content.ribbons.perPlay > 0) {
         d.state = {
           ...d.state,
           wallet: addCost(d.state.wallet, { ribbons: content.ribbons.perPlay }, 1),
-          ribbonDay: { day: dayOf(cmd.at), fromPlay: today.fromPlay + 1, games: today.games },
+          ribbonDay: { day: dayOf(cmd.at, content), fromPlay: today.fromPlay + 1, games: today.games },
         };
         d.events.push({ type: 'ribbons_earned', amount: content.ribbons.perPlay, source: 'play' });
       }
@@ -455,7 +455,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       // The daily Arcade cap trims the round's Ribbons; the round itself still counts.
       const ribbonsLeft = arcadeRibbonsLeft(state, content, cmd.at);
       const ribbons = Math.min(ribbonsForScore(content, game, score), ribbonsLeft);
-      const day = dayOf(cmd.at);
+      const day = dayOf(cmd.at, content);
       const sameDay = state.arcade.day === day;
       const plays = sameDay ? { ...state.arcade.plays } : {};
       const ribbonsToday = (sameDay ? state.arcade.ribbons : 0) + ribbons;

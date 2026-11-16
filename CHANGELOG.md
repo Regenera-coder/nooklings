@@ -19,8 +19,8 @@ Owner decision: Home Level 1 to 10 should take about a week of short daily sitti
 - One 90-minute sitting a day cannot rush it: Level 10 no earlier than day 5.
 - Both are now tests, so later content changes that break the pacing fail the checks.
 
-### Known
-- "A day" is a UTC day, so daily limits reset at 8 am Singapore time, not midnight.
+### Daily reset
+- All daily limits (plays, Arcade plays, Ribbons) now reset at **midnight on the device's clock** (`rules.dayOffsetMs`, set by the client). Before, days were UTC days, which reset at 8 am in Singapore.
 
 ## 0.5.1 — Daily Arcade Ribbon cap (16 Nov 2026)
 

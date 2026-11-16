@@ -358,6 +358,8 @@ export interface Content {
     maxCopiesCounted: number;
     maxActiveResidents: number;
     maxResidentsPerRoom: number;
+    /** Added to timestamps before splitting them into days, so daily limits reset at the player's local midnight. 0 = UTC. */
+    dayOffsetMs: number;
   };
   starter: {
     homeName: string;

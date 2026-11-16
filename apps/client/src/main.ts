@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { content, LIVING_ROOM_ID } from '@nooklings/content';
+import { content as baseContent, LIVING_ROOM_ID } from '@nooklings/content';
 import { loadManifest } from './assets';
 import { RoomScene, type SceneCallbacks } from './game/RoomScene';
 import { LocalSaveStore } from './save/saveStore';
@@ -9,6 +9,9 @@ import './style.css';
 
 /** Render at screen density (capped at 2x for phone GPUs) and display at CSS size. */
 const pixelRatio = () => Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+
+/** Daily limits reset at midnight on this device's clock. */
+const content = { ...baseContent, rules: { ...baseContent.rules, dayOffsetMs: -new Date().getTimezoneOffset() * 60_000 } };
 
 async function start(): Promise<void> {
   await loadManifest();

@@ -166,7 +166,7 @@ export function playReadyAt(state: GameState, content: Content, residentId: stri
 export function playsLeftToday(state: GameState, content: Content, residentId: string, at: number): number {
   const r = state.residents[residentId];
   if (!r) return 0;
-  const used = dayOf(r.lastPlayAt) === dayOf(at) ? r.playsToday : 0;
+  const used = dayOf(r.lastPlayAt, content) === dayOf(at, content) ? r.playsToday : 0;
   return Math.max(0, content.bond.playsPerDay - used);
 }
 
@@ -298,13 +298,14 @@ export function spotUnlocked(state: GameState, content: Content, spotId: string)
 
 export const DAY_MS = 86_400_000;
 
-export function dayOf(at: number): number {
-  return Math.floor(at / DAY_MS);
+/** Day number of a timestamp, counted in the player's local days (see rules.dayOffsetMs). */
+export function dayOf(at: number, content: Content): number {
+  return Math.floor((at + content.rules.dayOffsetMs) / DAY_MS);
 }
 
 /** Today's Ribbon counters for playing with residents (fresh if the stored day is over). */
-export function ribbonToday(state: GameState, at: number): { fromPlay: number; games: number } {
-  return state.ribbonDay.day === dayOf(at) ? state.ribbonDay : { fromPlay: 0, games: 0 };
+export function ribbonToday(state: GameState, content: Content, at: number): { fromPlay: number; games: number } {
+  return state.ribbonDay.day === dayOf(at, content) ? state.ribbonDay : { fromPlay: 0, games: 0 };
 }
 
 // ---------- the Arcade ----------
@@ -325,13 +326,13 @@ export function arcadeUnlocked(state: GameState, content: Content, gameId: Arcad
 
 /** Plays left today for one game. */
 export function arcadePlaysLeft(state: GameState, content: Content, gameId: ArcadeGameId, at: number): number {
-  const used = state.arcade.day === dayOf(at) ? state.arcade.plays[gameId] ?? 0 : 0;
+  const used = state.arcade.day === dayOf(at, content) ? state.arcade.plays[gameId] ?? 0 : 0;
   return Math.max(0, content.arcade.playsPerDay - used);
 }
 
 /** Arcade Ribbons still to be won today, across all games. */
 export function arcadeRibbonsLeft(state: GameState, content: Content, at: number): number {
-  const earned = state.arcade.day === dayOf(at) ? state.arcade.ribbons : 0;
+  const earned = state.arcade.day === dayOf(at, content) ? state.arcade.ribbons : 0;
   return Math.max(0, content.arcade.maxRibbonsPerDay - earned);
 }
 
