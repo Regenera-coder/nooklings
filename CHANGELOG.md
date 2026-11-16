@@ -2,6 +2,26 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.8.0 — Series 2 "Teatime Friends" (built, NOT released) (16 Nov 2026)
+
+Series 2 is in the code and tested, but the live game does not show it: it is only switched on in a build made with `VITE_SERIES2=1` (`npm run dev:series2`). That preview keeps its own save and never uses cloud save. To release: import the remaining art, then make `main.ts` use `contentWithSeries2`.
+
+### Implemented
+- **Home Levels 11 to 20**, the **Kitchen** (Level 11, 600 Buttons and 40 Wood) and the **Tea Garden** (Level 15, outdoors, 800 Buttons and 50 Wood). Five rooms hold all twenty residents.
+- **Ten Teatime Friends** with art: Crumb, Whisk, Mallow, Pekoe, Jammy, Dumple (Common), Sprinkle, Toffee (Rare), Soufflé (Epic), Cherri (Secret). Seven join by invitation, Whisk in the first Teatime Parcel, Toffee from the first trip to the Moonlit Market, and Cherri once the other nine are home and the Tea Party Table is laid in the Tea Garden.
+- **Baking and Treats**: one batch at a time in the Kitchen (Butter Cookies 1 h, Jam Tarts 4 h, Honey Cake 8 h). A Teatime Friend at the oven adds a Treat, and one more for their favourite recipe. Treats pay for Series 2 invitations, some recipes and the Teatime Parcel, and one Treat a day can be given to each resident for bond.
+- **Teatime Parcel** (8 Treats): same odds table and duplicate rule as the First Residents Parcel. It costs Treats rather than a Wish Stamp so nobody can run out of ways to get Whisk. Each pool now has its own guaranteed first parcel.
+- **Nookbook series tabs** with a count each, and a one-time **series reward** (Ribbons and a keepsake) for completing a series. This also covers Series 1, but only once Series 2 is released.
+- 23 new furniture pieces with two new atmosphere tags, **Tasty** and **Sweet**; 17 new tasks, which wait until their Home Level.
+- Save format **version 8** (Treats, the batch in the oven, series rewards, parcels per pool); older saves upgrade, and a save made with Series 2 opens safely in the released game.
+- Pacing, by the scripted player at two short sittings a day: Level 10 on day 7 (unchanged), Level 20 on day 19.
+- The game only downloads character and room art that its content uses, so the unreleased art costs live players nothing.
+- Importer: Series 2 characters, rooms, furniture, icon, parcel and trip card names; a glow drawn around a character (Cherri) is trimmed instead of becoming a pale outline.
+
+### Placeholder
+- Series 2 furniture is drawn as labelled boxes, Treats use a cookie emoji and the Teatime Parcel uses the standard parcel picture until the 27 `items` images are generated (`python generate_art.py --stage items`), reviewed and imported.
+- Dumple's sleep pose is drawn inside a steamer basket, so on a bed the basket sits on the bed.
+
 ## 0.7.2 — All ten brief 10 costumes (16 Nov 2026)
 
 ### Implemented

@@ -1,6 +1,6 @@
 # Series 2 "Teatime Friends" — plan (draft, 16 Nov 2026)
 
-**Status: planning only. Nothing here is built.** Character pose sets are not to be commissioned until the revised concept board (v2) has final approval. Numbers are proposed values.
+**Status, 16 Nov 2026: built and tested, not released.** See CHANGELOG 0.8.0 for what was built and where it differs from this plan (Teatime Parcel costs Treats; Tea Garden is 12×5; four Tea Garden pieces and two series keepsakes were added). Remaining before release: the 27 furniture, icon, parcel and trip-card images.
 
 **Decided by Marcus, 16 Nov 2026:** room space is option A (a second new room, the Tea Garden, at Level 15), and Baking is included. Room background prompts are in `art-brief-11-series-2-rooms.md`.
 

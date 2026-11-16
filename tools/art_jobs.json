@@ -1527,5 +1527,316 @@
    "03 ART INBOX — Milestone E/char_luma_costume_crown_idle_v2.png"
   ],
   "prompt": "The first image is an approved pose of Luma. Redraw this exact image with Luma wearing the Wish Crown costume, clearly visible at small size: a crown of five large folded-paper stars in warm gold, sitting around the head like a wreath just below Luma's existing star topper, each paper star about a quarter of the width of Luma's face, with a soft golden glow around the crown. Keep Luma exactly as approved in every other way: same face, hair, dress, star topper, pose, framing and scale. The second image shows Luma already wearing this crown while standing: draw the crown exactly the same way. Soft felt-and-stitch storybook plush style, matching the concept board. Plain pure-white background. No ground shadow, no contact shadow, no floor, no text, no logo, no watermark. Nothing cropped; leave a small margin on every side. The character is an original design: do not move it toward any existing brand character."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_little_oven.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A small rounded cream-enamel oven with a glass door glowing warm orange, one tiny pie visible inside, brass knobs and a little stovepipe. About as tall as it is wide. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_kitchen_counter.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A kitchen counter twice as wide as it is tall: pale wood top, butter-yellow cupboard doors with heart cut-outs, a mixing bowl and a rolling pin on top. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_tea_trolley.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A small two-tier wooden tea trolley on wheels with a round teapot, two cups and a sugar bowl. About as tall as it is wide. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_cake_stand.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A three-tier cake stand on a little round side table, holding felt cupcakes and a slice of strawberry cake. Taller than it is wide. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_jam_shelf.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_round_window.png",
+   "03 ART INBOX — Milestone C/furn_hanging_plant.png",
+   "03 ART INBOX — Milestone D/furn_lantern_string_v2.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A decoration that hangs flat on a wall, seen straight from the front, like the first three reference images. Draw this new piece in the same style: A wooden wall shelf twice as wide as it is tall, with a row of jam jars in red, orange and purple, each with a gingham cloth lid. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_bamboo_steamer.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A stack of two round woven bamboo steamer baskets with the lid slightly ajar and a wisp of felt steam, standing on a low wooden stool. No character inside. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_spice_rack.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_round_window.png",
+   "03 ART INBOX — Milestone C/furn_hanging_plant.png",
+   "03 ART INBOX — Milestone D/furn_lantern_string_v2.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A decoration that hangs flat on a wall, seen straight from the front, like the first three reference images. Draw this new piece in the same style: A small square wooden spice rack with six little labelled-looking jars (no readable text) and a sprig of dried herbs hanging below. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_gingham_curtains.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_round_window.png",
+   "03 ART INBOX — Milestone C/furn_hanging_plant.png",
+   "03 ART INBOX — Milestone D/furn_lantern_string_v2.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A decoration that hangs flat on a wall, seen straight from the front, like the first three reference images. Draw this new piece in the same style: A pair of short butter-yellow and white gingham cafe curtains on a wooden rod, tied back at each side with bows, open in the middle so a window could show through. Twice as wide as tall; the middle between the curtains is pure white (empty). The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_flour_sacks.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: Two plump cloth flour sacks leaning together, one with a stitched wheat symbol, a wooden scoop resting on top and a small puff of spilled flour. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_cookie_jar.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A big round glass cookie jar full of star and heart cookies, with a pink felt lid and a ribbon, standing on a small stool. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_checkered_rug.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_star_rug.png",
+   "03 ART INBOX — Milestone D/furn_button_rug.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A flat rug lying on the floor, seen from above at the same slanted angle as the first two reference images (a wide, flattened shape). Draw this new piece in the same style: A square rug in a soft red-and-cream checkered pattern with a scalloped cream border and stitched edge. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_breakfast_nook.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A cosy breakfast bench twice as wide as it is tall: a curved wooden bench with sage-green cushions and a small round table in front holding a plate of toast. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_hanging_pans.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_round_window.png",
+   "03 ART INBOX — Milestone C/furn_hanging_plant.png",
+   "03 ART INBOX — Milestone D/furn_lantern_string_v2.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A decoration that hangs flat on a wall, seen straight from the front, like the first three reference images. Draw this new piece in the same style: A wooden rail twice as wide as it is tall with three copper pans and a ladle hanging from hooks. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_candy_bunting.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_round_window.png",
+   "03 ART INBOX — Milestone C/furn_hanging_plant.png",
+   "03 ART INBOX — Milestone D/furn_lantern_string_v2.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A decoration that hangs flat on a wall, seen straight from the front, like the first three reference images. Draw this new piece in the same style: A string of bunting twice as wide as it is tall: pastel triangle flags alternating with felt wrapped sweets and lollipops, hanging in a gentle curve. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_berry_patch.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A low wooden garden bed twice as wide as it is tall, full of strawberry plants with ripe red berries, white blossoms and a tiny wooden sign with a strawberry drawn on it (no text). The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_old_oven.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_kitchen_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: An old cast-iron range oven in dark charcoal with brass trim, lovingly mended: a stitched patch on one side, a warm glow behind the door grille and a small kettle on top. About as tall as it is wide. The last image is the room it will stand in: choose colours that sit well in it (warm cream, butter yellow, soft wood, a little sage green). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_tea_party_table.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A round table twice as wide as it is tall, with a lace-edged cream tablecloth, laid for a tea party: a teapot, four cups, a tiered plate of cakes and a small vase of roses. The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_garden_parasol.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A garden parasol with a scalloped pink-and-cream striped canopy on a wooden pole with a round stone base. Taller than it is wide. The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_macaron_stool.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A small round stool shaped like a pastel pink macaron with a cream filling layer, on three short wooden legs. The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_teacup_planter.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A giant teacup on a saucer used as a planter, with pink and white flowers and trailing leaves growing out of it. The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_picnic_blanket.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_star_rug.png",
+   "03 ART INBOX — Milestone D/furn_button_rug.png",
+   "03 ART INBOX — Milestone E/room_teagarden_background.png"
+  ],
+  "prompt": "A flat rug lying on the floor, seen from above at the same slanted angle as the first two reference images (a wide, flattened shape). Draw this new piece in the same style: A square picnic blanket in pink-and-white gingham with a stitched border, with a tiny basket and two felt sandwiches lying flat on one corner. The last image is the garden it will stand in: choose colours that sit well in it (pale stone, rose pink, sage green, cream). Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_first_residents_trophy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A small keepsake display: a glass dome on a wooden base with a golden four-point star and a tiny felt cottage inside. A treasured trophy. Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/furn_teatime_trophy.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/furn_cozy_sofa.png",
+   "03 ART INBOX — Milestone C/furn_tea_table.png",
+   "03 ART INBOX — Milestone D/furn_mini_oven.png"
+  ],
+  "prompt": "A piece of dollhouse furniture seen from the front and slightly above (three-quarter view), like the first three reference images. Draw this new piece in the same style: A small keepsake display: a glass dome on a wooden base with a golden teapot and a single red cherry inside. A treasured trophy. Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/icon_treats.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/icon_buttons.png",
+   "03 ART INBOX — Milestone C/icon_ribbon.png"
+  ],
+  "prompt": "The two reference images are currency icons from a game. Draw a new icon in exactly the same style and size: Treats, shown as one round felt cookie with pink icing and three sprinkles, with a small bite-sized star cookie tucked beside it. Bold simple shape that reads clearly at very small size. Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/parcel_teatime_closed.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/parcel_closed.png"
+  ],
+  "prompt": "The reference image is a mystery parcel from a game. Draw a new parcel in exactly the same style, size and angle: the Teatime Parcel, a closed round cake box in pink-and-cream gingham, tied with a cream ribbon and a bow, with a small felt cherry on top. Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/parcel_teatime_open.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/parcel_open.png",
+   "03 ART INBOX — Milestone F/parcel_teatime_closed.png"
+  ],
+  "prompt": "The first image is an opened mystery parcel from a game; the second is the closed Teatime Parcel. Draw the Teatime Parcel opened, in the same style, size and angle as the first image: the same pink-and-cream gingham cake box with its lid lifted off and leaning against it, ribbon untied, warm golden light and a few sparkles rising from inside. Nothing else inside. Soft felt-and-stitch storybook style with visible stitching, exactly like the reference images: same materials, lighting, outline softness and level of detail. One single object, centred, filling most of the image, on a plain pure-white background. No ground shadow, no contact shadow, no floor, no wall, no characters, no text, no letters, no logo, no watermark. Nothing cropped; leave a small margin on every side."
+ },
+ {
+  "stage": "items",
+  "out": "03 ART INBOX — Milestone F/exp_moonlit_market.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone C/exp_old_mill.png",
+   "03 ART INBOX — Milestone C/exp_meadow.png"
+  ],
+  "prompt": "The two reference images are square scene cards for trips in a game. Draw a new card in exactly the same style, framing and corner shape: the Moonlit Market, a tiny night market under a big cream moon, with three felt stalls with striped awnings selling sweets, strings of glowing paper lanterns, and a cobbled path leading in. Deep blue and plum night colours with warm lantern light. No characters, no text, no logo, no watermark."
  }
 ]

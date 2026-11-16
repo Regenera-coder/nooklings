@@ -1223,7 +1223,7 @@ export class GameUI {
         continue;
       }
       const wrap = el('div', 'parcel-wrap');
-      wrap.append(this.parcelArt('parcel_closed'));
+      wrap.append(this.parcelArt(pool.id === 'first_residents' ? 'parcel_closed' : `parcel_${pool.id}_closed`));
       const info = el('div');
       info.append(el('h3', '', pool.name));
       const cost = el('p');
@@ -1262,9 +1262,10 @@ export class GameUI {
     }
   }
 
-  private parcelArt(key: 'parcel_closed' | 'parcel_open'): HTMLElement {
+  /** A pool's own parcel picture (parcel_<pool>_closed / _open), or the standard parcel until it has one. */
+  private parcelArt(key: string): HTMLElement {
     const box = el('div', 'parcel-art');
-    const url = artUrl(key);
+    const url = artUrl(key) ?? artUrl(key.endsWith('_open') ? 'parcel_open' : 'parcel_closed');
     if (url) {
       const img = el('img');
       img.src = url;
@@ -1291,7 +1292,8 @@ export class GameUI {
     r.replaceChildren();
     r.hidden = false;
     const shaking = el('div', 'reveal-parcel');
-    const url = artUrl('parcel_closed');
+    const own = poolId === 'first_residents' ? null : `parcel_${poolId}_`;
+    const url = (own && artUrl(own + 'closed')) ?? artUrl('parcel_closed');
     if (url) {
       const img = el('img');
       img.src = url;
@@ -1299,7 +1301,7 @@ export class GameUI {
       shaking.append(img);
     } else shaking.append(el('div', 'parcel-box'));
     r.append(shaking);
-    const openUrl = artUrl('parcel_open');
+    const openUrl = (own && artUrl(own + 'open')) ?? artUrl('parcel_open');
     if (openUrl && !reduced) {
       window.setTimeout(() => {
         shaking.replaceChildren();

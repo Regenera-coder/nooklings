@@ -55,6 +55,9 @@ FURNITURE = [
     "button_jar", "button_rug", "card_table", "photo_wall", "stone_tablet", "glyph_banner", "mini_oven", "teacup_set",
     "sewing_basket", "embroidery_hoop", "flower_cart", "trellis_arch", "magnifier_lamp", "puzzle_frame", "firefly_jar",
     "lantern_string", "mailbox", "parcel_stack", "play_tent", "peek_curtain",
+    # Series 2: Kitchen, Tea Garden and series rewards
+    "little_oven", "kitchen_counter", "tea_trolley", "cake_stand", "jam_shelf", "bamboo_steamer", "spice_rack", "gingham_curtains", "flour_sacks", "cookie_jar", "checkered_rug", "breakfast_nook",
+    "hanging_pans", "candy_bunting", "berry_patch", "old_oven", "tea_party_table", "garden_parasol", "macaron_stool", "teacup_planter", "picnic_blanket", "first_residents_trophy", "teatime_trophy",
 ]
 # Milestone D: companions (pet_<id>_idle / _walk, facing right) and Arcade art.
 PETS = ["button_mouse", "paper_crane", "tiny_tortoise", "teapot_sprite", "yarn_kitten", "bumblebee", "curious_owl", "firefly", "carrier_pigeon", "shadow_bunny"]
@@ -98,8 +101,9 @@ SHADOW_FIX: set[str] = set()
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
 ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886), "kitchen": (2400, 1092), "teagarden": (2400, 910)}
 # Square scene cards for Explore (gathering spots and expedition routes).
-CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill"]
-ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon"]
+CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill", "exp_moonlit_market"]
+PARCELS = ["parcel_closed", "parcel_open", "parcel_teatime_closed", "parcel_teatime_open"]
+ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon", "treats"]
 EXPECTED = (
     [f"char_{c}_{p}" for c in CHARACTERS for p in POSES if not p.startswith("decorated_") or c in DECORATED_CHARACTERS]
     + [f"room_{r}_background" for r in ROOMS]
@@ -107,7 +111,7 @@ EXPECTED = (
     + [f"furn_{f}" for f in FURNITURE]
     + ["ui_panel", "ui_button", "ui_button_primary"]
     + [f"icon_{i}" for i in ICONS]
-    + ["parcel_closed", "parcel_open"]
+    + PARCELS
     + CARDS
     + [f"pet_{p}_{q}" for p in PETS for q in PET_POSES]
     + list(ARCADE_SPRITES) + list(ARCADE_PICTURES) + REFERENCES
@@ -417,7 +421,7 @@ def main() -> int:
         save(out.resize((128, 128), Image.LANCZOS), GAME / f"{key}.png")
         record(key, img, out)
 
-    for key in ["parcel_closed", "parcel_open", *CARDS]:
+    for key in [*PARCELS, *CARDS]:
         if key not in best:
             continue
         img = load(best[key][1])
