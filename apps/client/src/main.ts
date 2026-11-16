@@ -113,4 +113,7 @@ async function start(): Promise<void> {
   }
 }
 
+// No browser pop-up menu on a long press or right click: holding is a game gesture.
+window.addEventListener('contextmenu', (e) => e.preventDefault());
+
 void start();

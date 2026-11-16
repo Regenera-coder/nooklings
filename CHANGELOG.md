@@ -2,6 +2,19 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.9.1 — Arcade fixes from play-testing (16 Nov 2026)
+
+### Implemented
+- **Cosy Kitchen: holding to stir no longer brings up the browser's pop-up.** The game now cancels the browser's long-press / right-click menu everywhere and switches off the iOS press-and-hold callout on the page and its images. Checked in desktop Chrome only; a real phone still has to confirm it.
+- **Button Catch: red buttons.** About one button in seven is red (never two in a row, none in the first second and a half). Tapping one takes 1 point away, with a wobble and a "−1"; the score never goes below zero. Missing a red button costs nothing.
+- **Button Catch: tapped buttons fly into the basket** in a visible arc (they used to fade out almost at once), and the basket bumps when one lands.
+- **Stitch-a-Pattern: 14 patterns instead of 4.** New: button, gem, leaf, raindrop, moon, crown, mushroom, fish, cat, cloud. Each round starts with the easy ones and moves to harder ones, in a new order every time.
+- Tests check that every pattern is a closed outline inside the hoop that never crosses itself, with dots spaced widely enough to follow.
+
+### Placeholder
+- The ten new stitch patterns have no finished-embroidery picture: when one is completed, its outline becomes a solid seam and fills with thread colour. The four original patterns still show their embroidery art.
+- Red buttons are the normal button picture tinted red in code, not a drawn red button.
+
 ## 0.9.0 — Tidy-up: separate Friend and Furniture Parcels, Explore tabs, Invitations (16 Nov 2026)
 
 ### Implemented

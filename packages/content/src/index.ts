@@ -103,7 +103,7 @@ const prizes = (gameId: string, f1: string, f2: string, pet: string, scores: [nu
 
 const arcadeGames: ArcadeGameDef[] = [
   { id: 'button_catch', name: 'Button Catch', host: 'snug', unlockLevel: 1, seconds: 30, maxScore: 60, pointsPerRibbon: 10,
-    howTo: 'Tap the buttons before they float away. Golden ones are worth 3!',
+    howTo: 'Tap the buttons before they float away. Golden ones are worth 3. Do not tap the red ones: they cost a point!',
     prizes: prizes('button_catch', 'button_jar', 'button_rug', 'button_mouse', [15, 30, 45]) },
   { id: 'memory', name: 'Memory Match', host: 'tinker', unlockLevel: 2, seconds: 60, maxScore: 100, pointsPerRibbon: 15,
     howTo: 'Flip two cards at a time and find the matching pairs.',

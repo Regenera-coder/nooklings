@@ -10,11 +10,32 @@ function curve(f: (t: number) => Pt, steps = 120): Pt[] {
   return Array.from({ length: steps + 1 }, (_, i) => f((i / steps) * Math.PI * 2));
 }
 
-/** Patterns get curvier: cottage, star, heart, flower. Each pairs with its finished embroidery. */
-const PATTERNS: Array<{ name: string; done: string; path: Pt[]; dots: number }> = [
-  { name: 'cottage', done: 'game_stitch_done_04', dots: 16, path: polygon([[0.3, 0.72], [0.3, 0.45], [0.5, 0.27], [0.7, 0.45], [0.7, 0.72]]) },
+/** Points along a circle arc from angle a0 to a1 (degrees, 0 = right, 90 = down), without the last point. */
+function arc(cx: number, cy: number, r: number, a0: number, a1: number, steps = 24, ry = r): Pt[] {
+  return Array.from({ length: steps }, (_, i) => {
+    const a = ((a0 + ((a1 - a0) * i) / steps) * Math.PI) / 180;
+    return [cx + Math.cos(a) * r, cy + Math.sin(a) * ry] as Pt;
+  });
+}
+
+interface Pattern {
+  name: string;
+  /** Finished embroidery art, for the patterns that have it. The others show their stitched outline filled in. */
+  done?: string;
+  path: Pt[];
+  dots: number;
+  /** 1 = straight and short, 3 = long and curvy. A round starts easy and gets harder. */
+  level: 1 | 2 | 3;
+}
+
+/** Every pattern is one closed outline that never crosses itself, so the next dot is always clear. */
+const PATTERNS: Pattern[] = [
+  { name: 'cottage', done: 'game_stitch_done_04', dots: 16, level: 1, path: polygon([[0.3, 0.72], [0.3, 0.45], [0.5, 0.27], [0.7, 0.45], [0.7, 0.72]]) },
+  { name: 'button', dots: 16, level: 1, path: polygon(arc(0.5, 0.5, 0.22, -90, 270, 60)) },
+  { name: 'gem', dots: 16, level: 1, path: polygon([[0.5, 0.76], [0.26, 0.44], [0.37, 0.28], [0.63, 0.28], [0.74, 0.44]]) },
+  { name: 'leaf', dots: 18, level: 1, path: polygon([...arc(0.33, 0.5, 0.34, -60, 60, 30), ...arc(0.67, 0.5, 0.34, 120, 240, 30)]) },
   {
-    name: 'star', done: 'game_stitch_done_03', dots: 20,
+    name: 'star', done: 'game_stitch_done_03', dots: 20, level: 2,
     path: polygon(Array.from({ length: 10 }, (_, i) => {
       const a = -Math.PI / 2 + (i * Math.PI) / 5;
       const r = i % 2 === 0 ? 0.26 : 0.11;
@@ -22,21 +43,50 @@ const PATTERNS: Array<{ name: string; done: string; path: Pt[]; dots: number }> 
     })),
   },
   {
-    name: 'heart', done: 'game_stitch_done_02', dots: 20,
+    name: 'heart', done: 'game_stitch_done_02', dots: 20, level: 2,
     path: curve((t) => {
       const x = 16 * Math.sin(t) ** 3;
       const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
       return [0.5 + x * 0.0155, 0.48 - y * 0.0155];
     }),
   },
+  // A raindrop: pointed at the top, round at the bottom.
+  { name: 'raindrop', dots: 18, level: 2, path: polygon([[0.5, 0.24], ...arc(0.5, 0.58, 0.17, -35, 215, 40)]) },
+  // A crescent moon: the outer curve round the left, then the inner curve back up (two circles that meet at the tips).
+  { name: 'moon', dots: 20, level: 2, path: polygon([...arc(0.46, 0.5, 0.26, -52.6, -307.4, 44), ...arc(0.58, 0.5, 0.21, 79.6, 280.4, 30)]) },
+  { name: 'crown', dots: 20, level: 2, path: polygon([[0.26, 0.68], [0.24, 0.36], [0.38, 0.5], [0.5, 0.3], [0.62, 0.5], [0.76, 0.36], [0.74, 0.68]]) },
+  // A mushroom: a round cap on a short stem.
+  { name: 'mushroom', dots: 22, level: 2, path: polygon([[0.43, 0.74], [0.43, 0.54], [0.25, 0.54], ...arc(0.5, 0.54, 0.25, 180, 360, 30, 0.24), [0.75, 0.54], [0.57, 0.54], [0.57, 0.74]]) },
+  // A fish: a round body with a tail fin.
+  { name: 'fish', dots: 24, level: 3, path: polygon([...arc(0.45, 0.5, 0.2, 30, 330, 40, 0.14), [0.623, 0.43], [0.78, 0.36], [0.71, 0.5], [0.78, 0.64]]) },
+  // A cat's head: round face, two pointed ears.
+  { name: 'cat', dots: 26, level: 3, path: polygon([...arc(0.5, 0.56, 0.22, -30, 210, 40, 0.2), [0.309, 0.46], [0.3, 0.27], [0.41, 0.39], [0.59, 0.39], [0.7, 0.27]]) },
+  // A cloud: three puffs over a flat base.
+  { name: 'cloud', dots: 26, level: 3, path: polygon([[0.3, 0.64], ...arc(0.33, 0.54, 0.1, 100, 290, 16), ...arc(0.48, 0.44, 0.13, 200, 350, 18), ...arc(0.65, 0.52, 0.12, 250, 440, 18), [0.7, 0.64]]) },
   {
-    name: 'flower', done: 'game_stitch_done_01', dots: 26,
+    name: 'flower', done: 'game_stitch_done_01', dots: 26, level: 3,
     path: curve((t) => {
       const r = 0.17 + 0.08 * Math.cos(5 * t);
       return [0.5 + Math.cos(t - Math.PI / 2) * r, 0.5 + Math.sin(t - Math.PI / 2) * r];
     }, 200),
   },
 ];
+
+function shuffled<T>(items: T[]): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return a;
+}
+
+/** A fresh order for one round: easy patterns first, then harder, shuffled within each step so rounds differ. */
+export function roundOrder(): Pattern[] {
+  return ([1, 2, 3] as const).flatMap((level) => shuffled(PATTERNS.filter((p) => p.level === level)));
+}
+
+export const STITCH_PATTERNS: ReadonlyArray<Pattern> = PATTERNS;
 
 /** Evenly spaced points along a path (by length). */
 function sample(path: Pt[], n: number): Pt[] {
@@ -75,7 +125,10 @@ export const stitch: GameFactory = (ctx) => {
   hoop.append(fabric, done, svg, needle);
   field.append(hoop);
 
+  let order = roundOrder();
   let patternIndex = 0;
+  let current: Pattern = order[0]!;
+  let fill: SVGPolygonElement | null = null;
   let dots: Pt[] = [];
   let next = 0;
   let startedAt = 0;
@@ -84,20 +137,29 @@ export const stitch: GameFactory = (ctx) => {
   let finishing = false;
 
   const load = () => {
-    const p = PATTERNS[patternIndex % PATTERNS.length]!;
+    if (patternIndex >= order.length) {
+      // Stitched everything: start again in a new order.
+      order = roundOrder();
+      patternIndex = 0;
+    }
+    const p = (current = order[patternIndex]!);
     dots = sample(p.path, p.dots);
     next = 0;
     finishing = false;
     startedAt = clock.now();
+    needle.style.opacity = '';
     done.replaceChildren();
     done.classList.remove('show');
     svg.replaceChildren();
     const guide = document.createElementNS(SVGNS, 'polyline');
     guide.setAttribute('points', [...dots, dots[0]!].map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
     guide.classList.add('stitch-guide');
+    fill = document.createElementNS(SVGNS, 'polygon');
+    fill.setAttribute('points', p.path.map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
+    fill.classList.add('stitch-fill');
     thread = document.createElementNS(SVGNS, 'polyline');
     thread.classList.add('stitch-thread');
-    svg.append(guide, thread);
+    svg.append(fill, guide, thread);
     dotEls = dots.map(([x, y], i) => {
       const c = document.createElementNS(SVGNS, 'circle');
       c.setAttribute('cx', String(x * 1000));
@@ -132,11 +194,20 @@ export const stitch: GameFactory = (ctx) => {
       return;
     }
     finishing = true;
-    const p = PATTERNS[patternIndex % PATTERNS.length]!;
+    const p = current;
     const seconds = (clock.now() - startedAt) / 1000;
     ctx.addScore(10 + Math.max(0, 8 - Math.floor(seconds / 2)), hoop);
-    done.append(art(p.done, '', `Finished ${p.name}`));
-    done.classList.add('show');
+    if (p.done) {
+      done.append(art(p.done, '', `Finished ${p.name}`));
+      done.classList.add('show');
+    } else {
+      // No embroidery picture for this one: the outline becomes a solid seam and fills with thread colour.
+      thread?.setAttribute('points', [...p.path].map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
+      thread?.classList.add('done');
+      fill?.classList.add('show');
+      for (const c of dotEls) c.style.opacity = '0';
+      needle.style.opacity = '0';
+    }
     const r = hoop.getBoundingClientRect();
     const f = field.getBoundingClientRect();
     sparkle(field, { x: r.left - f.left + r.width / 2, y: r.top - f.top + r.height / 2 }, 160, reduced);

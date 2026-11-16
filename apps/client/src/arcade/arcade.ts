@@ -259,8 +259,8 @@ export class Arcade {
         return score;
       },
       addScore: (points, at) => {
-        if (ended || points <= 0) return;
-        score = Math.min(g.maxScore, score + points);
+        if (ended || points === 0) return;
+        score = Math.max(0, Math.min(g.maxScore, score + points));
         scoreEl.textContent = String(score);
         let pos: { x: number; y: number } | null = null;
         if (at instanceof Element) {
@@ -268,7 +268,7 @@ export class Arcade {
           const r = at.getBoundingClientRect();
           pos = { x: r.left - f.left + r.width / 2, y: r.top - f.top + r.height / 3 };
         } else if (at) pos = at;
-        const pop = el('span', 'ar-pop', `+${points}`);
+        const pop = el('span', points < 0 ? 'ar-pop minus' : 'ar-pop', points < 0 ? `−${-points}` : `+${points}`);
         if (pos) {
           pop.style.left = `${pos.x}px`;
           pop.style.top = `${pos.y}px`;
