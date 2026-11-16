@@ -228,5 +228,33 @@ jobs.append({
     "prompt": "The two reference images are sewing buttons from a game (a normal one and a golden one). Draw a third button in exactly the same style, size, angle and level of detail: a bright cherry-red felt button with four holes, a white stitched rim, and a small darker-red cross of thread through the holes, so it clearly reads as the 'wrong' button. Same soft felt-and-stitch look as the references. One single object, centred, on a plain pure-white background. No ground shadow, no text, no watermark. Nothing cropped.",
 })
 
+# Gymno Garden art test (owner decision 1): one gymno, 7 images, neutral colour so the game can tint them.
+# Body first: the other images use its outline, so they line up when layered.
+GYMNO_RULES = (
+    " Soft felt-and-stitch storybook style, matching the concept board, with visible stitching along the ribs."
+    " Plain pure-white background. One single object, centred, filling about 70 percent of the frame, same camera angle as the first image."
+    " No ground shadow, no contact shadow, no pot, no text, no letters, no logo, no watermark. Nothing cropped."
+)
+GYMNO_BODY = f"{F}/gymno_test_body_mature.png"
+GYMNO_TINT = " Keep the colour neutral: a light warm grey-cream felt with only soft shading, no colour, so the game can tint it in code."
+GYMNO_TEST = [
+    ("body_mature", [BOARD],
+     "A round gymnocalycium cactus, a plump ball with eight soft vertical ribs, each rib marked by a stitched seam line, a small flat top with a tuft of short felt spines in the centre, and a row of tiny felt spines along each rib." + GYMNO_TINT),
+    ("body_young", [GYMNO_BODY, BOARD],
+     "The same cactus as the first image, but younger and smaller: about two-thirds of its width, five ribs instead of eight, a slightly flatter top and fewer, shorter spines. Same style and colour." + GYMNO_TINT),
+    ("body_seedling", [GYMNO_BODY],
+     "A tiny seedling of the same cactus: a small smooth ball about one third of the width of the first image, with three faint ribs and no spines, sitting in the lower middle of the frame. Same style and colour." + GYMNO_TINT),
+    ("pattern_striped", [GYMNO_BODY],
+     "Only a pattern, drawn over exactly the same cactus as the first image: thin straight stripes running from the top to the bottom of the body, following the ribs, in one single darker shade of the same colour. The rest of the body stays plain. Same size, position and outline as the first image. Everything else is pure white. Draw the stripes only, with no outline of the cactus."),
+    ("pattern_banded", [GYMNO_BODY],
+     "Only a pattern, drawn over exactly the same cactus as the first image: evenly spaced horizontal bands wrapping around the body, in one single darker shade of the same colour, each band a clean stitched edge. The rest of the body stays plain. Same size, position and outline as the first image. Everything else is pure white. Draw the bands only, with no outline of the cactus."),
+    ("pattern_variegated", [GYMNO_BODY],
+     "Only a pattern, drawn over exactly the same cactus as the first image: irregular soft-edged splashes and patches in one single darker shade of the same colour, spread across the body like a variegated gymno, leaving about half the body plain. Same size, position and outline as the first image. Everything else is pure white. Draw the splashes only, with no outline of the cactus."),
+    ("flower", [GYMNO_BODY, BOARD],
+     "A single flower on a short stem, from the top of a cactus: a bowl-shaped bloom with many narrow petals in a pale neutral cream, a smooth closed bud beside it with no spines, and a small golden-cream centre. Neutral pale colour so the game can tint the petals in code. Same felt-and-stitch style as the first image. Centred, on pure white."),
+]
+for name, refs, prompt in GYMNO_TEST:
+    jobs.append({"stage": "gymno_test", "out": f"{F}/gymno_test_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt + GYMNO_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
