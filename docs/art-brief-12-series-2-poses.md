@@ -1,6 +1,6 @@
 # 12 ART BRIEF — Series 2 "Teatime Friends": character pose sets
 
-**Status, 16 Nov 2026:** concept board v2 reviewed and recommended for approval by Claude (see `art-review-brief-10.md`). Commission only once Marcus gives the final yes. 10 characters × 13 files = 130 files.
+**Status, 16 Nov 2026:** concept board v2 has Marcus's final approval. This brief is cleared to commission. 10 characters × 13 files = 130 files.
 
 Upload to a new Drive folder: **03 ART INBOX — Milestone F**.
 
