@@ -62,6 +62,18 @@ export class GameStore {
     return () => this.listeners.delete(listener);
   }
 
+  /** Replace the whole game with another save (used when a cloud save is brought down). Throws if it cannot be read. */
+  load(text: string): void {
+    this.current = deserialize(text, this.content);
+    this.saves.save(serialize(this.current));
+    for (const l of this.listeners) l(this.current, []);
+  }
+
+  /** The current game as save text. */
+  snapshot(): string {
+    return serialize(this.current);
+  }
+
   reset(): void {
     this.current = newGame(this.content);
     this.saves.save(serialize(this.current));

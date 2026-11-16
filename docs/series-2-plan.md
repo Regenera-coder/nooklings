@@ -2,6 +2,8 @@
 
 **Status: planning only. Nothing here is built.** Character pose sets are not to be commissioned until the revised concept board (v2) has final approval. Numbers are proposed values.
 
+**Decided by Marcus, 16 Nov 2026:** room space is option A (a second new room, the Tea Garden, at Level 15), and Baking is included. Room background prompts are in `art-brief-11-series-2-rooms.md`.
+
 ## 1. Shape of the update
 
 - Series 2 continues after Series 1: **Home Levels 11 to 20**, one new friend at most levels.
@@ -15,7 +17,7 @@
 - Two new atmosphere tags join the seven already in the game (Calm, Warm, Dreamy, Playful, Natural, Crafty, Rainy): **Tasty** (ovens, counters, food) and **Sweet** (cakes, sugar, pastel decor).
 - About 14 new furniture items, crafted or found in a new parcel. Examples: Little Oven, Kitchen Counter, Tea Trolley, Cake Stand, Jam Shelf, Bamboo Steamer, Spice Rack (wall), Gingham Curtains (wall), Flour Sacks, Cookie Jar, Checkered Rug, Breakfast Nook (sit), Hanging Pans (wall), Tea Party Table.
 
-### Room space: a decision is needed
+### Room space (decided: option A)
 Each room holds 4 friends. Today: 3 rooms = 12 places for 10 friends. With Series 2 there are 20 friends, and the Kitchen only brings the total to 16.
 
 | Option | What it means | Trade-off |
@@ -43,7 +45,7 @@ Series 1 mixes five ways of joining (invite by decor, parcel, expedition, restor
 
 Level 19 has no new friend: it unlocks the Tea Party Table recipe, the last step before Cherri.
 
-## 4. New mechanic: Baking (proposed)
+## 4. New mechanic: Baking (approved)
 
 One new daily loop, built on rules the game already has (it works like a trip):
 
@@ -79,7 +81,7 @@ This gives Series 2 its own flavour without touching the Arcade, costumes or Ser
 ## 7. Suggested order
 
 1. Final approval of concept board v2.
-2. Decide room space (A, B or C) and whether Baking is in.
+2. Room backgrounds for the Kitchen and Tea Garden (brief 11, can start now: no characters in them).
 3. Brief 11: character pose sets, Kitchen background and furniture, icons, two UI mock-ups.
 4. Build the rules and content behind hidden levels while the art is drawn (nothing shows in the live game until the art is in).
 5. Import art, tune pacing to Level 20 with the scripted player, then release.

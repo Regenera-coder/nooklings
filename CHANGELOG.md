@@ -2,6 +2,18 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.7.0 — Cloud save with Google sign-in (16 Nov 2026)
+
+### Implemented (switched off until set up, see `docs/cloud-save-setup.md`)
+- **Sign in with Google** on the Tasks page, and a cloud copy of the save. Guest play is unchanged; the game still plays from the browser save.
+- Changes upload a few seconds after they happen. A newer save from another device is brought down on start-up. If both sides have different progress the player chooses which to keep; nothing is merged or overwritten silently.
+- Only Google's anonymous account number is stored with the save: no email, no name.
+- Server: three small Cloudflare Pages Functions (`/api/config`, `/api/login`, `/api/save`) with checked Google tokens, signed 60-day sessions and one KV entry per player.
+- The card and the server stay inactive until the Google client ID, session secret and KV store are added to the Pages project.
+
+### Planned
+- `docs/art-brief-11-series-2-rooms.md`: Kitchen and Tea Garden backgrounds (owner chose a second new room; Baking approved).
+
 ## 0.6.1 — Milestone E costumes, first delivery (16 Nov 2026)
 
 ### Implemented

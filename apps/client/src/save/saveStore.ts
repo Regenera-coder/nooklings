@@ -8,6 +8,26 @@ export interface SaveStore {
   clear(): void;
 }
 
+/** Wraps a save store and reports every write, so cloud save knows the browser save changed. */
+export class WatchedSaveStore implements SaveStore {
+  onSave: (() => void) | null = null;
+
+  constructor(private readonly inner: SaveStore) {}
+
+  load(): string | null {
+    return this.inner.load();
+  }
+
+  save(text: string): void {
+    this.inner.save(text);
+    this.onSave?.();
+  }
+
+  clear(): void {
+    this.inner.clear();
+  }
+}
+
 const KEY = 'nooklings.save';
 
 export class LocalSaveStore implements SaveStore {

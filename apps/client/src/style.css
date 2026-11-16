@@ -533,3 +533,11 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
   .ar-bubble h2 { font-size: 14px; }
   .ar-bubble p { font-size: 11.5px; }
 }
+
+/* Cloud save card (Tasks page) */
+.cloud h3 { margin: 0 0 4px; }
+.cloud p { margin: 0 0 8px; }
+.cloud-google { min-height: 44px; display: flex; align-items: center; }
+.cloud-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cloud-side { background: #ffffff66; border-radius: 12px; padding: 8px 10px; }
+.cloud-side p { margin: 2px 0 6px; }

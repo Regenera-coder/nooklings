@@ -2,7 +2,10 @@ import * as Phaser from 'phaser';
 import { content as baseContent, LIVING_ROOM_ID } from '@nooklings/content';
 import { loadManifest } from './assets';
 import { RoomScene, type SceneCallbacks } from './game/RoomScene';
-import { LocalSaveStore } from './save/saveStore';
+import { deserialize, levelFor } from '@nooklings/core';
+import { CloudSync } from './save/cloud';
+import { cloudCard } from './save/cloudCard';
+import { LocalSaveStore, WatchedSaveStore } from './save/saveStore';
 import { GameStore } from './store';
 import { GameUI } from './ui/ui';
 import './style.css';
@@ -15,7 +18,8 @@ const content = { ...baseContent, rules: { ...baseContent.rules, dayOffsetMs: -n
 
 async function start(): Promise<void> {
   await loadManifest();
-  const store = new GameStore(content, new LocalSaveStore());
+  const saves = new WatchedSaveStore(new LocalSaveStore());
+  const store = new GameStore(content, saves);
   const stage = document.getElementById('stage')!;
   let scene: RoomScene | null = null;
 
@@ -60,6 +64,37 @@ async function start(): Promise<void> {
     scene = game.scene.getScene('room') as RoomScene;
   });
   store.subscribe((_state, events) => ui.onStateChanged(events));
+
+  // Cloud save: does nothing, and shows nothing, unless the server has it set up.
+  const describe = (text: string): { level: number; friends: number } | null => {
+    try {
+      const s = deserialize(text, content);
+      return { level: levelFor(s.hearts, content), friends: Object.keys(s.residents).length };
+    } catch {
+      return null;
+    }
+  };
+  const cloud = new CloudSync({
+    fetch: (input, init) => fetch(input, init),
+    storage: window.localStorage,
+    getLocal: () => store.snapshot(),
+    applyRemote: (text) => store.load(text),
+    isFresh: (text) => {
+      try {
+        const s = deserialize(text, content);
+        return s.hearts === 0 && s.claimedTasks.length === 0 && Object.keys(s.residents).length <= content.starter.residents.length;
+      } catch {
+        return true;
+      }
+    },
+    onChange: () => ui.refresh(),
+  });
+  saves.onSave = () => cloud.localChanged();
+  ui.tasksExtra = () => cloudCard(cloud, describe, () => store.snapshot());
+  void cloud.init();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') void cloud.flush();
+  });
   new ResizeObserver(fitToStage).observe(stage);
 
   // Debug hook for automated checks in development builds only.

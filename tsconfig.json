@@ -16,5 +16,5 @@
       "@nooklings/content": ["packages/content/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "packages/*/test", "apps/client/src", "apps/client/vite.config.ts", "vitest.config.ts"]
+  "include": ["packages/*/src", "packages/*/test", "server", "functions", "apps/client/src", "apps/client/test", "apps/client/vite.config.ts", "vitest.config.ts"]
 }

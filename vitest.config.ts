@@ -8,5 +8,5 @@ export default defineConfig({
       '@nooklings/content': fileURLToPath(new URL('./packages/content/src/index.ts', import.meta.url)),
     },
   },
-  test: { include: ['packages/*/test/**/*.test.ts'] },
+  test: { include: ['packages/*/test/**/*.test.ts', 'server/test/**/*.test.ts', 'apps/client/test/**/*.test.ts'] },
 });

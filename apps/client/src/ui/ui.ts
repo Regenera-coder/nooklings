@@ -276,6 +276,14 @@ export class GameUI {
     if (had !== !bar.hidden) this.onLayoutChange();
   }
 
+  /** Extra cards for the bottom of the Tasks page (cloud save). */
+  tasksExtra: (() => HTMLElement | null) | null = null;
+
+  /** Redraw after something outside the game state changed. */
+  refresh(): void {
+    this.render();
+  }
+
   // ---------- scene and store callbacks ----------
 
   onSelection(sel: Selection): void {
@@ -675,6 +683,8 @@ export class GameUI {
     }
     const doneCount = all.filter((t) => t.status === 'claimed').length;
     if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'Every task is done. Your home is complete!'));
+    const extra = this.tasksExtra?.();
+    if (extra) this.page.append(extra);
   }
 
   private taskCard(def: TaskDef, status: string): HTMLElement {
