@@ -2,6 +2,16 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.7.1 — Six more costumes (16 Nov 2026)
+
+### Implemented
+- Released: **Petal Bonnet** (Bloomi, 12), **Party Surprise** (Mischi, 15), **Comet Scarf** (Glim, 15), **Puddle Boots** (Mopey, 15), **Trail Pack** (Pippo, 18), **Memory Quilt** (Patcha, 20). Seven of the ten brief 10 costumes are now in the Wardrobe.
+- Still hidden, waiting for redraws: Workshop Apron (Tinker), Stargazer Cloak (Hush), Wish Crown (Luma). See `docs/art-review-brief-10.md`.
+- A character image with something trailing to one side (Glim's scarf) is no longer cut off: the importer slides the figure over and the game reads the foot position from `anchors.json`.
+
+### Planned
+- `docs/art-brief-12-series-2-poses.md`: pose sets for the ten Teatime Friends (130 files), for after concept board v2 is approved.
+
 ## 0.7.0 — Cloud save with Google sign-in (16 Nov 2026)
 
 ### Implemented (switched off until set up, see `docs/cloud-save-setup.md`)

@@ -329,23 +329,23 @@ const costumes: CostumeDef[] = [
     description: 'A felt apron with two pockets, a tiny spanner and a pencil.', cost: { ribbons: 12 }, requiresLevel: 2,
   },
   {
-    id: 'bloomi_bonnet', residentId: 'bloomi', name: 'Petal Bonnet', hidden: true,
+    id: 'bloomi_bonnet', residentId: 'bloomi', name: 'Petal Bonnet',
     description: 'A sunflower-petal bonnet tied under the chin.', cost: { ribbons: 12 }, requiresLevel: 4,
   },
   {
-    id: 'mischi_party', residentId: 'mischi', name: 'Party Surprise', hidden: true,
+    id: 'mischi_party', residentId: 'mischi', name: 'Party Surprise',
     description: 'A striped party hat with a pom-pom, and a ribbon streamer to wave.', cost: { ribbons: 15 }, requiresLevel: 3,
   },
   {
-    id: 'glim_comet', residentId: 'glim', name: 'Comet Scarf', hidden: true,
+    id: 'glim_comet', residentId: 'glim', name: 'Comet Scarf',
     description: 'A long pale-yellow scarf that trails behind like a comet tail.', cost: { ribbons: 15 }, requiresLevel: 5,
   },
   {
-    id: 'mopey_boots', residentId: 'mopey', name: 'Puddle Boots', hidden: true,
+    id: 'mopey_boots', residentId: 'mopey', name: 'Puddle Boots',
     description: 'Little yellow rain boots and a folded paper boat.', cost: { ribbons: 15 }, requiresLevel: 6,
   },
   {
-    id: 'pippo_pack', residentId: 'pippo', name: 'Trail Pack', hidden: true,
+    id: 'pippo_pack', residentId: 'pippo', name: 'Trail Pack',
     description: 'A rolled-blanket backpack with a tin mug and a compass badge.', cost: { ribbons: 18 }, requiresLevel: 7,
   },
   {
@@ -353,7 +353,7 @@ const costumes: CostumeDef[] = [
     description: 'A midnight-blue cloak stitched with constellations, and a tiny telescope.', cost: { ribbons: 18 }, requiresLevel: 8,
   },
   {
-    id: 'patcha_quilt', residentId: 'patcha', name: 'Memory Quilt', hidden: true,
+    id: 'patcha_quilt', residentId: 'patcha', name: 'Memory Quilt',
     description: 'A patchwork poncho where every square has its own stitch.', cost: { ribbons: 20 }, requiresLevel: 9,
   },
   {

@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import { adjacentFreeCells, findPath, isFree, type Cell, type Content, type Placement, type ResidentDef, type RoomDef } from '@nooklings/core';
-import { charKey, type Pose } from '../assets';
+import { charKey, footX, type Pose } from '../assets';
 import { drawResident, furnitureDepth, seatPoint } from './art';
 import { footPoint, type RoomLayout } from './layout';
 
@@ -343,7 +343,7 @@ export class Resident {
       sy = 1 - land * 0.06;
       sx = 1 + land * 0.04;
     }
-    this.sprite.setOrigin(0.5, 0.96).setScale(scale * flip * sx, scale * sy).setRotation(tilt).setVisible(true);
+    this.sprite.setOrigin(footX(this.sprite.texture.key), 0.96).setScale(scale * flip * sx, scale * sy).setRotation(tilt).setVisible(true);
     this.body.setVisible(false);
   }
 

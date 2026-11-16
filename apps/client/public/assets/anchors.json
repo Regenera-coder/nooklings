@@ -748,5 +748,155 @@
     "footX": 0.5,
     "footY": 0.96,
     "standHeight": 0.8
+  },
+  "char_mischi_costume_party_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_party_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_party_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_party_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mischi_costume_party_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_bloomi_costume_bonnet_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_bloomi_costume_bonnet_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_bloomi_costume_bonnet_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_bloomi_costume_bonnet_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_bloomi_costume_bonnet_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_glim_costume_comet_idle": {
+    "footX": 0.528,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_glim_costume_comet_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_glim_costume_comet_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_glim_costume_comet_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_glim_costume_comet_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_boots_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_boots_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_boots_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_boots_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_mopey_costume_boots_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_pippo_costume_pack_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_pippo_costume_pack_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_pippo_costume_pack_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_pippo_costume_pack_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_pippo_costume_pack_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_patcha_costume_quilt_idle": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_patcha_costume_quilt_walk": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_patcha_costume_quilt_walk2": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_patcha_costume_quilt_sit": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
+  },
+  "char_patcha_costume_quilt_sleep": {
+    "footX": 0.5,
+    "footY": 0.96,
+    "standHeight": 0.8
   }
 }

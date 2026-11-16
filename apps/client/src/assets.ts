@@ -5,6 +5,8 @@
 export type Manifest = Record<string, string>;
 
 let manifest: Manifest = {};
+/** Where the feet sit across each character image (0..1). Only images that are off-centre are listed. */
+let footXs: Record<string, number> = {};
 
 export async function loadManifest(): Promise<Manifest> {
   try {
@@ -13,7 +15,20 @@ export async function loadManifest(): Promise<Manifest> {
   } catch {
     manifest = {};
   }
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}assets/anchors.json`, { cache: 'no-cache' });
+    const anchors = res.ok ? ((await res.json()) as Record<string, { footX?: number }>) : {};
+    footXs = {};
+    for (const [key, a] of Object.entries(anchors)) if (typeof a.footX === 'number' && a.footX !== 0.5) footXs[key] = a.footX;
+  } catch {
+    footXs = {};
+  }
   return manifest;
+}
+
+/** Horizontal position of the feet in a character image, as a fraction of its width. */
+export function footX(key: string): number {
+  return footXs[key] ?? 0.5;
 }
 
 export function hasArt(key: string): boolean {

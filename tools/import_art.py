@@ -349,12 +349,23 @@ def main() -> int:
             size = (box[3] - box[1]) if axis == "h" else (box[2] - box[0])
             scale = stand_px * ratio / size
             fx = foot_x(mask, box) if not pose.endswith("sleep") else (box[0] + box[2]) / 2
-            out = place(img, scale, (1024, 1024), (fx, box[3]), (512, 1024 * 0.96))
+            # Feet go to the bottom-centre. If something trailing (a long scarf, a streamer) would then
+            # be cut off at the side, slide the whole figure over just enough and record where the
+            # feet ended up, so the game still stands the character on the same spot.
+            dst_x = 512.0
+            left, right = dst_x + (box[0] - fx) * scale, dst_x + (box[2] - fx) * scale
+            edge = 6
+            if right - left <= 1024 - 2 * edge:
+                if left < edge:
+                    dst_x += edge - left
+                elif right > 1024 - edge:
+                    dst_x -= right - (1024 - edge)
+            out = place(img, scale, (1024, 1024), (fx, box[3]), (dst_x, 1024 * 0.96))
             save(out, NORMALIZED / f"{key}.png")
             game = out.resize((GAME_CHAR, GAME_CHAR), Image.LANCZOS)
             save(game, GAME / f"{key}.png")
             # Feet anchor and standing height as fractions of the game image.
-            anchors[key] = {"footX": 0.5, "footY": 0.96, "standHeight": STAND_FRACTION}
+            anchors[key] = {"footX": round(dst_x / 1024, 4), "footY": 0.96, "standHeight": STAND_FRACTION}
             clipped = (out.getchannel("A").getbbox() or (0, 0, 0, 0))
             note = "clipped at canvas edge — check" if clipped[0] == 0 or clipped[1] == 0 or clipped[2] == 1024 else ""
             record(key, img, out, note)
