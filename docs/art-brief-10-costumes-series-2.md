@@ -1,6 +1,6 @@
 # 10 ART BRIEF — new costumes, Mischi wing fix, Series 2 concept board
 
-**Status: PROPOSAL, 16 Nov 2026. Not yet approved by Marcus.** Names, looks and prices below are Claude's suggestions to react to. Nothing here is in the game yet.
+**Status, 16 Nov 2026:** given to ChatGPT by Marcus. Series 2 theme (Teatime Friends) chosen by Claude at Marcus's request. Part 2 delivered and passed; Part 3 board delivered, four characters to revise (see `art-review-brief-10.md`); Part 1 costumes not yet delivered. Costume prices are proposed values.
 
 All rules from **04, 07 and 08 ART BRIEF** still apply: soft felt-and-stitch storybook plush style, plain white background, one subject per file, same canvas, framing and scale as that character's existing files, no text, no logos, no watermarks, no ground shadows.
 

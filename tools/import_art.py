@@ -1,6 +1,10 @@
 """Import ChatGPT source art into the game.
 
-Usage:  python3 tools/import_art.py <folder-with-source-pngs> [--report report.md]
+Usage:  python3 tools/import_art.py <folder-with-source-pngs> [--report report.md] [--add]
+
+Without --add the folder must hold the WHOLE source set: the game folder is cleared and rebuilt
+from it, so a partial folder is refused. With --add only the files in the folder are imported and
+every other game image is left alone (use this for a few new or redrawn files).
 
 Source images are generated, so their pixel sizes, margins and framing vary. This script:
   1. Inventories the folder against the art brief (missing, unknown and superseded files).
@@ -81,7 +85,8 @@ REFERENCES = ["ui_arcade_hub", "ui_game_intro", "ui_game_frame", "ui_game_result
 COSTUMES = {"mopey": ["umbrella"], "mischi": ["wings"], "hush": ["wings"]}
 COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Files delivered with a baked-in ground shadow; the importer strips it (flagged for redraw).
-SHADOW_FIX = {"char_mischi_costume_wings_idle", "char_mischi_costume_wings_walk", "char_mischi_costume_wings_sleep"}
+# Brief 08 delivered three Mischi wing poses with a ground shadow; their _v2 redraws (brief 10) are clean.
+SHADOW_FIX: set[str] = set()
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
 ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
 # Square scene cards for Explore (gathering spots and expedition routes).
@@ -242,6 +247,7 @@ def main() -> int:
         print(f"No PNG files found in {src}. Nothing changed.")
         return 2
     report_path = Path(args[args.index("--report") + 1]) if "--report" in args else None
+    add_mode = "--add" in args
 
     exclude_file = ROOT / "art" / "import-exclude.txt"
     excluded: dict[str, str] = {}
@@ -272,10 +278,20 @@ def main() -> int:
     missing = [k for k in EXPECTED if k not in best]
 
     lines = ["| Asset | Used file | Source size | Output |", "|---|---|---|---|"]
+    if not add_mode and len(best) < len(EXPECTED) * 0.8:
+        # Guard: a full import clears the game folder first, so a partial folder would delete most of the art.
+        print(f"Only {len(best)} of {len(EXPECTED)} expected assets are in {src}. Nothing changed.")
+        print("To import just these files and keep the rest, run again with --add.")
+        return 2
     anchors: dict[str, dict[str, float]] = {}
     GAME.mkdir(parents=True, exist_ok=True)
-    for old in [*GAME.glob("*.png"), *GAME.glob("*.webp")]:
-        old.unlink()
+    if add_mode:
+        anchors_file = GAME / "anchors.json"
+        if anchors_file.exists():
+            anchors = json.loads(anchors_file.read_text())
+    else:
+        for old in [*GAME.glob("*.png"), *GAME.glob("*.webp")]:
+            old.unlink()
 
     def record(key: str, source: Image.Image, out: Image.Image, note: str = "") -> None:
         lines.append(f"| {key} | {best[key][1].name} | {source.width}×{source.height} | {out.width}×{out.height}{' — ' + note if note else ''} |")
@@ -293,10 +309,8 @@ def main() -> int:
     # Characters: one scale per character, taken from the idle pose.
     for c in CHARACTERS:
         idle_key = f"char_{c}_idle"
-        if idle_key not in best:
+        if idle_key not in best and not add_mode:
             continue
-        idle = load(best[idle_key][1])
-        ix0, iy0, ix1, iy1 = bbox(body_mask(idle))
         stand_px = 1024 * STAND_FRACTION
         costume_pairs = [(f"costume_{k}_{p}", p) for k in COSTUMES.get(c, []) for p in COSTUME_POSES]
         for pose, scale_pose in [(p, p) for p in POSES] + costume_pairs:
