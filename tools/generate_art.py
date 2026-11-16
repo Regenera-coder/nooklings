@@ -77,8 +77,11 @@ def multipart(fields: dict[str, str], files: list[Path]) -> tuple[bytes, str]:
 
 def generate(job: dict, refs: list[Path], model: str, quality: str) -> tuple[bytes, dict]:
     fields = {"model": model, "prompt": job["prompt"], "size": job["size"], "quality": quality, "n": "1"}
-    body, ctype = multipart(fields, refs)
-    res = call(f"{API}/images/edits", body, ctype)
+    if refs:
+        body, ctype = multipart(fields, refs)
+        res = call(f"{API}/images/edits", body, ctype)
+    else:  # no reference images: the edits endpoint needs at least one, so use plain generation
+        res = call(f"{API}/images/generations", json.dumps(fields).encode(), "application/json")
     item = res["data"][0]
     if item.get("b64_json"):
         img = base64.b64decode(item["b64_json"])
