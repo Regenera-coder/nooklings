@@ -1,6 +1,6 @@
 # Series 2 "Teatime Friends" — plan (draft, 16 Nov 2026)
 
-**Status, 16 Nov 2026: built and tested, not released.** See CHANGELOG 0.8.0 for what was built and where it differs from this plan (Teatime Parcel costs Treats; Tea Garden is 12×5; four Tea Garden pieces and two series keepsakes were added). Remaining before release: the 27 furniture, icon, parcel and trip-card images.
+**Status, 16 Nov 2026: released (0.8.0), with costumes (0.8.1).** This is the original plan, kept for reference. What was built differs in a few places: the Teatime Parcel costs 8 Treats instead of a Wish Stamp; the Tea Garden is 12×5; four Tea Garden pieces and two series keepsakes were added (23 furniture pieces in all); the baking card and Nookbook tabs follow the existing card style (no ChatGPT mock-ups were made). Art was generated through the OpenAI API (`tools/generate_art.py`), not commissioned by brief. See CHANGELOG 0.8.0 and 0.8.1.
 
 **Decided by Marcus, 16 Nov 2026:** room space is option A (a second new room, the Tea Garden, at Level 15), and Baking is included. Room background prompts are in `art-brief-11-series-2-rooms.md`.
 
