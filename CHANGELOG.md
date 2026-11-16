@@ -18,8 +18,9 @@ Series 2 is in the code and tested, but the live game does not show it: it is on
 - The game only downloads character and room art that its content uses, so the unreleased art costs live players nothing.
 - Importer: Series 2 characters, rooms, furniture, icon, parcel and trip card names; a glow drawn around a character (Cherri) is trimmed instead of becoming a pale outline.
 
+- All Series 2 item art is imported (16 Nov): 23 furniture pieces, the Treats icon, the Teatime Parcel (closed and open) and the Moonlit Market card. No placeholder art remains in Series 2.
+
 ### Placeholder
-- Series 2 furniture is drawn as labelled boxes, Treats use a cookie emoji and the Teatime Parcel uses the standard parcel picture until the 27 `items` images are generated (`python generate_art.py --stage items`), reviewed and imported.
 - Dumple's sleep pose is drawn inside a steamer basket, so on a bed the basket sits on the bed.
 
 ## 0.7.2 — All ten brief 10 costumes (16 Nov 2026)
