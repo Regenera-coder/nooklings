@@ -114,14 +114,21 @@ describe('costume release (Art Brief 10)', () => {
   });
 
   it('keeps a hidden costume out of the Wardrobe and unbuyable', () => {
-    const hidden = Object.values(content.costumes).find((c) => c.hidden)!;
+    // Every costume is released today, so hide one here to keep the rule covered.
+    const base = content.costumes.luma_crown!;
+    const hiding = { ...content, costumes: { ...content.costumes, [base.id]: { ...base, hidden: true } } };
     const g = newGame(content);
     const s: GameState = {
       ...g, hearts: content.levels[9]!.hearts, wallet: { ...g.wallet, ribbons: 99 },
-      residents: { ...g.residents, [hidden.residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } },
+      residents: { ...g.residents, [base.residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } },
     };
-    expect(err(s, { type: 'buy_costume', costumeId: hidden.id })).toBe('unknown_costume');
-    expect(visibleCostumes(content, hidden.residentId).some((c) => c.id === hidden.id)).toBe(false);
+    const hidden = applyCommand(s, { id: 'h1', type: 'buy_costume', costumeId: base.id }, hiding);
+    expect(hidden.ok).toBe(false);
+    if (!hidden.ok) expect(hidden.error).toBe('unknown_costume');
+    expect(visibleCostumes(hiding, base.residentId).some((c) => c.id === base.id)).toBe(false);
+    // Released, the same costume can be bought.
+    expect(applyCommand(s, { id: 'h2', type: 'buy_costume', costumeId: base.id }, content).ok).toBe(true);
+    expect(Object.values(content.costumes).some((c) => c.hidden)).toBe(false);
   });
 
   it('only shows costumes whose five poses are in the game art', () => {
