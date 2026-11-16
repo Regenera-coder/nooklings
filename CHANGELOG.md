@@ -2,6 +2,13 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Arcade finished art (16 Nov 2026)
+
+### Implemented
+- **Stitch-a-Pattern: finished embroideries for the ten new patterns** (button, gem, leaf, raindrop, moon, crown, mushroom, fish, cat, cloud). Imported from Milestone F; they match the original four in style. Completed outlines now show the embroidery instead of a solid seam.
+- **Button Catch: a real red button** replaces the tinted normal button. Checked at 740×360 in the browser: red and gold buttons read clearly apart.
+- Recovered the 0.9.1 unpushed commit (Arcade art jobs and the generator tools) from its saved patch, now on `main` locally as 1bab28f. Not pushed.
+
 ## 0.9.1 — Arcade fixes from play-testing (16 Nov 2026)
 
 ### Implemented
