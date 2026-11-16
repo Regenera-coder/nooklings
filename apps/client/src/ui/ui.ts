@@ -43,6 +43,7 @@ const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph:
   mendingThread: { name: 'Mending Thread', icon: 'icon_mending_thread', glyph: '✂' },
   keepsakes: { name: 'Keepsakes', icon: 'icon_keepsake', glyph: '❖' },
   ribbons: { name: 'Ribbons', icon: 'icon_ribbon', glyph: '🎀' },
+  treats: { name: 'Treats', icon: 'icon_treats', glyph: '🍪' },
   hearts: { name: 'Home Hearts', icon: 'icon_home_heart', glyph: '♥' },
 };
 

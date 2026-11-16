@@ -13,7 +13,7 @@ import type {
   TaskDef,
 } from './types';
 
-export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons'];
+export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons', 'treats'];
 
 // ---------- levels ----------
 
@@ -200,6 +200,10 @@ export function conditionMet(state: GameState, content: Content, c: TaskConditio
       return Object.keys(state.residents).length >= c.count;
     case 'costumes_owned':
       return state.costumesOwned.length >= c.count;
+    case 'baked':
+      return state.bakesDone >= c.count;
+    case 'series_claimed':
+      return state.seriesClaimed.includes(c.seriesId);
   }
 }
 
@@ -208,10 +212,11 @@ export type TaskState = 'claimed' | 'claimable' | 'active' | 'locked';
 /** Tasks unlock one at a time: each needs the previous one claimed. */
 export function taskStates(state: GameState, content: Content): Array<{ def: TaskDef; status: TaskState }> {
   let previousClaimed = true;
+  const level = levelFor(state.hearts, content);
   return content.tasks.map((def) => {
     let status: TaskState;
     if (state.claimedTasks.includes(def.id)) status = 'claimed';
-    else if (!previousClaimed) status = 'locked';
+    else if (!previousClaimed || level < (def.fromLevel ?? 1)) status = 'locked';
     else status = conditionMet(state, content, def.condition) ? 'claimable' : 'active';
     previousClaimed = status === 'claimed';
     return { def, status };
@@ -235,7 +240,7 @@ export function parcelOdds(state: GameState, content: Content, poolId: string): 
   const pool = content.parcels[poolId];
   if (!pool) return [];
   const level = levelFor(state.hearts, content);
-  if (pool.guaranteedFirst && state.parcelsOpened === 0 && !(pool.guaranteedFirst in state.residents)) {
+  if (pool.guaranteedFirst && (state.parcelsByPool[pool.id] ?? 0) === 0 && !(pool.guaranteedFirst in state.residents)) {
     return [{ kind: 'resident', id: pool.guaranteedFirst, chance: 1 }];
   }
   const eligible = Object.values(content.residents).filter((r) => r.series === pool.series && r.joinLevel <= level);
@@ -359,4 +364,47 @@ export function companionOf(state: GameState, residentId: string): string | null
 
 export function visibleCostumes(content: Content, residentId: string) {
   return Object.values(content.costumes).filter((c) => c.residentId === residentId && !c.hidden);
+}
+
+// ---------- baking and Treats (Series 2) ----------
+
+/** Recipes the player can bake at their level, in display order. */
+export function bakeRecipes(state: GameState, content: Content) {
+  const b = content.baking;
+  if (!b) return [];
+  const level = levelFor(state.hearts, content);
+  return b.order.map((id) => b.recipes[id]!).filter(Boolean).map((def) => ({ def, unlocked: level >= def.requiresLevel }));
+}
+
+export function bakingOpen(state: GameState, content: Content): boolean {
+  return !!content.baking && isRoomOpen(state, content, content.baking.roomId);
+}
+
+/** Can this resident help at the oven? Owned, of the baking series, and not away on a trip. */
+export function canBake(state: GameState, content: Content, residentId: string): boolean {
+  const def = content.residents[residentId];
+  return !!content.baking && !!def && def.series === content.baking.bakerSeries && residentId in state.residents && state.expedition?.residentId !== residentId;
+}
+
+/** Treats a batch gives with this baker (null = nobody helping). */
+export function bakeYield(content: Content, recipeId: string, bakerId: string | null): { treats: number; bonus: number } {
+  const b = content.baking;
+  const recipe = b?.recipes[recipeId];
+  if (!b || !recipe) return { treats: 0, bonus: 0 };
+  let bonus = 0;
+  if (bakerId) bonus += b.bakerBonus + (content.residents[bakerId]?.favouriteBake === recipeId ? b.favouriteBonus : 0);
+  return { treats: recipe.treats + bonus, bonus };
+}
+
+export function treatGivenToday(state: GameState, content: Content, residentId: string, at: number): boolean {
+  const r = state.residents[residentId];
+  return !!r && r.treatDay !== 0 && r.treatDay === dayOf(at, content);
+}
+
+// ---------- series ----------
+
+export function seriesProgress(state: GameState, content: Content, seriesId: string): { owned: number; total: number; complete: boolean; claimed: boolean } {
+  const all = Object.values(content.residents).filter((r) => r.series === seriesId);
+  const owned = all.filter((r) => r.id in state.residents).length;
+  return { owned, total: all.length, complete: all.length > 0 && owned === all.length, claimed: state.seriesClaimed.includes(seriesId) };
 }

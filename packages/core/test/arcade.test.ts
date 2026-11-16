@@ -14,7 +14,7 @@ const AT = 25_000 * DAY_MS;
 const levelHearts = (level: number) => content.levels.find((l) => l.level === level)!.hearts;
 const atLevel = (level: number): GameState => ({ ...newGame(content), hearts: levelHearts(level) });
 const withResident = (s: GameState, id: string): GameState => ({
-  ...s, residents: { ...s.residents, [id]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, id],
+  ...s, residents: { ...s.residents, [id]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null, treatDay: 0 } }, residentOrder: [...s.residentOrder, id],
 });
 
 describe('Arcade content', () => {

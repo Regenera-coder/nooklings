@@ -27,6 +27,11 @@ import {
   playReadyAt,
   playsLeftToday,
   taskStates,
+  bakeYield,
+  bakingOpen,
+  canBake,
+  seriesProgress,
+  treatGivenToday,
 } from './progress';
 import type { ArcadeGameId, Content, Cost, GameState, ParcelRecord, Placement } from './types';
 
@@ -56,7 +61,11 @@ export type Command =
   | { id: string; type: 'buy_costume'; costumeId: string }
   | { id: string; type: 'wear_costume'; residentId: string; costumeId: string | null }
   | { id: string; type: 'play_arcade'; gameId: ArcadeGameId; score: number; at: number }
-  | { id: string; type: 'assign_companion'; companionId: string; residentId: string | null };
+  | { id: string; type: 'assign_companion'; companionId: string; residentId: string | null }
+  | { id: string; type: 'start_baking'; recipeId: string; bakerId: string | null; at: number }
+  | { id: string; type: 'collect_baking'; at: number }
+  | { id: string; type: 'give_treat'; residentId: string; at: number }
+  | { id: string; type: 'claim_series'; seriesId: string };
 
 export type CommandError =
   | PlacementError
@@ -83,7 +92,9 @@ export type CommandError =
   | 'unknown_costume'
   | 'daily_limit'
   | 'unknown_game'
-  | 'unknown_companion';
+  | 'unknown_companion'
+  | 'unknown_bake'
+  | 'unknown_series';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -105,6 +116,10 @@ export type GameEvent =
   | { type: 'prize_won'; gameId: ArcadeGameId; index: number; kind: 'furniture' | 'companion'; id: string; residentId: string | null }
   | { type: 'companion_assigned'; companionId: string; residentId: string | null }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
+  | { type: 'baking_started'; recipeId: string; bakerId: string | null; endAt: number }
+  | { type: 'baking_done'; recipeId: string; bakerId: string | null; treats: number; bonus: number }
+  | { type: 'treat_given'; residentId: string; bondUp: boolean; newBondLevel: number }
+  | { type: 'series_claimed'; seriesId: string; reward: Cost; furnitureId: string | null }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
   | { type: 'hearts'; amount: number }
@@ -143,7 +158,7 @@ function grantResident(
       : homeForNewResident(d.state, content);
   d.state = {
     ...d.state,
-    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room, costume: null } },
+    residents: { ...d.state.residents, [residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room, costume: null, treatDay: 0 } },
     residentOrder: [...d.state.residentOrder, residentId],
   };
   d.events.push({ type: 'resident_joined', residentId, via, roomId: room });
@@ -264,7 +279,8 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!isUnlocked(state, content, pool.requiresUnlock)) return fail('locked');
       if (!canAfford(state, pool.cost)) return fail('cannot_afford');
       const odds = parcelOdds(state, content, cmd.poolId);
-      const guaranteed = odds.length === 1 && odds[0]!.chance === 1 && state.parcelsOpened === 0;
+      const openedHere = state.parcelsByPool[pool.id] ?? 0;
+      const guaranteed = odds.length === 1 && odds[0]!.chance === 1 && openedHere === 0;
       const [roll, rngState] = guaranteed ? [0, state.rngState] : nextRandom(state.rngState);
       const outcome = pickOutcome(odds, roll);
       if (!outcome) return fail('not_ready');
@@ -281,6 +297,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
         inventory,
         rngState,
         parcelsOpened: state.parcelsOpened + 1,
+        parcelsByPool: { ...state.parcelsByPool, [pool.id]: openedHere + 1 },
         parcelLog: [...state.parcelLog, record].slice(-MAX_PARCEL_LOG),
       };
       d.events.push({ type: 'parcel_opened', record, threadGranted });
@@ -485,6 +502,78 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
         d.state = { ...d.state, arcade: { ...d.state.arcade, prizes: [...d.state.arcade.prizes, key] } };
         d.events.push({ type: 'prize_won', gameId: cmd.gameId, index, kind: prize.kind, id: prize.id, residentId });
       });
+      return done();
+    }
+
+    case 'start_baking': {
+      const rules = content.baking;
+      const recipe = rules?.recipes[cmd.recipeId];
+      if (!rules || !recipe) return fail('unknown_bake');
+      if (!bakingOpen(state, content) || levelFor(state.hearts, content) < recipe.requiresLevel) return fail('locked');
+      if (state.baking) return fail('busy');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      if (cmd.bakerId !== null) {
+        if (!content.residents[cmd.bakerId]) return fail('unknown_resident');
+        if (!state.residents[cmd.bakerId]) return fail('not_owned');
+        if (state.expedition?.residentId === cmd.bakerId) return fail('away');
+        if (!canBake(state, content, cmd.bakerId)) return fail('locked');
+      }
+      if (!canAfford(state, recipe.cost)) return fail('cannot_afford');
+      const baking = { recipeId: recipe.id, bakerId: cmd.bakerId, startAt: cmd.at, endAt: cmd.at + recipe.durationMs };
+      d.state = { ...state, wallet: addCost(state.wallet, recipe.cost, -1), baking };
+      d.events.push({ type: 'baking_started', recipeId: recipe.id, bakerId: cmd.bakerId, endAt: baking.endAt });
+      return done();
+    }
+
+    case 'collect_baking': {
+      const batch = state.baking;
+      if (!batch) return fail('not_ready');
+      if (!Number.isFinite(cmd.at) || cmd.at < batch.endAt) return fail('not_ready');
+      // A baker who has since left the game's content still leaves a plain batch behind.
+      const bakerId = batch.bakerId && batch.bakerId in state.residents ? batch.bakerId : null;
+      const { treats, bonus } = bakeYield(content, batch.recipeId, bakerId);
+      d.state = { ...state, wallet: addCost(state.wallet, { treats }, 1), baking: null, bakesDone: state.bakesDone + 1 };
+      d.events.push({ type: 'baking_done', recipeId: batch.recipeId, bakerId, treats, bonus });
+      return done();
+    }
+
+    case 'give_treat': {
+      const rules = content.baking;
+      const owned = state.residents[cmd.residentId];
+      if (!content.residents[cmd.residentId]) return fail('unknown_resident');
+      if (!owned) return fail('not_owned');
+      if (!rules) return fail('locked');
+      if (state.expedition?.residentId === cmd.residentId) return fail('away');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      if (treatGivenToday(state, content, cmd.residentId, cmd.at)) return fail('daily_limit');
+      if (!canAfford(state, rules.giftCost)) return fail('cannot_afford');
+      const before = bondLevel(owned.bondXp, content);
+      const bondXp = owned.bondXp + rules.giftBondXp;
+      const after = bondLevel(bondXp, content);
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, rules.giftCost, -1),
+        residents: { ...state.residents, [cmd.residentId]: { ...owned, bondXp, treatDay: dayOf(cmd.at, content) } },
+      };
+      d.events.push({ type: 'treat_given', residentId: cmd.residentId, bondUp: after > before, newBondLevel: after });
+      if (after > before) addHearts(d, content.bond.heartsPerBondLevel * (after - before), content);
+      return done();
+    }
+
+    case 'claim_series': {
+      const series = content.series.find((x) => x.id === cmd.seriesId);
+      if (!series || !series.reward) return fail('unknown_series');
+      const progress = seriesProgress(state, content, series.id);
+      if (progress.claimed) return fail('already_done');
+      if (!progress.complete) return fail('not_ready');
+      const furnitureId = series.reward.furnitureId && content.furniture[series.reward.furnitureId] ? series.reward.furnitureId : null;
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, series.reward.cost, 1),
+        inventory: furnitureId ? { ...state.inventory, [furnitureId]: (state.inventory[furnitureId] ?? 0) + 1 } : state.inventory,
+        seriesClaimed: [...state.seriesClaimed, series.id],
+      };
+      d.events.push({ type: 'series_claimed', seriesId: series.id, reward: series.reward.cost, furnitureId });
       return done();
     }
 

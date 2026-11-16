@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -23,17 +23,19 @@ const MIGRATIONS: Record<number, Migration> = {
   5: (raw) => ({ ...raw, version: 6 }),
   // v6 -> v7: plays per resident per day (today's plays start at 0).
   6: (raw) => ({ ...raw, version: 7 }),
+  // v7 -> v8 (Series 2): Treats, baking, series rewards. Every parcel so far came from the first pool.
+  7: (raw) => ({ ...raw, parcelsByPool: { first_residents: raw.parcelsOpened }, version: 8 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
-  return { buttons: 0, wood: 0, fabric: 0, wishStamps: 0, mendingThread: 0, keepsakes: 0, ribbons: 0 };
+  return { buttons: 0, wood: 0, fabric: 0, wishStamps: 0, mendingThread: 0, keepsakes: 0, ribbons: 0, treats: 0 };
 }
 
 export function newGame(content: Content): GameState {
   const wallet = emptyWallet();
   for (const c of CURRENCIES) wallet[c] = content.starter.wallet[c] ?? 0;
   const residents: Record<string, OwnedResident> = {};
-  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: content.roomOrder[0]!, costume: null };
+  for (const id of content.starter.residents) residents[id] = { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: content.roomOrder[0]!, costume: null, treatDay: 0 };
   let nextUid = 1;
   const rooms: GameState['rooms'] = {};
   for (const roomId of Object.keys(content.rooms)) {
@@ -54,12 +56,16 @@ export function newGame(content: Content): GameState {
     craftedRecipes: [],
     flags: [],
     parcelsOpened: 0,
+    parcelsByPool: {},
     parcelLog: [],
     purchases: [],
     gatherReadyAt: {},
     gatherCount: 0,
     expedition: null,
     expeditionsDone: {},
+    baking: null,
+    bakesDone: 0,
+    seriesClaimed: [],
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
     arcade: { day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] },
@@ -140,7 +146,7 @@ export function deserialize(text: string, content: Content): GameState {
     for (const [id, r] of Object.entries(rawResidents)) {
       if (!content.residents[id] || !r) continue;
       const room = typeof r.room === 'string' && content.rooms[r.room] ? r.room : content.roomOrder[0]!;
-      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), playsToday: Math.min(content.bond.playsPerDay, nonNegInt(r.playsToday)), room, costume: typeof r.costume === 'string' ? r.costume : null };
+      residents[id] = { bondXp: nonNegInt(r.bondXp), form: r.form === 'decorated' ? 'decorated' : 'original', lastPlayAt: num(r.lastPlayAt), playsToday: Math.min(content.bond.playsPerDay, nonNegInt(r.playsToday)), room, costume: typeof r.costume === 'string' ? r.costume : null, treatDay: nonNegInt(r.treatDay) };
     }
   } else {
     Object.assign(residents, fresh.residents);
@@ -165,6 +171,19 @@ export function deserialize(text: string, content: Content): GameState {
   const expedition =
     rawTrip && typeof rawTrip.routeId === 'string' && content.expeditions[rawTrip.routeId] && typeof rawTrip.residentId === 'string' && rawTrip.residentId in residents
       ? { routeId: rawTrip.routeId, residentId: rawTrip.residentId, startAt: num(rawTrip.startAt), endAt: num(rawTrip.endAt) }
+      : null;
+
+  const parcelsByPool: Record<string, number> = {};
+  for (const [k, v] of Object.entries((data.parcelsByPool ?? {}) as Raw)) if (content.parcels[k] && nonNegInt(v) > 0) parcelsByPool[k] = nonNegInt(v);
+  const rawBake = data.baking as Raw | null | undefined;
+  const baking =
+    rawBake && content.baking && typeof rawBake.recipeId === 'string' && content.baking.recipes[rawBake.recipeId]
+      ? {
+          recipeId: rawBake.recipeId,
+          bakerId: typeof rawBake.bakerId === 'string' && rawBake.bakerId in residents ? rawBake.bakerId : null,
+          startAt: num(rawBake.startAt),
+          endAt: num(rawBake.endAt),
+        }
       : null;
 
   const costumesOwned = strings(data.costumesOwned).filter((c, i, a) => !!content.costumes[c] && a.indexOf(c) === i);
@@ -210,12 +229,16 @@ export function deserialize(text: string, content: Content): GameState {
     craftedRecipes: strings(data.craftedRecipes).filter((id) => content.recipes[id]),
     flags: strings(data.flags),
     parcelsOpened: nonNegInt(data.parcelsOpened),
+    parcelsByPool,
     parcelLog,
     purchases,
     gatherReadyAt,
     gatherCount: nonNegInt(data.gatherCount),
     expedition,
     expeditionsDone,
+    baking,
+    bakesDone: nonNegInt(data.bakesDone),
+    seriesClaimed: strings(data.seriesClaimed).filter((id, i, a) => content.series.some((x) => x.id === id && x.reward) && a.indexOf(id) === i),
     costumesOwned,
     ribbonDay,
     arcade,

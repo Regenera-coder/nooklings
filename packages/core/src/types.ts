@@ -8,7 +8,7 @@ export interface Cell {
   row: number;
 }
 
-export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread' | 'keepsakes' | 'ribbons';
+export type Currency = 'buttons' | 'wood' | 'fabric' | 'wishStamps' | 'mendingThread' | 'keepsakes' | 'ribbons' | 'treats';
 export type Cost = Partial<Record<Currency, number>>;
 
 export interface FurnitureDef {
@@ -38,7 +38,7 @@ export interface RoomDef {
   /** false for outdoor spaces: no back wall, so no wall items. Default true. */
   walls?: boolean;
   /** Placeholder look until room art exists. */
-  theme: 'living' | 'sunroom' | 'yard';
+  theme: 'living' | 'sunroom' | 'yard' | 'kitchen' | 'teagarden';
   /** Room must be opened: needs a level unlock, then a one-off purchase. */
   access?: { unlock: string; cost: Cost };
   /** Optional expansion: before it is bought only the first baseCols columns are usable. */
@@ -154,6 +154,8 @@ export interface ResidentDef {
   speed: number;
   /** Placeholder colours until production art arrives. */
   palette: { body: string; accent: string };
+  /** Baking recipe this resident is best at (Series 2). */
+  favouriteBake?: string;
 }
 
 export interface LevelDef {
@@ -196,7 +198,9 @@ export type TaskCondition =
   | { kind: 'gathered'; count: number }
   | { kind: 'expeditions_done'; count: number }
   | { kind: 'residents_owned'; count: number }
-  | { kind: 'costumes_owned'; count: number };
+  | { kind: 'costumes_owned'; count: number }
+  | { kind: 'baked'; count: number }
+  | { kind: 'series_claimed'; seriesId: string };
 
 export interface TaskDef {
   id: string;
@@ -206,6 +210,8 @@ export interface TaskDef {
   reward: Cost & { hearts?: number };
   /** Where the "Go" button sends the player. */
   goTo?: 'build' | 'nookbook' | 'parcels' | 'invitations' | 'explore';
+  /** Shown and counted only from this Home Level (later chapters). */
+  fromLevel?: number;
 }
 
 export interface ParcelPoolDef {
@@ -241,6 +247,49 @@ export interface FormUpgradeDef {
   hearts: number;
 }
 
+/** Something the Kitchen oven can bake into Treats. */
+export interface BakeRecipeDef {
+  id: string;
+  name: string;
+  description: string;
+  durationMs: number;
+  cost: Cost;
+  treats: number;
+  requiresLevel: number;
+}
+
+/** Baking: one batch at a time in the Kitchen; Treats are collected when it is done. */
+export interface BakingRules {
+  /** Room that must be open before anything can be baked. */
+  roomId: string;
+  recipes: Record<string, BakeRecipeDef>;
+  /** Display order. */
+  order: string[];
+  /** Residents of this series can be the baker. */
+  bakerSeries: string;
+  /** Extra Treats when a baker helps, and when the recipe is the baker's favourite. */
+  bakerBonus: number;
+  favouriteBonus: number;
+  /** Giving a Treat to a resident: once a day each. */
+  giftCost: Cost;
+  giftBondXp: number;
+}
+
+/** A collection of residents shown as one Nookbook tab. */
+export interface SeriesDef {
+  id: string;
+  name: string;
+  /** One-time reward for having every resident of the series. */
+  reward?: { cost: Cost; furnitureId?: string };
+}
+
+export interface ActiveBake {
+  recipeId: string;
+  bakerId: string | null;
+  startAt: number;
+  endAt: number;
+}
+
 export interface Placement {
   uid: string;
   defId: string;
@@ -264,6 +313,8 @@ export interface OwnedResident {
   room: string;
   /** Costume being worn, if any. */
   costume: string | null;
+  /** Day (see dayOf) this resident was last given a Treat; 0 = never. */
+  treatDay: number;
 }
 
 export interface ActiveExpedition {
@@ -310,6 +361,8 @@ export interface GameState {
   craftedRecipes: string[];
   flags: string[];
   parcelsOpened: number;
+  /** Parcels opened per pool, so each pool can have its own guaranteed first parcel. */
+  parcelsByPool: Record<string, number>;
   parcelLog: ParcelRecord[];
   /** One-off purchases such as "sunroom:open" and "yard:expand". */
   purchases: string[];
@@ -318,6 +371,11 @@ export interface GameState {
   gatherCount: number;
   expedition: ActiveExpedition | null;
   expeditionsDone: Record<string, number>;
+  /** The batch in the oven, if any. */
+  baking: ActiveBake | null;
+  bakesDone: number;
+  /** Series whose completion reward has been claimed. */
+  seriesClaimed: string[];
   costumesOwned: string[];
   /** Daily Ribbon counters for playing with residents; reset when the day changes. (games is unused since v5.) */
   ribbonDay: { day: number; fromPlay: number; games: number };
@@ -349,6 +407,10 @@ export interface Content {
   arcadeGames: Record<ArcadeGameId, ArcadeGameDef>;
   companions: Record<string, CompanionDef>;
   expeditions: Record<string, ExpeditionDef>;
+  /** null until the Kitchen exists (Series 2). */
+  baking: BakingRules | null;
+  /** Nookbook tabs, in order. */
+  series: SeriesDef[];
   /** Order in which new residents are housed, and the room shown first. */
   roomOrder: string[];
   /** Hearts and caps used by the progress rules. PROPOSED values. */

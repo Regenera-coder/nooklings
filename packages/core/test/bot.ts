@@ -2,6 +2,9 @@
 import {
   applyCommand,
   atmosphere,
+  bakeRecipes,
+  bakingOpen,
+  canBake,
   effectiveRoom,
   invitationStatus,
   isRoomOpen,
@@ -34,7 +37,7 @@ export const CASUAL: Schedule = { sessionMinutes: 10, gapHours: [10, 14] };
 /** One long sitting a day. */
 export const BINGE: Schedule = { sessionMinutes: 90, gapHours: [24] };
 
-export function playWholeGame(content: Content, schedule?: Schedule) {
+export function playWholeGame(content: Content, schedule?: Schedule, opts: { giveTreats?: boolean } = {}) {
   let s = newGame(content);
   let t = 1_000_000;
   let n = 0;
@@ -88,12 +91,17 @@ export function playWholeGame(content: Content, schedule?: Schedule) {
       .map((f) => f.id);
   };
 
-  for (let tick = 0; tick < 20_000 && !('luma' in s.residents); tick++) {
+  const everyone = Object.keys(content.residents);
+  for (let tick = 0; tick < 60_000 && !everyone.every((id) => id in s.residents); tick++) {
     // Tasks
     for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
     const active = taskStates(s, content).find((ts) => ts.status === 'active');
     const c = active?.def.condition;
     if (c?.kind === 'parcels_opened') tryRun({ type: 'open_parcel', poolId: 'first_residents' });
+    // Later pools: the guaranteed first parcel as soon as it can be opened
+    for (const pool of Object.values(content.parcels)) {
+      if (pool.id !== 'first_residents' && pool.guaranteedFirst && !(pool.guaranteedFirst in s.residents)) tryRun({ type: 'open_parcel', poolId: pool.id });
+    }
     if (c?.kind === 'flag') tryRun({ type: 'set_flag', flag: c.flag });
     if (c?.kind === 'bond_level') tryRun({ type: 'play', residentId: 'snug', at: t });
     if (c?.kind === 'form') tryRun({ type: 'upgrade_form', residentId: c.residentId });
@@ -124,8 +132,21 @@ export function playWholeGame(content: Content, schedule?: Schedule) {
     // Expeditions: the Old Mill first (it brings Pippo home), then the Meadow
     if (s.expedition && t >= s.expedition.endAt) tryRun({ type: 'collect_expedition', at: t });
     if (!s.expedition && isUnlocked(s, content, 'expeditions')) {
-      tryRun({ type: 'start_expedition', routeId: s.expeditionsDone.old_mill ? 'meadow' : 'old_mill', residentId: 'snug', at: t });
+      const fresh = Object.values(content.expeditions).find((r) => r.firstTimeResident && !s.expeditionsDone[r.id] && isUnlocked(s, content, r.requiresUnlock));
+      tryRun({ type: 'start_expedition', routeId: fresh?.id ?? 'meadow', residentId: 'snug', at: t });
     }
+
+    // Baking: the longest recipe available, with a baker who likes it if there is one
+    if (s.baking && t >= s.baking.endAt) tryRun({ type: 'collect_baking', at: t });
+    if (!s.baking && bakingOpen(s, content)) {
+      const recipe = bakeRecipes(s, content).filter((r) => r.unlocked).pop()?.def;
+      const bakers = Object.keys(s.residents).filter((id) => canBake(s, content, id));
+      const baker = bakers.find((id) => content.residents[id]!.favouriteBake === recipe?.id) ?? bakers[0] ?? null;
+      if (recipe) tryRun({ type: 'start_baking', recipeId: recipe.id, bakerId: baker, at: t });
+    }
+    // Spare Treats go to friends, one each a day
+    if (opts.giveTreats !== false && s.wallet.treats > 20) tryRun({ type: 'give_treat', residentId: Object.keys(s.residents)[tick % Object.keys(s.residents).length]!, at: t });
+    for (const series of content.series) if (series.reward) tryRun({ type: 'claim_series', seriesId: series.id });
 
     // Play with one resident each tick (round robin), the way a player taps around the house
     const ids = Object.keys(s.residents);
@@ -140,7 +161,8 @@ export function playWholeGame(content: Content, schedule?: Schedule) {
       t = sessionStart;
     }
   }
-  for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
+  for (const series of content.series) if (series.reward) tryRun({ type: 'claim_series', seriesId: series.id });
+  for (let i = 0; i < 3; i++) for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
   if (process.env.SIM_DEBUG) console.log(JSON.stringify({ hearts: s.hearts, wallet: s.wallet, residents: Object.keys(s.residents), active: taskStates(s, content).find((x) => x.status !== 'claimed'), purchases: s.purchases, rooms: Object.fromEntries(Object.entries(s.rooms).map(([k, v]) => [k, v.placements.map((p) => p.defId)])), inv: s.inventory, levelAt }));
   return { s, levelAt, joinedAt, minutes: (t - start) / 60_000 };
 }

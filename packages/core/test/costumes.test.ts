@@ -10,7 +10,7 @@ const ok = (s: GameState, cmd: Input) => { const r = run(s, cmd); if (!r.ok) thr
 const err = (s: GameState, cmd: Input) => { const r = run(s, cmd); return r.ok ? 'ok' : r.error; };
 const withMopey = (): GameState => {
   const g = newGame(content);
-  return { ...g, hearts: content.levels[5]!.hearts, residents: { ...g.residents, mopey: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...g.residentOrder, 'mopey'] };
+  return { ...g, hearts: content.levels[5]!.hearts, residents: { ...g.residents, mopey: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null, treatDay: 0 } }, residentOrder: [...g.residentOrder, 'mopey'] };
 };
 
 describe('Ribbons', () => {
@@ -90,7 +90,7 @@ describe('costumes', () => {
     const g = newGame(content);
     let s: GameState = { ...g, hearts: content.levels[2]!.hearts, wallet: { ...g.wallet, ribbons: 20 } };
     expect(err(s, { type: 'buy_costume', costumeId: 'mischi_wings' })).toBe('not_owned');
-    s = { ...s, residents: { ...s.residents, mischi: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } }, residentOrder: [...s.residentOrder, 'mischi'] };
+    s = { ...s, residents: { ...s.residents, mischi: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null, treatDay: 0 } }, residentOrder: [...s.residentOrder, 'mischi'] };
     s = ok(s, { type: 'buy_costume', costumeId: 'mischi_wings' });
     s = ok(s, { type: 'wear_costume', residentId: 'mischi', costumeId: 'mischi_wings' });
     expect(s.residents.mischi!.costume).toBe('mischi_wings');
@@ -120,7 +120,7 @@ describe('costume release (Art Brief 10)', () => {
     const g = newGame(content);
     const s: GameState = {
       ...g, hearts: content.levels[9]!.hearts, wallet: { ...g.wallet, ribbons: 99 },
-      residents: { ...g.residents, [base.residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null } },
+      residents: { ...g.residents, [base.residentId]: { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: 'living_room', costume: null, treatDay: 0 } },
     };
     const hidden = applyCommand(s, { id: 'h1', type: 'buy_costume', costumeId: base.id }, hiding);
     expect(hidden.ok).toBe(false);

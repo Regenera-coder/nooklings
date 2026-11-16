@@ -83,7 +83,7 @@ describe('residents and rooms', () => {
     expect(s.residents.snug!.room).toBe(SUNROOM_ID);
     const full: GameState = {
       ...s,
-      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: LIVING_ROOM_ID, costume: null }])),
+      residents: Object.fromEntries(['a', 'b', 'c', 'd'].map((k) => [k, { bondXp: 0, form: 'original', lastPlayAt: 0, playsToday: 0, room: LIVING_ROOM_ID, costume: null, treatDay: 0 }])),
       residentOrder: ['a', 'b', 'c', 'd'],
     };
     expect(err({ ...full, residents: { ...full.residents, snug: s.residents.snug! } }, { type: 'move_resident', residentId: 'snug', roomId: LIVING_ROOM_ID })).toBe('room_full');

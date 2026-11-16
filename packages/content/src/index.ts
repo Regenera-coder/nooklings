@@ -505,6 +505,8 @@ export const content: Content = {
   arcadeGames: byId(arcadeGames, (g) => g.id) as Record<ArcadeGameId, ArcadeGameDef>,
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
+  baking: null,
+  series: [{ id: SERIES_1, name: 'First Residents' }],
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
   rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, dayOffsetMs: 0 },
   starter: {
@@ -529,3 +531,12 @@ export const content: Content = {
     },
   },
 };
+
+export { SERIES_2, KITCHEN_ID, TEA_GARDEN_ID, withSeries2 } from './series2';
+import { withSeries2 } from './series2';
+
+/**
+ * The game with Series 2 "Teatime Friends" added (Home Levels 11 to 20). Not released yet:
+ * the live game uses `content` until all Series 2 art is in. See docs/series-2-plan.md.
+ */
+export const contentWithSeries2: Content = withSeries2(content);
