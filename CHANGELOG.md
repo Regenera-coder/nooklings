@@ -2,9 +2,9 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## 0.8.0 — Series 2 "Teatime Friends" (built, NOT released) (16 Nov 2026)
+## 0.8.0 — Series 2 "Teatime Friends" (released 16 Nov 2026)
 
-Series 2 is in the code and tested, but the live game does not show it: it is only switched on in a build made with `VITE_SERIES2=1` (`npm run dev:series2`). That preview keeps its own save and never uses cloud save. To release: import the remaining art, then make `main.ts` use `contentWithSeries2`.
+The live game now uses `contentWithSeries2`. A build made with `VITE_SERIES2=1` (`npm run dev:series2`) is a sandbox with its own save and no cloud save.
 
 ### Implemented
 - **Home Levels 11 to 20**, the **Kitchen** (Level 11, 600 Buttons and 40 Wood) and the **Tea Garden** (Level 15, outdoors, 800 Buttons and 50 Wood). Five rooms hold all twenty residents.

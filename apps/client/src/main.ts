@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { content as releasedContent, contentWithSeries2, LIVING_ROOM_ID } from '@nooklings/content';
+import { content as releasedSeries1, contentWithSeries2, LIVING_ROOM_ID } from '@nooklings/content';
 import { loadManifest } from './assets';
 import { RoomScene, type SceneCallbacks } from './game/RoomScene';
 import { deserialize, levelFor } from '@nooklings/core';
@@ -14,10 +14,11 @@ import './style.css';
 const pixelRatio = () => Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 
 /**
- * Series 2 (Teatime Friends) is built but not released: it is only switched on in a build made
- * with VITE_SERIES2=1 (for example `npm run dev:series2`). The live game uses the released content.
+ * Series 2 (Teatime Friends) was released on 16 Nov 2026. To go back to Series 1 only, use
+ * `releasedSeries1` here: saves open safely either way, but Series 2 progress is dropped.
  */
-const baseContent = import.meta.env.VITE_SERIES2 === '1' ? contentWithSeries2 : releasedContent;
+const baseContent = contentWithSeries2;
+void releasedSeries1;
 
 /** Daily limits reset at midnight on this device's clock. */
 const content = { ...baseContent, rules: { ...baseContent.rules, dayOffsetMs: -new Date().getTimezoneOffset() * 60_000 } };

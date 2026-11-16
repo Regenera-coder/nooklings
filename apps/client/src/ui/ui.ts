@@ -721,8 +721,10 @@ export class GameUI {
     const card = el('div', `card task ${status}`);
     const row = el('div', 'row');
     const body = el('div', 'grow');
-    body.append(el('h3', '', status === 'locked' ? '???' : def.title));
-    body.append(el('p', '', status === 'locked' ? 'Finish the task above to reveal this one.' : def.description));
+    // A task from a later chapter waits for its Home Level, not for another task.
+    const waitsForLevel = status === 'locked' && levelFor(this.getState().hearts, this.content) < (def.fromLevel ?? 1);
+    body.append(el('h3', '', waitsForLevel ? 'A new chapter' : status === 'locked' ? '???' : def.title));
+    body.append(el('p', '', waitsForLevel ? `Opens at Home Level ${def.fromLevel}. Play with your friends, upgrade their looks and craft new things to earn Home Hearts.` : status === 'locked' ? 'Finish the task above to reveal this one.' : def.description));
     if (status !== 'locked' && status !== 'claimed') {
       const rewards = el('div', 'rewards');
       rewards.append(...costChips(def.reward));
