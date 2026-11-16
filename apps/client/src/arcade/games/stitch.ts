@@ -1,3 +1,4 @@
+import { artUrl } from '../../assets';
 import { art, el, pointIn, sparkle, type GameFactory } from '../engine';
 
 type Pt = [number, number];
@@ -20,7 +21,7 @@ function arc(cx: number, cy: number, r: number, a0: number, a1: number, steps = 
 
 interface Pattern {
   name: string;
-  /** Finished embroidery art, for the patterns that have it. The others show their stitched outline filled in. */
+  /** Finished embroidery art. Until a pattern's picture is imported, its stitched outline is filled in instead. */
   done?: string;
   path: Pt[];
   dots: number;
@@ -31,9 +32,9 @@ interface Pattern {
 /** Every pattern is one closed outline that never crosses itself, so the next dot is always clear. */
 const PATTERNS: Pattern[] = [
   { name: 'cottage', done: 'game_stitch_done_04', dots: 16, level: 1, path: polygon([[0.3, 0.72], [0.3, 0.45], [0.5, 0.27], [0.7, 0.45], [0.7, 0.72]]) },
-  { name: 'button', dots: 16, level: 1, path: polygon(arc(0.5, 0.5, 0.22, -90, 270, 60)) },
-  { name: 'gem', dots: 16, level: 1, path: polygon([[0.5, 0.76], [0.26, 0.44], [0.37, 0.28], [0.63, 0.28], [0.74, 0.44]]) },
-  { name: 'leaf', dots: 18, level: 1, path: polygon([...arc(0.33, 0.5, 0.34, -60, 60, 30), ...arc(0.67, 0.5, 0.34, 120, 240, 30)]) },
+  { name: 'button', done: 'game_stitch_done_05', dots: 16, level: 1, path: polygon(arc(0.5, 0.5, 0.22, -90, 270, 60)) },
+  { name: 'gem', done: 'game_stitch_done_06', dots: 16, level: 1, path: polygon([[0.5, 0.76], [0.26, 0.44], [0.37, 0.28], [0.63, 0.28], [0.74, 0.44]]) },
+  { name: 'leaf', done: 'game_stitch_done_07', dots: 18, level: 1, path: polygon([...arc(0.33, 0.5, 0.34, -60, 60, 30), ...arc(0.67, 0.5, 0.34, 120, 240, 30)]) },
   {
     name: 'star', done: 'game_stitch_done_03', dots: 20, level: 2,
     path: polygon(Array.from({ length: 10 }, (_, i) => {
@@ -51,18 +52,18 @@ const PATTERNS: Pattern[] = [
     }),
   },
   // A raindrop: pointed at the top, round at the bottom.
-  { name: 'raindrop', dots: 18, level: 2, path: polygon([[0.5, 0.24], ...arc(0.5, 0.58, 0.17, -35, 215, 40)]) },
+  { name: 'raindrop', done: 'game_stitch_done_08', dots: 18, level: 2, path: polygon([[0.5, 0.24], ...arc(0.5, 0.58, 0.17, -35, 215, 40)]) },
   // A crescent moon: the outer curve round the left, then the inner curve back up (two circles that meet at the tips).
-  { name: 'moon', dots: 20, level: 2, path: polygon([...arc(0.46, 0.5, 0.26, -52.6, -307.4, 44), ...arc(0.58, 0.5, 0.21, 79.6, 280.4, 30)]) },
-  { name: 'crown', dots: 20, level: 2, path: polygon([[0.26, 0.68], [0.24, 0.36], [0.38, 0.5], [0.5, 0.3], [0.62, 0.5], [0.76, 0.36], [0.74, 0.68]]) },
+  { name: 'moon', done: 'game_stitch_done_09', dots: 20, level: 2, path: polygon([...arc(0.46, 0.5, 0.26, -52.6, -307.4, 44), ...arc(0.58, 0.5, 0.21, 79.6, 280.4, 30)]) },
+  { name: 'crown', done: 'game_stitch_done_10', dots: 20, level: 2, path: polygon([[0.26, 0.68], [0.24, 0.36], [0.38, 0.5], [0.5, 0.3], [0.62, 0.5], [0.76, 0.36], [0.74, 0.68]]) },
   // A mushroom: a round cap on a short stem.
-  { name: 'mushroom', dots: 22, level: 2, path: polygon([[0.43, 0.74], [0.43, 0.54], [0.25, 0.54], ...arc(0.5, 0.54, 0.25, 180, 360, 30, 0.24), [0.75, 0.54], [0.57, 0.54], [0.57, 0.74]]) },
+  { name: 'mushroom', done: 'game_stitch_done_11', dots: 22, level: 2, path: polygon([[0.43, 0.74], [0.43, 0.54], [0.25, 0.54], ...arc(0.5, 0.54, 0.25, 180, 360, 30, 0.24), [0.75, 0.54], [0.57, 0.54], [0.57, 0.74]]) },
   // A fish: a round body with a tail fin.
-  { name: 'fish', dots: 24, level: 3, path: polygon([...arc(0.45, 0.5, 0.2, 30, 330, 40, 0.14), [0.623, 0.43], [0.78, 0.36], [0.71, 0.5], [0.78, 0.64]]) },
+  { name: 'fish', done: 'game_stitch_done_12', dots: 24, level: 3, path: polygon([...arc(0.45, 0.5, 0.2, 30, 330, 40, 0.14), [0.623, 0.43], [0.78, 0.36], [0.71, 0.5], [0.78, 0.64]]) },
   // A cat's head: round face, two pointed ears.
-  { name: 'cat', dots: 26, level: 3, path: polygon([...arc(0.5, 0.56, 0.22, -30, 210, 40, 0.2), [0.309, 0.46], [0.3, 0.27], [0.41, 0.39], [0.59, 0.39], [0.7, 0.27]]) },
+  { name: 'cat', done: 'game_stitch_done_13', dots: 26, level: 3, path: polygon([...arc(0.5, 0.56, 0.22, -30, 210, 40, 0.2), [0.309, 0.46], [0.3, 0.27], [0.41, 0.39], [0.59, 0.39], [0.7, 0.27]]) },
   // A cloud: three puffs over a flat base.
-  { name: 'cloud', dots: 26, level: 3, path: polygon([[0.3, 0.64], ...arc(0.33, 0.54, 0.1, 100, 290, 16), ...arc(0.48, 0.44, 0.13, 200, 350, 18), ...arc(0.65, 0.52, 0.12, 250, 440, 18), [0.7, 0.64]]) },
+  { name: 'cloud', done: 'game_stitch_done_14', dots: 26, level: 3, path: polygon([[0.3, 0.64], ...arc(0.33, 0.54, 0.1, 100, 290, 16), ...arc(0.48, 0.44, 0.13, 200, 350, 18), ...arc(0.65, 0.52, 0.12, 250, 440, 18), [0.7, 0.64]]) },
   {
     name: 'flower', done: 'game_stitch_done_01', dots: 26, level: 3,
     path: curve((t) => {
@@ -197,7 +198,7 @@ export const stitch: GameFactory = (ctx) => {
     const p = current;
     const seconds = (clock.now() - startedAt) / 1000;
     ctx.addScore(10 + Math.max(0, 8 - Math.floor(seconds / 2)), hoop);
-    if (p.done) {
+    if (p.done && artUrl(p.done)) {
       done.append(art(p.done, '', `Finished ${p.name}`));
       done.classList.add('show');
     } else {

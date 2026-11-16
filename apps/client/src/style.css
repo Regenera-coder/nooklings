@@ -370,7 +370,8 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
 .catch-btn.gold img { filter: drop-shadow(0 0 6px #ffe9a8); }
 .catch-btn.caught { pointer-events: none; z-index: 3; }
 /* A red button: the same button art, tinted. Tapping it costs a point. */
-.catch-btn.red img { filter: sepia(1) saturate(7) hue-rotate(-38deg) brightness(.92) drop-shadow(0 0 5px #ff6b6b); }
+.catch-btn.red.drawn img { filter: drop-shadow(0 0 5px #ff6b6b); }
+.catch-btn.red:not(.drawn) img { filter: sepia(1) saturate(7) hue-rotate(-38deg) brightness(.92) drop-shadow(0 0 5px #ff6b6b); }
 .catch-btn.oops { pointer-events: none; animation: catch-oops .45s ease-out forwards; }
 @keyframes catch-oops { 20% { transform: translateX(-7px) rotate(-12deg); } 45% { transform: translateX(7px) rotate(12deg); } 70% { transform: translateX(-4px) scale(.9); opacity: 1; } to { transform: scale(.5); opacity: 0; } }
 .catch-basket.bump { animation: catch-bump .22s ease-out; }

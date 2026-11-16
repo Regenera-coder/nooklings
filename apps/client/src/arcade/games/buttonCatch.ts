@@ -1,3 +1,4 @@
+import { artUrl } from '../../assets';
 import { art, centreIn, el, type GameFactory } from '../engine';
 
 /** Chance that a falling button is golden (3 points) or red (tap it and lose a point). */
@@ -56,10 +57,12 @@ export const buttonCatch: GameFactory = (ctx) => {
     // Never two red buttons in a row, and none in the first moments of a round.
     const kind: Kind = roll < GOLD_CHANCE ? 'gold' : roll < GOLD_CHANCE + RED_CHANCE && sinceRed >= 2 && clock.now() > 1500 ? 'red' : 'plain';
     sinceRed = kind === 'red' ? 0 : sinceRed + 1;
-    const b = el('button', `catch-btn${kind === 'plain' ? '' : ` ${kind}`}`);
+    // A drawn red button if its art is in; otherwise the normal button tinted red.
+    const redArt = kind === 'red' && !!artUrl('game_button_catch_red');
+    const b = el('button', `catch-btn${kind === 'plain' ? '' : ` ${kind}`}${redArt ? ' drawn' : ''}`);
     b.dataset.kind = kind;
     b.setAttribute('aria-label', kind === 'gold' ? 'Golden button, 3 points' : kind === 'red' ? 'Red button, do not tap: minus 1 point' : 'Button, 1 point');
-    b.append(art(kind === 'gold' ? 'game_button_catch_gold' : 'game_button_catch_button'));
+    b.append(art(kind === 'gold' ? 'game_button_catch_gold' : redArt ? 'game_button_catch_red' : 'game_button_catch_button'));
     const size = Math.round(Math.max(52, Math.min(68, field.clientHeight * 0.2)));
     b.style.width = `${size}px`;
     b.style.height = `${size}px`;

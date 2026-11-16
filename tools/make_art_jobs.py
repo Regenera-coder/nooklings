@@ -202,5 +202,31 @@ for cid, word, cname, art in TEA_COSTUMES:
             "prompt": f"The first image is an approved pose of {name}, a plush character. Redraw this exact image with {name} wearing the '{cname}' costume: {art}. The costume must be clearly visible at small size. Change nothing else: same pose, framing, scale, body colours, face and proportions. The second image is {name}'s reference sheet, for the character's own details only.{extra}" + RULES,
         })
 
+
+# Arcade extras: finished embroidery for the ten newer stitch patterns, and a red button for Button Catch.
+STITCH_DONE = [
+    ('05', 'button', 'a round four-hole sewing button in soft lilac, with a slightly raised rim'),
+    ('06', 'gem', 'a faceted gemstone in turquoise and teal, pointed at the bottom, with lighter facets at the top'),
+    ('07', 'leaf', 'a single pointed leaf in fresh green with a darker centre vein and side veins'),
+    ('08', 'raindrop', 'a single raindrop in sky blue, pointed at the top and round at the bottom, with a small lighter highlight'),
+    ('09', 'moon', 'a crescent moon in soft buttery yellow, open to the right'),
+    ('10', 'crown', 'a simple three-point crown in golden yellow with one small pink gem at the base of each point'),
+    ('11', 'mushroom', 'a mushroom with a round red cap with cream spots on a short cream stem'),
+    ('12', 'fish', 'a plump little fish in coral orange facing left, with a forked tail on the right and one small dark eye'),
+    ('13', 'cat', "a cat's head in warm grey facing forward, with two pointed ears with pink insides, closed happy eyes, a tiny pink nose and whiskers"),
+    ('14', 'cloud', 'a fluffy white cloud with three puffs and a flat base, edged in pale blue stitching'),
+]
+for num, name, desc in STITCH_DONE:
+    jobs.append({
+        "stage": "arcade", "out": f"{F}/game_stitch_done_{num}.png", "size": "1024x1024",
+        "refs": [f"{D}/game_stitch_done_02.png", f"{D}/game_stitch_done_03.png", f"{D}/game_stitch_done_04.png"],
+        "prompt": f"The three reference images are finished embroidery hoops from a game: the same golden wooden hoop with its brass screw at the top, the same cream fabric, each with one embroidered motif filled with satin stitches and a stitched outline. Draw a new one that is identical in hoop, fabric, size, framing, lighting and stitch style, but with this motif instead: {desc}. The motif is the only thing on the fabric, centred, about as large as the motifs in the references. Plain pure-white background, no shadow under the hoop, no text, no letters, no watermark. Nothing cropped.",
+    })
+jobs.append({
+    "stage": "arcade", "out": f"{F}/game_button_catch_red.png", "size": "1024x1024",
+    "refs": [f"{D}/game_button_catch_button.png", f"{D}/game_button_catch_gold.png"],
+    "prompt": "The two reference images are sewing buttons from a game (a normal one and a golden one). Draw a third button in exactly the same style, size, angle and level of detail: a bright cherry-red felt button with four holes, a white stitched rim, and a small darker-red cross of thread through the holes, so it clearly reads as the 'wrong' button. Same soft felt-and-stitch look as the references. One single object, centred, on a plain pure-white background. No ground shadow, no text, no watermark. Nothing cropped.",
+})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes")})
+print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
