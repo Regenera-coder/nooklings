@@ -306,5 +306,13 @@ SUC = [
 for name, refs, prompt in SUC:
     jobs.append({"stage": "succulent_test", "out": f"{F}/succ_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt})
 
+# Succulent Garden, round 2: the two species still missing from the five (Crassula ovata, Sempervivum). Same neutral felt craft.
+SUC2 = [
+    ("crassula_mature", "A young jade plant (Crassula ovata) seen from the side: a short, branching woody stem with pairs of thick, fleshy, oval, smooth leaves arranged in neat opposite pairs along each branch. Compact, shrub-like, not a tree. Smooth leaves only."),
+    ("sempervivum_mature", "A mature hens-and-chicks rosette (Sempervivum) seen from above: a compact, dome-shaped rosette of about twenty pointed, fleshy leaves in tight rings, with three small offset chicks clustered around the base. Smooth pointed leaves with a fine tip, no fluff, no spines."),
+]
+for name, prompt in SUC2:
+    jobs.append({"stage": "succulent_test2", "out": f"{F}/succ2_{name}.png", "size": "1024x1024", "refs": [], "prompt": prompt + SUC_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
