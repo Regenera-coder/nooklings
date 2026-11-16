@@ -258,46 +258,46 @@ const parcels: ParcelPoolDef[] = [
   },
 ];
 
-// One costume per Teatime Friend. Each stays `hidden` until all five of its poses are imported and reviewed.
+// One costume per Teatime Friend (art imported and reviewed 16 Nov 2026).
 const costumes: CostumeDef[] = [
   {
-    id: 'crumb_chef', residentId: 'crumb', name: 'Grand Chef Whites', hidden: true,
+    id: 'crumb_chef', residentId: 'crumb', name: 'Grand Chef Whites',
     description: "A tall puffy chef's hat and a white double-buttoned jacket with a red neckerchief.", cost: { ribbons: 12 }, requiresLevel: 11,
   },
   {
-    id: 'whisk_bee', residentId: 'whisk', name: 'Honeybee Hoodie', hidden: true,
+    id: 'whisk_bee', residentId: 'whisk', name: 'Honeybee Hoodie',
     description: 'A stripy yellow-and-brown hooded cape with two bobbly antennae.', cost: { ribbons: 12 }, requiresLevel: 12,
   },
   {
-    id: 'mallow_pyjamas', residentId: 'mallow', name: 'Marshmallow Pyjamas', hidden: true,
+    id: 'mallow_pyjamas', residentId: 'mallow', name: 'Marshmallow Pyjamas',
     description: 'A pastel pink nightcap with a pom-pom and matching fluffy slippers.', cost: { ribbons: 12 }, requiresLevel: 12,
   },
   {
-    id: 'pekoe_robe', residentId: 'pekoe', name: 'Garden Tea Robe', hidden: true,
+    id: 'pekoe_robe', residentId: 'pekoe', name: 'Garden Tea Robe',
     description: 'A sage-green wrap robe with a cream sash and a woven sun hat.', cost: { ribbons: 15 }, requiresLevel: 13,
   },
   {
-    id: 'jammy_picker', residentId: 'jammy', name: 'Berry Picker', hidden: true,
+    id: 'jammy_picker', residentId: 'jammy', name: 'Berry Picker',
     description: 'A wide straw hat with a strawberry ribbon and a little wicker basket on the back.', cost: { ribbons: 15 }, requiresLevel: 14,
   },
   {
-    id: 'dumple_snow', residentId: 'dumple', name: 'Snow Day Knits', hidden: true,
+    id: 'dumple_snow', residentId: 'dumple', name: 'Snow Day Knits',
     description: 'A pale blue bobble hat, mittens and a long knitted scarf.', cost: { ribbons: 15 }, requiresLevel: 15,
   },
   {
-    id: 'sprinkle_tutu', residentId: 'sprinkle', name: 'Sugar Plum Tutu', hidden: true,
+    id: 'sprinkle_tutu', residentId: 'sprinkle', name: 'Sugar Plum Tutu',
     description: 'A lilac tutu with sugar-crystal sparkles and a tiny tiara.', cost: { ribbons: 18 }, requiresLevel: 16,
   },
   {
-    id: 'toffee_coat', residentId: 'toffee', name: 'Market Day Coat', hidden: true,
+    id: 'toffee_coat', residentId: 'toffee', name: 'Market Day Coat',
     description: "A long plum trader's coat with gold buttons and a paper lantern on a stick.", cost: { ribbons: 18 }, requiresLevel: 17,
   },
   {
-    id: 'souffle_hat', residentId: 'souffle', name: 'Garden Party Hat', hidden: true,
+    id: 'souffle_hat', residentId: 'souffle', name: 'Garden Party Hat',
     description: 'A wide-brimmed cream hat piled with roses, and a rose corsage.', cost: { ribbons: 20 }, requiresLevel: 18,
   },
   {
-    id: 'cherri_sundae', residentId: 'cherri', name: 'Sundae Best', hidden: true,
+    id: 'cherri_sundae', residentId: 'cherri', name: 'Sundae Best',
     description: 'A whipped-cream swirl hat with sprinkles and a little wafer cape.', cost: { ribbons: 20 }, requiresLevel: 20,
   },
 ];

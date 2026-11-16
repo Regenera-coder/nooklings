@@ -2,6 +2,12 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.8.1 — Teatime Friends costumes (16 Nov 2026)
+
+### Implemented
+- One costume for each Teatime Friend, bought with Ribbons in the Wardrobe: **Grand Chef Whites** (Crumb, 12), **Honeybee Hoodie** (Whisk, 12), **Marshmallow Pyjamas** (Mallow, 12), **Garden Tea Robe** (Pekoe, 15), **Berry Picker** (Jammy, 15), **Snow Day Knits** (Dumple, 15), **Sugar Plum Tutu** (Sprinkle, 18), **Market Day Coat** (Toffee, 18), **Garden Party Hat** (Soufflé, 20), **Sundae Best** (Cherri, 20). All 50 images reviewed and imported.
+- Importer: Cherri's glow is now told apart from pale parts of the character by smoothness, so the whipped-cream hat is kept and no pale patches are left between the stem and the leaf.
+
 ## 0.8.0 — Series 2 "Teatime Friends" (released 16 Nov 2026)
 
 The live game now uses `contentWithSeries2`. A build made with `VITE_SERIES2=1` (`npm run dev:series2`) is a sandbox with its own save and no cloud save.

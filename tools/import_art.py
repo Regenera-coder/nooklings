@@ -162,21 +162,28 @@ def load(path: Path) -> Image.Image:
 
 # Characters drawn with a soft glow around them: the glow is trimmed so it does not become a pale outline.
 GLOW_TRIM = {"cherri"}
+GLOW_SMOOTH = 0.011  # local brightness variation below this is glow, above it is felt texture
 
 
 def strip_glow(img: Image.Image) -> Image.Image:
-    """Remove pale, colourless pixels that connect to the transparent outside (a baked-in glow)."""
+    """Remove a baked-in glow: pale, colourless and smooth pixels that connect to the transparent outside.
+    Pale parts of the character itself (whipped cream, a white hat) are felt-textured, so they stay."""
     rgba = np.array(img)
     rgb = rgba[:, :, :3].astype(float) / 255
     mx, mn = rgb.max(2), rgb.min(2)
     sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
+    lum = rgb.mean(2)
+    mean = ndimage.uniform_filter(lum, 9)
+    rough = np.sqrt(np.maximum(ndimage.uniform_filter(lum * lum, 9) - mean * mean, 0))
     outside = rgba[:, :, 3] < 24
     pale = ~outside & (mn > 0.70) & (sat < 0.30)
-    labels, _ = ndimage.label(outside | pale)
+    glow = pale & (rough < GLOW_SMOOTH)
+    # the blurred edge where glow meets the figure is rougher: take the pale rim next to removed glow too
+    labels, _ = ndimage.label(outside | glow)
     touching = np.unique(labels[outside])
-    drop = pale & np.isin(labels, touching[touching > 0])
+    drop = glow & np.isin(labels, touching[touching > 0])
+    drop |= pale & ndimage.binary_dilation(drop, iterations=4) & ~ndimage.binary_dilation(~pale & ~outside, iterations=1) & (rough < GLOW_SMOOTH * 4)
     rgba[drop, 3] = 0
-    # soften the new edge by one pixel
     alpha = Image.fromarray(rgba[:, :, 3]).filter(ImageFilter.GaussianBlur(0.8))
     rgba[:, :, 3] = np.minimum(rgba[:, :, 3], np.asarray(alpha))
     return Image.fromarray(rgba)
