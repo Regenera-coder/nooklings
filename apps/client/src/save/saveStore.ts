@@ -28,7 +28,8 @@ export class WatchedSaveStore implements SaveStore {
   }
 }
 
-const KEY = 'nooklings.save';
+/** A Series 2 preview build keeps its own save, so trying it out can never touch the real one. */
+const KEY = import.meta.env.VITE_SERIES2 === '1' ? 'nooklings.save:series2-preview' : 'nooklings.save';
 
 export class LocalSaveStore implements SaveStore {
   private memory: string | null = null;

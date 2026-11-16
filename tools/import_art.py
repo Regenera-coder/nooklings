@@ -31,14 +31,17 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parent.parent
 NORMALIZED = ROOT / "art" / "normalized"
 GAME = ROOT / "apps" / "client" / "public" / "assets"
 
-CHARACTERS = ["snug", "tinker", "mischi", "bloomi", "glim", "mopey", "pippo", "hush", "patcha", "luma"]
+SERIES_1 = ["snug", "tinker", "mischi", "bloomi", "glim", "mopey", "pippo", "hush", "patcha", "luma"]
+# Series 2 "Teatime Friends" (not released yet; the game only loads art for residents its content has)
+SERIES_2 = ["crumb", "whisk", "mallow", "pekoe", "jammy", "dumple", "sprinkle", "toffee", "souffle", "cherri"]
+CHARACTERS = SERIES_1 + SERIES_2
 # Decorated poses exist only for the Milestone B residents so far; others are optional.
 DECORATED_CHARACTERS = CHARACTERS  # brief 07 asks for Decorated sets for every resident
 POSES = ["master", "idle", "walk", "walk2", "sit", "sleep", "happy", "portrait", "decorated_idle", "decorated_walk", "decorated_walk2", "decorated_sit", "decorated_sleep"]
@@ -57,7 +60,7 @@ FURNITURE = [
 PETS = ["button_mouse", "paper_crane", "tiny_tortoise", "teapot_sprite", "yarn_kitten", "bumblebee", "curious_owl", "firefly", "carrier_pigeon", "shadow_bunny"]
 PET_POSES = ["idle", "walk"]
 ARCADE_GAMES = ["button_catch", "memory", "glyph", "kitchen", "stitch", "garden", "spot", "lantern", "parcel", "hide"]
-RESIDENT_STAMPS = CHARACTERS
+RESIDENT_STAMPS = SERIES_1
 # Play pieces: single objects on white -> transparent, trimmed, longest side scaled to the given size.
 ARCADE_SPRITES: dict[str, int] = {
     "game_button_catch_button": 192, "game_button_catch_gold": 192,
@@ -93,7 +96,7 @@ COSTUME_POSES = ["idle", "walk", "walk2", "sit", "sleep"]
 # Brief 08 delivered three Mischi wing poses with a ground shadow; their _v2 redraws (brief 10) are clean.
 SHADOW_FIX: set[str] = set()
 # Room backgrounds: normalized size (game copy is 80%). Proportions match the room grids.
-ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886)}
+ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886), "kitchen": (2400, 1092), "teagarden": (2400, 910)}
 # Square scene cards for Explore (gathering spots and expedition routes).
 CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill"]
 ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon"]
@@ -149,6 +152,28 @@ def load(path: Path) -> Image.Image:
     if (alpha < 250).mean() < 0.02:  # no real transparency: cut out white touching the edges
         img = remove_edge_white(img)
     return img
+
+
+# Characters drawn with a soft glow around them: the glow is trimmed so it does not become a pale outline.
+GLOW_TRIM = {"cherri"}
+
+
+def strip_glow(img: Image.Image) -> Image.Image:
+    """Remove pale, colourless pixels that connect to the transparent outside (a baked-in glow)."""
+    rgba = np.array(img)
+    rgb = rgba[:, :, :3].astype(float) / 255
+    mx, mn = rgb.max(2), rgb.min(2)
+    sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
+    outside = rgba[:, :, 3] < 24
+    pale = ~outside & (mn > 0.70) & (sat < 0.30)
+    labels, _ = ndimage.label(outside | pale)
+    touching = np.unique(labels[outside])
+    drop = pale & np.isin(labels, touching[touching > 0])
+    rgba[drop, 3] = 0
+    # soften the new edge by one pixel
+    alpha = Image.fromarray(rgba[:, :, 3]).filter(ImageFilter.GaussianBlur(0.8))
+    rgba[:, :, 3] = np.minimum(rgba[:, :, 3], np.asarray(alpha))
+    return Image.fromarray(rgba)
 
 
 def remove_ground_shadow(img: Image.Image) -> Image.Image:
@@ -325,6 +350,8 @@ def main() -> int:
             img = load(best[key][1])
             if key in SHADOW_FIX:
                 img = remove_ground_shadow(img)
+            if c in GLOW_TRIM:
+                img = strip_glow(img)
             if pose == "master":
                 out = fit(img, (2048, 1024), 0.92)
                 save(out, NORMALIZED / f"{key}.png")

@@ -31,7 +31,7 @@ const rooms: RoomDef[] = [
     access: { unlock: 'kitchen', cost: { buttons: 600, wood: 40 } },
   },
   {
-    id: TEA_GARDEN_ID, name: 'Tea Garden', cols: 10, rows: 5, door: { col: 0, row: 0 }, theme: 'teagarden', walls: false,
+    id: TEA_GARDEN_ID, name: 'Tea Garden', cols: 12, rows: 5, door: { col: 0, row: 0 }, theme: 'teagarden', walls: false,
     access: { unlock: 'tea_garden', cost: { buttons: 800, wood: 50 } },
   },
 ];

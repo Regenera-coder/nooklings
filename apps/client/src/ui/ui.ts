@@ -17,6 +17,12 @@ import {
   playsLeftToday,
   poolCanOpen,
   taskStates,
+  bakeRecipes,
+  bakeYield,
+  bakingOpen,
+  canBake,
+  seriesProgress,
+  treatGivenToday,
   type Content,
   type Cost,
   type Currency,
@@ -51,6 +57,9 @@ const UNLOCK_NAMES: Record<string, string> = {
   crafting: 'Crafting', parcels: 'Mystery Parcels', sunroom: 'The Sunroom', gardening: 'Gardening',
   yard_expansion: 'Bigger yard', rain_decor: 'Rainy-day decor', expeditions: 'Expeditions',
   tranquil_decor: 'Tranquil decor', heirloom: 'Heirloom restoring', exterior: 'Wishing Lantern',
+  kitchen: 'The Kitchen', baking: 'Baking', teatime_parcels: 'Teatime Parcels', tea_service: 'Tea service', berry_patch: 'Berry Patch',
+  tea_garden: 'The Tea Garden', party_decor: 'Party decor', moonlit_market: 'The Moonlit Market', old_oven: 'Old Oven restoring',
+  tea_party: 'Tea Party Table', grand_tea_party: 'The Grand Tea Party',
 };
 
 const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' | 'ceiling' }> = [
@@ -123,6 +132,9 @@ export class GameUI {
   private pending: PendingEdit | null = null;
   private filter: Filter = 'all';
   private detailId: string | null = null;
+  /** Nookbook tab (a series id). */
+  private seriesTab = '';
+  private bakerPick = '';
   private showOdds = false;
   private toastTimer = 0;
   private revealing = false;
@@ -368,6 +380,20 @@ export class GameUI {
       case 'form_upgraded':
         this.toast(`${this.content.residents[e.residentId]?.name} has a new look!`, 2400);
         break;
+      case 'baking_started':
+        this.toast(`${this.content.baking?.recipes[e.recipeId]?.name ?? 'A batch'} is in the oven`, 2200);
+        break;
+      case 'baking_done':
+        this.toast(`Fresh from the oven: +${e.treats} Treats${e.bonus ? ` (${e.bonus} extra from ${this.content.residents[e.bakerId ?? '']?.name ?? 'your baker'})` : ''}`, 2800);
+        break;
+      case 'treat_given':
+        this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved it and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the Treat`, 2200);
+        break;
+      case 'series_claimed': {
+        const gift = e.furnitureId ? this.content.furniture[e.furnitureId]?.name : null;
+        this.toast(`Series complete!${gift ? ` ${gift} is in your storage.` : ''}`, 3200);
+        break;
+      }
       default:
         break;
     }
@@ -445,8 +471,11 @@ export class GameUI {
     const parcelDue =
       Object.values(this.content.parcels).some((p) => poolCanOpen(s, this.content, p)) ||
       Object.keys(this.content.gatherSpots).some((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0) ||
-      (!!s.expedition && s.expedition.endAt <= now);
-    const bookDue = s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug');
+      (!!s.expedition && s.expedition.endAt <= now) ||
+      (!!s.baking && s.baking.endAt <= now);
+    const bookDue =
+      s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug') ||
+      this.content.series.some((x) => x.reward && seriesProgress(s, this.content, x.id).complete && !s.seriesClaimed.includes(x.id));
     const set = (tab: Tab, on: boolean) => {
       const b = document.querySelector<HTMLElement>(`#rail .tab[data-tab="${tab}"] .badge`);
       if (b) b.hidden = !on;
@@ -725,10 +754,29 @@ export class GameUI {
   private renderNookbook(): void {
     if (this.detailId) return this.renderDetail(this.detailId);
     const s = this.getState();
-    const series = Object.values(this.content.residents).filter((r) => r.series === 'first_residents');
+    const allSeries = this.content.series;
+    if (!allSeries.some((x) => x.id === this.seriesTab)) this.seriesTab = allSeries[0]?.id ?? 'first_residents';
+    const seriesDef = allSeries.find((x) => x.id === this.seriesTab);
+    const seriesNo = allSeries.findIndex((x) => x.id === this.seriesTab) + 1;
+    const series = Object.values(this.content.residents).filter((r) => r.series === this.seriesTab);
     const ownedCount = series.filter((r) => r.id in s.residents).length;
+    if (allSeries.length > 1) {
+      // One tab per series, each with its own count.
+      const tabs = el('div', 'filters series-tabs');
+      for (const x of allSeries) {
+        const p = seriesProgress(s, this.content, x.id);
+        const b = button(`${x.name} ${p.owned}/${p.total}`, `filter${x.id === this.seriesTab ? ' on' : ''}`, () => {
+          this.seriesTab = x.id;
+          this.page.scrollTop = 0;
+          this.render();
+        });
+        if (x.reward && p.complete && !p.claimed) b.append(el('span', 'dot'));
+        tabs.append(b);
+      }
+      this.page.append(tabs);
+    }
     const head = el('div', 'page-h');
-    head.append(el('h2', '', 'Series 1 · The First Residents'), el('span', 'grow'), el('span', 'muted', `${ownedCount}/${series.length}`));
+    head.append(el('h2', '', allSeries.length > 1 ? `Series ${seriesNo} · ${seriesDef?.name ?? ''}` : 'Series 1 · The First Residents'), el('span', 'grow'), el('span', 'muted', `${ownedCount}/${series.length}`));
     this.page.append(head);
     const bar = el('div', 'progress');
     const fill = el('span');
@@ -757,6 +805,22 @@ export class GameUI {
       grid.append(card);
     }
     this.page.append(grid);
+    if (seriesDef?.reward) {
+      // One-time reward for the whole series.
+      const p = seriesProgress(s, this.content, seriesDef.id);
+      const card = el('div', 'card');
+      card.append(el('h3', '', p.claimed ? 'Series complete!' : 'Series reward'));
+      const rewards = el('div', 'rewards');
+      rewards.append(...costChips(seriesDef.reward.cost));
+      const gift = seriesDef.reward.furnitureId ? this.content.furniture[seriesDef.reward.furnitureId] : undefined;
+      if (gift) rewards.append(el('span', 'reward', `✦ ${gift.name}`));
+      card.append(rewards);
+      if (p.claimed) card.append(el('p', 'muted', 'Collected. Thank you for giving everyone a home.'));
+      else if (p.complete) card.append(button('Collect', 'btn primary', () => this.run({ type: 'claim_series', seriesId: seriesDef.id })));
+      else card.append(el('p', 'muted', `Find all ${p.total} friends in this series to collect it (${p.owned}/${p.total}).`));
+      this.page.append(card);
+      return;
+    }
     this.page.append(el('p', 'cabinet', ownedCount === series.length ? 'Series complete! Your display cabinet is ready.' : 'Complete the series to unlock its display cabinet.'));
   }
 
@@ -809,6 +873,12 @@ export class GameUI {
       info.append(kv, el('p', 'story', def.story));
       const actions = el('div', 'actions');
       actions.append(this.playButton(id, 'btn primary'));
+      if (this.content.baking && levelFor(s.hearts, this.content) >= (this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99)) {
+        const away = s.expedition?.residentId === id;
+        const given = treatGivenToday(s, this.content, id, Date.now());
+        const afford = canAfford(s, this.content.baking.giftCost);
+        actions.append(button(given ? 'Treat given today' : `Give a Treat (${s.wallet.treats})`, 'btn', () => this.run({ type: 'give_treat', residentId: id, at: Date.now() }), away || given || !afford));
+      }
       const upgrade = this.content.formUpgrades.find((u) => u.form === 'decorated');
       if (upgrade && owned.form === 'original') {
         const bondOk = bond.level >= upgrade.requiresBond;
@@ -1025,7 +1095,93 @@ export class GameUI {
       rewards.append(...costChips(route.reward));
       if (route.firstTimeResident && !s.expeditionsDone[route.id] && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
       body.append(rewards);
-      row.append(body, button('Send', 'btn primary', () => this.run({ type: 'start_expedition', routeId: route.id, residentId: this.tripResident, at: Date.now() })));
+      if (isUnlocked(s, this.content, route.requiresUnlock)) {
+        row.append(body, button('Send', 'btn primary', () => this.run({ type: 'start_expedition', routeId: route.id, residentId: this.tripResident, at: Date.now() })));
+      } else {
+        row.append(body, el('span', 'muted', `Home Level ${this.content.levels.find((l) => l.unlocks.includes(route.requiresUnlock))?.level ?? '?'}`));
+      }
+      card.append(row);
+    }
+    this.page.append(card);
+  }
+
+  // ---------- Explore: Baking (Series 2) ----------
+
+  private renderBaking(): void {
+    const rules = this.content.baking;
+    if (!rules) return;
+    const s = this.getState();
+    const now = Date.now();
+    const level = levelFor(s.hearts, this.content);
+    const at = this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99;
+    if (level < at - 1) return;
+    const card = el('div', 'card');
+    const title = el('h3', '', 'Baking in the Kitchen');
+    card.append(title);
+    if (level < at || !bakingOpen(s, this.content)) {
+      card.append(el('p', '', level < at ? `Bake Treats for your friends. Unlocks at Home Level ${at}.` : `Open the ${this.content.rooms[rules.roomId]?.name ?? 'Kitchen'} to start baking Treats.`));
+      this.page.append(card);
+      return;
+    }
+    const have = el('p', 'muted');
+    have.append(document.createTextNode('You have '), ...costChips({ treats: s.wallet.treats || 0 }, ''), document.createTextNode(s.wallet.treats ? '' : '0 Treats'));
+    card.append(have);
+    const batch = s.baking;
+    if (batch) {
+      const recipe = rules.recipes[batch.recipeId];
+      const who = batch.bakerId ? this.content.residents[batch.bakerId]?.name : null;
+      const left = batch.endAt - now;
+      const total = bakeYield(this.content, batch.recipeId, batch.bakerId && batch.bakerId in s.residents ? batch.bakerId : null).treats;
+      card.append(el('p', '', left > 0 ? `${recipe?.name ?? 'A batch'} ${who ? `with ${who} ` : ''}is in the oven.` : `${recipe?.name ?? 'Your batch'} is ready!`));
+      const bar = el('div', 'trip-bar');
+      const fill = el('span');
+      fill.style.width = `${Math.min(100, Math.max(0, ((now - batch.startAt) / (batch.endAt - batch.startAt)) * 100))}%`;
+      bar.append(fill);
+      card.append(bar);
+      card.append(left > 0 ? el('p', 'timer', `Ready in ${clock(left)} · ${total} Treats`) : button(`Collect ${total} Treats`, 'btn primary', () => this.run({ type: 'collect_baking', at: Date.now() })));
+      this.page.append(card);
+      return;
+    }
+    const bakers = s.residentOrder.filter((id) => canBake(s, this.content, id));
+    if (this.bakerPick && !bakers.includes(this.bakerPick)) this.bakerPick = '';
+    if (bakers.length) {
+      const pickRow = el('div', 'spot-row');
+      pickRow.append(el('span', 'grow', 'Who helps?'));
+      const select = el('select', 'pick');
+      const none = el('option', '', 'Nobody');
+      none.value = '';
+      none.selected = this.bakerPick === '';
+      select.append(none);
+      for (const id of bakers) {
+        const opt = el('option', '', this.content.residents[id]!.name);
+        opt.value = id;
+        opt.selected = id === this.bakerPick;
+        select.append(opt);
+      }
+      select.addEventListener('change', () => { this.bakerPick = select.value; this.render(); });
+      pickRow.append(select);
+      card.append(pickRow);
+    } else {
+      card.append(el('p', 'muted', 'A Teatime Friend can help at the oven for extra Treats.'));
+    }
+    const baker = this.bakerPick || null;
+    for (const { def, unlocked } of bakeRecipes(s, this.content)) {
+      const row = el('div', 'spot-row');
+      const body = el('div', 'grow');
+      const hours = def.durationMs / 3_600_000;
+      const y = bakeYield(this.content, def.id, baker);
+      const favourite = !!baker && this.content.residents[baker]?.favouriteBake === def.id;
+      body.append(el('b', '', `${def.name} · ${hours >= 1 ? `${hours} h` : `${Math.round(def.durationMs / 60_000)} min`}`), el('p', '', def.description));
+      const rewards = el('div', 'rewards');
+      rewards.append(...costChips({ treats: y.treats }));
+      if (favourite) rewards.append(el('span', 'reward', `♥ ${this.content.residents[baker!]?.name}'s favourite`));
+      const cost = el('span', canAfford(s, def.cost) ? 'muted' : 'no');
+      cost.append(document.createTextNode('Costs '), ...costChips(def.cost, ''));
+      rewards.append(cost);
+      body.append(rewards);
+      row.append(body);
+      if (!unlocked) row.append(el('span', 'muted', `Home Level ${def.requiresLevel}`));
+      else row.append(button('Bake', 'btn primary', () => this.run({ type: 'start_baking', recipeId: def.id, bakerId: baker, at: Date.now() }), !canAfford(s, def.cost)));
       card.append(row);
     }
     this.page.append(card);
@@ -1055,10 +1211,14 @@ export class GameUI {
     }
     this.renderGathering();
     this.renderExpeditions();
+    this.renderBaking();
     for (const pool of Object.values(this.content.parcels)) {
       const card = el('div', 'card');
       if (!isUnlocked(s, this.content, pool.requiresUnlock)) {
-        card.append(el('h3', '', 'Mystery Parcels'), el('p', '', 'Unlock at Home Level 3. Keep finishing tasks to earn Home Hearts.'));
+        const at = this.content.levels.find((l) => l.unlocks.includes(pool.requiresUnlock))?.level ?? 99;
+        // Pools from a later chapter stay out of sight until the level before they open.
+        if (at > levelFor(s.hearts, this.content) + 1 && pool.id !== 'first_residents') continue;
+        card.append(el('h3', '', pool.id === 'first_residents' ? 'Mystery Parcels' : pool.name), el('p', '', `Unlock at Home Level ${at}. Keep finishing tasks to earn Home Hearts.`));
         this.page.append(card);
         continue;
       }
@@ -1067,7 +1227,8 @@ export class GameUI {
       const info = el('div');
       info.append(el('h3', '', pool.name));
       const cost = el('p');
-      cost.append(document.createTextNode('Costs '), ...costChips(pool.cost, ''), document.createTextNode(` · You have ${s.wallet.wishStamps}`));
+      const payWith = (Object.keys(pool.cost) as Currency[])[0] ?? 'wishStamps';
+      cost.append(document.createTextNode('Costs '), ...costChips(pool.cost, ''), document.createTextNode(` · You have ${s.wallet[payWith]}`));
       info.append(cost);
       const odds = parcelOdds(s, this.content, pool.id);
       if (odds.length === 1 && odds[0]!.chance === 1) {
@@ -1077,7 +1238,7 @@ export class GameUI {
       }
       const actions = el('div', 'actions');
       actions.append(
-        button('Open (1 Wish Stamp)', 'btn primary', () => this.openParcel(pool.id), !canAfford(s, pool.cost)),
+        button(payWith === 'wishStamps' ? 'Open (1 Wish Stamp)' : `Open (${pool.cost[payWith]} ${CURRENCY[payWith].name})`, 'btn primary', () => this.openParcel(pool.id), !canAfford(s, pool.cost)),
         button(this.showOdds ? 'Hide odds' : 'See odds', 'btn', () => { this.showOdds = !this.showOdds; this.render(); }),
       );
       info.append(actions);
@@ -1091,7 +1252,7 @@ export class GameUI {
         }
         info.append(table);
       }
-      const recent = s.parcelLog.slice(-5).reverse();
+      const recent = s.parcelLog.filter((r) => r.poolId === pool.id).slice(-5).reverse();
       if (recent.length) {
         info.append(el('p', 'log', `Recent: ${recent.map((r) => this.outcomeName(r.kind, r.id) + (r.duplicate ? ' (duplicate)' : '')).join(', ')}`));
       }

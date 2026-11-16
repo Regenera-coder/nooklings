@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run assets && npm run dev -w @nooklings/client",
+    "dev:series2": "npm run assets && VITE_SERIES2=1 npm run dev -w @nooklings/client",
     "build": "npm run assets && npm run build -w @nooklings/client",
     "preview": "npm run preview -w @nooklings/client",
     "test": "vitest run",

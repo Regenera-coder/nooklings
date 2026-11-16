@@ -101,8 +101,12 @@ export class RoomScene extends Phaser.Scene {
   }
 
   preload(): void {
+    // Only art this game's content uses: residents and rooms of an unreleased series are not downloaded.
+    const content = this.store.content;
+    const themes = new Set(Object.values(content.rooms).map((r) => r.theme as string));
     for (const [key, path] of Object.entries(allArt())) {
-      if (key.startsWith('char_') || key.startsWith('furn_') || key.startsWith('room_') || key.startsWith('pet_')) this.load.image(key, path);
+      const part = key.split('_')[1] ?? '';
+      if (key.startsWith('char_') ? part in content.residents : key.startsWith('room_') ? themes.has(part) : key.startsWith('furn_') || key.startsWith('pet_')) this.load.image(key, path);
     }
   }
 
@@ -388,7 +392,7 @@ export class RoomScene extends Phaser.Scene {
     const room = this.fullRoom;
     g.clear();
     const frame = Math.max(6, l.cw * 0.18);
-    g.fillStyle(room.theme === 'yard' ? 0x5d7a45 : 0x6d4b33, 1).fillRoundedRect(l.ox - frame, l.wallTop - frame, l.width + frame * 2, l.wallH + l.floorH + frame * 2, 10);
+    g.fillStyle(room.walls === false ? 0x5d7a45 : 0x6d4b33, 1).fillRoundedRect(l.ox - frame, l.wallTop - frame, l.width + frame * 2, l.wallH + l.floorH + frame * 2, 10);
     const bgKey = `room_${room.theme}_background`;
     if (this.textures.exists(bgKey)) {
       this.roomImage.setTexture(bgKey).setPosition(l.ox, l.wallTop).setDisplaySize(l.width, l.wallH + l.floorH).setVisible(true);
@@ -397,7 +401,7 @@ export class RoomScene extends Phaser.Scene {
     }
     this.roomImage.setVisible(false);
     if (room.theme === 'sunroom') this.drawSunroom();
-    else if (room.theme === 'yard') this.drawYard();
+    else if (room.walls === false) this.drawYard();
     else this.drawLiving();
     this.drawLocks();
   }

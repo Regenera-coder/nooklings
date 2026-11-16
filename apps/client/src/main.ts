@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { content as baseContent, LIVING_ROOM_ID } from '@nooklings/content';
+import { content as releasedContent, contentWithSeries2, LIVING_ROOM_ID } from '@nooklings/content';
 import { loadManifest } from './assets';
 import { RoomScene, type SceneCallbacks } from './game/RoomScene';
 import { deserialize, levelFor } from '@nooklings/core';
@@ -12,6 +12,12 @@ import './style.css';
 
 /** Render at screen density (capped at 2x for phone GPUs) and display at CSS size. */
 const pixelRatio = () => Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+
+/**
+ * Series 2 (Teatime Friends) is built but not released: it is only switched on in a build made
+ * with VITE_SERIES2=1 (for example `npm run dev:series2`). The live game uses the released content.
+ */
+const baseContent = import.meta.env.VITE_SERIES2 === '1' ? contentWithSeries2 : releasedContent;
 
 /** Daily limits reset at midnight on this device's clock. */
 const content = { ...baseContent, rules: { ...baseContent.rules, dayOffsetMs: -new Date().getTimezoneOffset() * 60_000 } };
@@ -89,12 +95,15 @@ async function start(): Promise<void> {
     },
     onChange: () => ui.refresh(),
   });
-  saves.onSave = () => cloud.localChanged();
-  ui.tasksExtra = () => cloudCard(cloud, describe, () => store.snapshot());
-  void cloud.init();
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') void cloud.flush();
-  });
+  // A Series 2 preview never talks to cloud save: its save must not replace the real one.
+  if (import.meta.env.VITE_SERIES2 !== '1') {
+    saves.onSave = () => cloud.localChanged();
+    ui.tasksExtra = () => cloudCard(cloud, describe, () => store.snapshot());
+    void cloud.init();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') void cloud.flush();
+    });
+  }
   new ResizeObserver(fitToStage).observe(stage);
 
   // Debug hook for automated checks in development builds only.
