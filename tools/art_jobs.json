@@ -2595,5 +2595,42 @@
   "size": "1024x1024",
   "refs": [],
   "prompt": "A single flower bloom alone, with no cactus under it: a bowl-shaped flower with many narrow, pointed petals in a pale neutral cream, a golden-cream centre with a ring of short stamens, and a small pale green bud beside it, all in felt with fine stitching. Centred, on pure white. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code. Felt craft with fine visible stitching in the valleys between the ribs, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No ground, no pot, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "succulent_test",
+  "out": "03 ART INBOX — Milestone F/succ_echeveria_mature.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A mature Echeveria rosette seen from slightly above: about twelve plump, pointed, spoon-shaped leaves in tight overlapping rings, each ring sitting neatly inside the next, with smooth fleshy leaves and a soft powdery bloom. Looks like a real Echeveria. Smooth leaves only: no spines, no hair. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "succulent_test",
+  "out": "03 ART INBOX — Milestone F/succ_echeveria_young.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/succ_echeveria_mature.png"
+  ],
+  "prompt": "The same Echeveria as the first image, but younger: a smaller, tighter rosette of about seven leaves, with one small offset pup beside it at the base. Same style, colour and camera angle as the first image. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "succulent_test",
+  "out": "03 ART INBOX — Milestone F/succ_haworthia_mature.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A mature Haworthia rosette seen from above: a tight spiral of short, thick, triangular leaves with a slightly translucent, window-like tip, and evenly spaced fine pale stitched lines running along each leaf. Compact and low, looks like a real zebra haworthia. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "succulent_test",
+  "out": "03 ART INBOX — Milestone F/succ_kalanchoe_mature.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A mature Kalanchoe plant seen from the side: a compact cluster of thick, fleshy, scalloped oval leaves on short stems, each leaf rounded and slightly cupped, forming a loose rosette-like clump. Looks like a real Kalanchoe. Smooth leaves only. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "succulent_test",
+  "out": "03 ART INBOX — Milestone F/succ_flower_spike.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A single flower spike alone, with no plant under it: a tall, thin stem with a cluster of small bell-shaped blooms along the top, each bloom with four pale petals in neutral cream felt, and a few closed buds at the tip. Small and delicate, not large or showy. Centred, on pure white. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
  }
 ]

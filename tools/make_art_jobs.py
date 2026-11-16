@@ -282,5 +282,29 @@ GYMNO2 = [
 for name, refs, prompt in GYMNO2:
     jobs.append({"stage": "gymno_test2", "out": f"{F}/gymno2_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt})
 
+# Succulent Garden art test (owner's choice, 16 Nov late): three genera, rosette and cluster forms, one spike.
+# Same felt craft and neutral colour as round 2 of the gymno test, with no spines and no fluff. Patterns are drawn in code later.
+SUC_RULES = (
+    " Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left."
+    " Plain pure-white background. One single object, centred, filling about 70 percent of the frame."
+    " No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped."
+    " Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+)
+SUC_ECHEVERIA = f"{F}/succ_echeveria_mature.png"
+SUC = [
+    ("echeveria_mature", [],
+     "A mature Echeveria rosette seen from slightly above: about twelve plump, pointed, spoon-shaped leaves in tight overlapping rings, each ring sitting neatly inside the next, with smooth fleshy leaves and a soft powdery bloom. Looks like a real Echeveria. Smooth leaves only: no spines, no hair." + SUC_RULES),
+    ("echeveria_young", [SUC_ECHEVERIA],
+     "The same Echeveria as the first image, but younger: a smaller, tighter rosette of about seven leaves, with one small offset pup beside it at the base. Same style, colour and camera angle as the first image." + SUC_RULES),
+    ("haworthia_mature", [],
+     "A mature Haworthia rosette seen from above: a tight spiral of short, thick, triangular leaves with a slightly translucent, window-like tip, and evenly spaced fine pale stitched lines running along each leaf. Compact and low, looks like a real zebra haworthia." + SUC_RULES),
+    ("kalanchoe_mature", [],
+     "A mature Kalanchoe plant seen from the side: a compact cluster of thick, fleshy, scalloped oval leaves on short stems, each leaf rounded and slightly cupped, forming a loose rosette-like clump. Looks like a real Kalanchoe. Smooth leaves only." + SUC_RULES),
+    ("flower_spike", [],
+     "A single flower spike alone, with no plant under it: a tall, thin stem with a cluster of small bell-shaped blooms along the top, each bloom with four pale petals in neutral cream felt, and a few closed buds at the tip. Small and delicate, not large or showy. Centred, on pure white." + SUC_RULES),
+]
+for name, refs, prompt in SUC:
+    jobs.append({"stage": "succulent_test", "out": f"{F}/succ_{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
