@@ -354,5 +354,50 @@ TEACUP2 = ("An original, made-up succulent called Teacup Tree, seen from the sid
            "no petals. Smooth leaves, no spines. Compact, about as wide as it is tall.")
 jobs.append({"stage": "succulent_own2", "out": f"{F}/own2_teacup_tree.png", "size": "1024x1024", "refs": [], "prompt": TEACUP2 + SUC_RULES})
 
+# Succulent Garden art set (owner, 17 Nov: "proper pot art, settle all the art first").
+# Phase 1: pots and seed packets. Phases 2-3: seed pod and tools. Same felt craft as the game's furniture.
+STYLE_REF = f"{F}/furn_teacup_planter.png"
+OWN_ART = {k: f"{F}/own_{k}.png" for k in ["meringue_rose", "gumdrop_cluster", "stitchback", "ribbon_fall"]}
+OWN_ART["teacup_tree"] = f"{F}/own2_teacup_tree.png"
+ITEM_RULES = (
+    " Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left."
+    " Use the reference only for the style; do not copy its object."
+    " Plain pure-white background. One single object, centred, filling about 70 percent of the frame."
+    " No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+)
+GARDEN_ART = [
+    ("garden_pot", [STYLE_REF],
+     "An empty round felt plant pot seen from the front and slightly above, so the top of the dark brown felt soil is just visible inside the rim. "
+     "Warm terracotta-orange felt with a rolled rim, a gently tapered body and one neat stitched band around the middle. "
+     "Wide and low, about twice as wide as it is tall. Nothing growing in it."),
+    ("garden_pot_hanging", [STYLE_REF],
+     "An empty round felt hanging planter seen from the front and slightly above, so the top of the dark brown felt soil is just visible. "
+     "Warm terracotta-orange felt bowl with a rolled rim, held by three cream yarn cords that meet at a small wooden ring above it. "
+     "Nothing growing in it."),
+    ("garden_pod", [STYLE_REF],
+     "A single plump felt seed pod, like a small rounded bean pod, split open slightly along a stitched seam to show three tiny round cream seeds inside. "
+     "Soft sage-brown felt."),
+    ("garden_brush", [STYLE_REF],
+     "A small soft pollinating brush: a short rounded wooden handle with a fluffy tuft of pale yellow felt bristles at the tip, dusted with a few yellow pollen specks."),
+    ("garden_pollen_jar", [STYLE_REF],
+     "A tiny glass-look felt jar with a cork-coloured felt lid tied with a cream ribbon, holding a heap of soft golden pollen dust."),
+    ("garden_loupe", [STYLE_REF],
+     "A small round magnifying loupe for looking at plants: a brass-coloured felt ring around a pale blue glass-look lens, with a short wooden handle."),
+    ("garden_sun_shelf", [STYLE_REF],
+     "A small wooden plant shelf with two tiers, seen from the front, with a little stitched felt sun hanging from a hook at one corner and a few warm sunbeam stitches. "
+     "Empty shelves, no plants and no pots on it. Wide, about one and a half times as wide as it is tall."),
+]
+for name, refs, prompt in GARDEN_ART:
+    jobs.append({"stage": "garden_art", "out": f"{F}/{name}.png", "size": "1024x1024", "refs": refs, "prompt": prompt + ITEM_RULES})
+SEED_COLOURS = {
+    "meringue_rose": "soft silver-blue", "gumdrop_cluster": "soft lavender", "stitchback": "soft peach",
+    "teacup_tree": "soft rose pink with a brown trunk", "ribbon_fall": "soft plum",
+}
+for k, colour in SEED_COLOURS.items():
+    jobs.append({"stage": "garden_art", "out": f"{F}/garden_seed_{k}.png", "size": "1024x1024", "refs": [OWN_ART[k], STYLE_REF],
+                 "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap "
+                           f"and a little stitched picture on the front of the plant in the first reference image, coloured {colour}. "
+                           "The packet is blank apart from that picture: no writing at all." + ITEM_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})

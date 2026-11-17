@@ -2688,5 +2688,118 @@
   "size": "1024x1024",
   "refs": [],
   "prompt": "An original, made-up succulent called Teacup Tree, seen from the side: a small bonsai-like jade tree with a slim, slightly twisted woody trunk that splits into five or six thin branches. Each branch carries a cluster of many small, thick, fleshy, round leaves, and each leaf is gently cupped upward like a tiny saucer. About forty small cupped leaves in total. The trunk is thin and woody, not swollen, not a bulb, not a cactus, no face. The leaves are plain fleshy leaves, not flowers, no petals. Smooth leaves, no spines. Compact, about as wide as it is tall. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_pot.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "An empty round felt plant pot seen from the front and slightly above, so the top of the dark brown felt soil is just visible inside the rim. Warm terracotta-orange felt with a rolled rim, a gently tapered body and one neat stitched band around the middle. Wide and low, about twice as wide as it is tall. Nothing growing in it. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_pot_hanging.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "An empty round felt hanging planter seen from the front and slightly above, so the top of the dark brown felt soil is just visible. Warm terracotta-orange felt bowl with a rolled rim, held by three cream yarn cords that meet at a small wooden ring above it. Nothing growing in it. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_pod.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A single plump felt seed pod, like a small rounded bean pod, split open slightly along a stitched seam to show three tiny round cream seeds inside. Soft sage-brown felt. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_brush.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small soft pollinating brush: a short rounded wooden handle with a fluffy tuft of pale yellow felt bristles at the tip, dusted with a few yellow pollen specks. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_pollen_jar.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A tiny glass-look felt jar with a cork-coloured felt lid tied with a cream ribbon, holding a heap of soft golden pollen dust. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_loupe.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small round magnifying loupe for looking at plants: a brass-coloured felt ring around a pale blue glass-look lens, with a short wooden handle. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_sun_shelf.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small wooden plant shelf with two tiers, seen from the front, with a little stitched felt sun hanging from a hook at one corner and a few warm sunbeam stitches. Empty shelves, no plants and no pots on it. Wide, about one and a half times as wide as it is tall. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_seed_meringue_rose.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/own_meringue_rose.png",
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap and a little stitched picture on the front of the plant in the first reference image, coloured soft silver-blue. The packet is blank apart from that picture: no writing at all. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_seed_gumdrop_cluster.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/own_gumdrop_cluster.png",
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap and a little stitched picture on the front of the plant in the first reference image, coloured soft lavender. The packet is blank apart from that picture: no writing at all. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_seed_stitchback.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/own_stitchback.png",
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap and a little stitched picture on the front of the plant in the first reference image, coloured soft peach. The packet is blank apart from that picture: no writing at all. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_seed_teacup_tree.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/own2_teacup_tree.png",
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap and a little stitched picture on the front of the plant in the first reference image, coloured soft rose pink with a brown trunk. The packet is blank apart from that picture: no writing at all. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
+ },
+ {
+  "stage": "garden_art",
+  "out": "03 ART INBOX — Milestone F/garden_seed_ribbon_fall.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone F/own_ribbon_fall.png",
+   "03 ART INBOX — Milestone F/furn_teacup_planter.png"
+  ],
+  "prompt": "A small felt seed packet standing upright, seen from the front: a rectangular cream felt envelope with a folded, stitched top flap and a little stitched picture on the front of the plant in the first reference image, coloured soft plum. The packet is blank apart from that picture: no writing at all. Same handmade felt craft style as the reference image: soft felt with fine visible stitching, lit softly from the upper left. Use the reference only for the style; do not copy its object. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No shadow on the floor, no text, no letters, no numbers, no logo, no watermark. Nothing cropped."
  }
 ]
