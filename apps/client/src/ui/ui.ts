@@ -417,16 +417,14 @@ export class GameUI {
         this.toast(`Sold ${name} for ${e.reward.buttons ?? 0} Buttons`, 2000);
         break;
       }
-      case 'seed_planted': {
-        const [sp, col] = e.seed.split(':');
-        this.toast(`Planted ${succulentName(this.content, sp ?? '', col ?? '')}`);
+      case 'seed_planted':
+        this.toast(`Planted a ${this.content.garden?.species[e.seed.split(':')[0] ?? '']?.name ?? ''} seed. What colour will it be?`, 2400);
         break;
-      }
       case 'pollinated':
         this.toast('Pollinated! A seed pod is forming.', 2200);
         break;
       case 'pod_collected':
-        this.toast(`${e.seeds.length} seeds went into your seed bag${e.mutations ? ' — one looks like a brand-new colour!' : ''}`, e.mutations ? 3200 : 2400);
+        this.toast(`${e.seeds.length} seeds went into your seed bag`, 2400);
         break;
       case 'offset_taken':
         this.toast('A little offset went into your seed bag');
@@ -1406,22 +1404,30 @@ export class GameUI {
 
     const freePot = s.garden.pots.findIndex((p) => p === null);
 
-    // Seed bag: seeds from pods and offsets, planted for free.
-    const bagKeys = Object.keys(s.garden.seeds).filter((k) => parseSeedKey(this.content, k));
-    if (bagKeys.length) {
+    // Seed bag: seeds from pods and offsets, planted for free. Grouped by shape only: the colour is a surprise until it grows.
+    const bySpecies = new Map<string, string[]>();
+    for (const [key, count] of Object.entries(s.garden.seeds)) {
+      const seed = parseSeedKey(this.content, key);
+      if (!seed || count <= 0) continue;
+      const keys = bySpecies.get(seed.speciesId) ?? [];
+      for (let k = 0; k < count; k++) keys.push(key);
+      bySpecies.set(seed.speciesId, keys);
+    }
+    if (bySpecies.size) {
       const bag = el('div', 'card');
       bag.append(el('h3', '', 'Seed bag'));
-      for (const key of bagKeys) {
-        const seed = parseSeedKey(this.content, key)!;
+      for (const id of g.order) {
+        const keys = bySpecies.get(id);
+        if (!keys) continue;
         const row = el('div', 'spot-row');
         const thumb = el('img', 'seed-thumb');
         thumb.alt = '';
-        thumb.src = plantPic(seed.speciesId, seed.colour, 1);
+        thumb.src = plantPic(id, g.species[id]!.colour, 0);
         const body = el('div', 'grow');
-        const known = s.garden.discovered.includes(key);
-        body.append(el('b', '', `${succulentName(this.content, seed.speciesId, seed.colour)} × ${s.garden.seeds[key]}`));
-        body.append(el('p', '', known ? 'In your Succulent book.' : 'Not in your Succulent book yet!'));
-        row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: key, at: Date.now() }), freePot < 0));
+        body.append(el('b', '', `${g.species[id]!.name} seed${keys.length > 1 ? 's' : ''} × ${keys.length}`));
+        body.append(el('p', '', 'What colour will it grow into? Plant it to find out.'));
+        // Plant whichever is first in the bag; which colour it is stays hidden.
+        row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: keys[0]!, at: Date.now() }), freePot < 0));
         bag.append(row);
       }
       if (freePot < 0) bag.append(el('p', 'muted', 'Every pot is in use. Sell a grown plant or buy another pot.'));
