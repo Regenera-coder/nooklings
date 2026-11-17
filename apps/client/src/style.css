@@ -750,7 +750,7 @@ body.has-rooms #stage { bottom: 48px; }
 .ready-row { padding: 2px 0; }
 
 /* Garden v2: the map stays put; the side panel has tabs */
-.garden-wrap.v2 { display: flex; gap: 8px; align-items: stretch; height: calc(100svh - 104px - var(--sab)); min-height: 220px; }
+.garden-wrap.v2 { display: flex; gap: 8px; align-items: stretch; height: calc(100svh - 110px - var(--sab)); min-height: 220px; }
 .garden-wrap.v2 .garden-scene { height: 100%; width: auto; aspect-ratio: 3 / 2; max-width: 62%; flex: none; }
 .garden-wrap.v2 .garden-side { flex: 1 1 0; min-width: 0; margin: 0; padding: 6px 8px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
 .gtabs { display: flex; gap: 4px; }
@@ -780,7 +780,7 @@ body.has-rooms #stage { bottom: 48px; }
 .garden-slot { min-width: 44px; min-height: 44px; }
 
 /* Resident profile (Book) */
-.profile { display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 8px; height: calc(100svh - 52px - var(--sab)); min-height: 240px; }
+.profile { display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 8px; height: calc(100svh - 58px - var(--sab)); min-height: 240px; }
 .profile .card { margin: 0; }
 .profile-art { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; }
 .profile-art img { width: 100%; flex: 1; min-height: 0; object-fit: contain; }
@@ -872,3 +872,22 @@ select.pick { min-height: 40px; }
 .ar-card.has-frame .ar-meta { line-height: 1.3; }
 .ar-card.has-frame .ar-name, .ar-card.has-frame .ar-meta { padding: 0 5%; overflow: hidden; text-overflow: ellipsis; }
 .ar-card.has-frame .ar-name.long { font-size: 9.8px; letter-spacing: -0.3px; }
+#topbar { flex-basis: 40px; }
+.pill { height: 40px; border-radius: 20px; }
+#resources { min-height: 40px; }
+.chip-filter { min-height: 40px; }
+.fact select.pick { min-height: 40px; }
+#room-tabs { right: 8px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
+#room-tabs button { white-space: nowrap; flex: none; }
+#materials { max-height: calc(100% - 8px); overflow-y: auto; touch-action: pan-y; }
+@media (max-height: 340px) {
+  .mat { padding: 1px 0; font-size: 12px; }
+  #materials h3 { margin-bottom: 2px; }
+  .garden-wrap.v2 .garden-side { gap: 4px; padding: 4px 6px; }
+  .gtab { min-height: 36px; font-size: 12px; }
+  .ghead .gthumb { width: 30px; height: 30px; }
+  .gname { font-size: 13px; }
+  .gacts { gap: 4px; }
+  .gacts .btn { min-height: 40px; font-size: 12px; }
+  .glinks .btn { min-height: 36px; }
+}

@@ -2,6 +2,36 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.16.0 — The Shop and an easier-to-use layout (17 Nov 2026)
+
+From the UX audit and mock-ups in Drive (`UX Audit & Shop Redesign`). No new currencies, no price changes; saves are unchanged (still version 13).
+
+### Added
+- **Shop** (fifth tab on the left, after Tasks) with three tabs, and it remembers the last one:
+  - **Furniture:** every craftable item as an illustrated card, four across, with Floor / Wall / Rug / Ceiling filters, its price, "Owned ×N", "🔒 Home Level N" for items coming soon, and a red chip only for the material you are short of. After buying, **Place** takes you straight to Build with the item ready.
+  - **Gardening:** seed packets, the next pot ("4 of 6"), and the Sun Shelf, Pollen Jar and Loupe. **Seed packets now go into your seed bag**; plant them from the Garden.
+  - **Costumes:** pick a resident from the row of portraits, then Buy, Wear, or go back to their own look.
+- **Ready list on Home:** everything waiting (gathering spots, a trip back, plants, a finished study or batch, task rewards, invitations, series rewards, parcels) with a button each, plus **Collect all** and **Gather all**. It folds into a small "Ready" button and remembers which way you left it.
+- **Materials:** tap your money in the top bar to see every material, with shortcuts to gathering and costumes.
+- **Undo** in Build for the last move, flip, place or store.
+- **Gentle motion** setting (Tasks page): calmer animations, no floating numbers.
+- New felt icons for the Shop tab, Research and Build.
+
+### Changed
+- **Build** shows only furniture you own; buying moved to the Shop.
+- **Research and Build** sit over the room on Home instead of in the top bar, so Hearts and money are never cut off.
+- **Rooms:** all five rooms show in the room strip; locked ones say what they need when tapped.
+- **Garden:** the map stays on screen with a side panel of **Plants / Seed Bag / Goals**; flowers you can brush pollen onto glow; the Succulent Book has its own page; links to the Shop.
+- **Resident page:** a compact two-column layout with mood, favourite decor, bond, form, room and companion beside Play, the Decorated upgrade (each requirement marked have/need) and a **Costumes** button that opens the Shop on that resident. The story folds under "About".
+- **Tasks:** "place these items" tasks show each item with Owned / Needed / Placed and a **Place** or **Get** button (Get opens the Shop at that item).
+- **Outdoors:** gathering and trips side by side.
+- **Arcade:** cards show full titles and plays left; each game's start screen lists what a score earns.
+- **Research:** the running study stays pinned at the top; studies in two columns.
+- **Badges** on the tabs show how many things are waiting.
+- **Opening a parcel with Wish Stamps or buying with Keepsakes asks first.** Disabled parcels say how much more you need.
+- Buttons, tabs and dropdowns are at least thumb-sized (40–44 px); the top bar is a little taller.
+- "+40" style pop-ups when Buttons, Wish Stamps or Ribbons go up.
+
 ## 0.15.1 — Ribbons in the top bar and two fixes (17 Nov 2026)
 
 ### Changed
