@@ -17,6 +17,7 @@
         <button class="tab" data-tab="nookbook" aria-label="Nookbook"><span class="ico">❦</span><span class="lbl">Book</span><i class="badge" hidden></i></button>
         <button class="tab" data-tab="explore" aria-label="Explore"><span class="ico">✦</span><span class="lbl">Explore</span><i class="badge" hidden></i></button>
         <button class="tab" data-tab="tasks" aria-label="Tasks"><span class="ico">✓</span><span class="lbl">Tasks</span><i class="badge" hidden></i></button>
+        <button class="tab" data-tab="shop" aria-label="Shop"><span class="ico">✿</span><span class="lbl">Shop</span><i class="badge" hidden></i></button>
       </nav>
       <main id="main">
         <header id="topbar">
@@ -25,22 +26,26 @@
             <span class="lvl" id="lvl">Lv 1</span>
             <span class="hearts" title="Home Hearts"><span class="hearts-bar"><span id="hearts-fill"></span></span><span id="hearts-text">0/10</span></span>
           </div>
-          <div id="resources">
-            <button class="res" id="res-buttons-btn" aria-label="Buttons"><span class="res-ico" data-icon="buttons">●</span><b id="res-buttons">0</b></button>
-            <button class="res" id="res-stamps-btn" aria-label="Wish Stamps"><span class="res-ico" data-icon="wish_stamp">✉</span><b id="res-stamps">0</b></button>
-            <button class="res" id="res-ribbons-btn" aria-label="Ribbons"><span class="res-ico" data-icon="ribbon">🎀</span><b id="res-ribbons">0</b></button>
+          <div id="resources" role="button" tabindex="0" aria-label="Your Buttons, Wish Stamps and Ribbons. Tap to see all materials.">
+            <span class="res" title="Buttons"><span class="res-ico" data-icon="buttons">●</span><b id="res-buttons">0</b></span>
+            <span class="res" title="Wish Stamps"><span class="res-ico" data-icon="wish_stamp">✉</span><b id="res-stamps">0</b></span>
+            <span class="res" title="Ribbons"><span class="res-ico" data-icon="ribbon">🎀</span><b id="res-ribbons">0</b></span>
           </div>
           <div id="top-actions">
-            <button id="research-btn" class="pill">Research<span class="pill-dot" hidden></span></button>
-            <button id="build-btn" class="pill">Build</button>
             <button id="fs-btn" class="pill icon" aria-label="Full screen">⤢</button>
           </div>
         </header>
         <div id="stage-wrap">
           <div id="stage"></div>
+          <div id="home-actions">
+            <button id="research-btn" class="home-act"><span class="ha-ico" data-icon="research">✎</span><span>Research</span><span class="pill-dot" hidden></span></button>
+            <button id="build-btn" class="home-act"><span class="ha-ico" data-icon="build">⚒</span><span class="ha-lbl">Build</span></button>
+          </div>
+          <div id="ready" hidden></div>
           <div id="room-tabs" role="tablist" aria-label="Rooms"></div>
           <section id="page" hidden></section>
           <div id="reveal" hidden></div>
+          <div id="materials" hidden></div>
           <div id="toast" role="status" aria-live="polite"></div>
         </div>
       </main>

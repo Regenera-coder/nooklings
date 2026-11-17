@@ -42,22 +42,26 @@ import {
   nextGardenGoal,
   succulentGrowth,
   type Content,
-  type Cost,
   type Currency,
   type GameEvent,
   type GameState,
+  type Placement,
   type ParcelKind,
   type ResidentDef,
   type TaskDef,
 } from '@nooklings/core';
 import { Arcade } from '../arcade/arcade';
-import { artUrl, costumeArtName } from '../assets';
+import { artUrl } from '../assets';
 import { succulentArtUrl, succulentImage } from '../garden/succulentArt';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
+import { bondHearts, button, cardArt, clock, costChips, CURRENCY, el, icon, seconds, tagChips } from './dom';
+import { prefs, setPrefs } from './prefs';
+import { ShopView } from './shop';
 import type { CommandInput } from '../store';
 
-type Tab = 'home' | 'nookbook' | 'explore' | 'tasks' | 'research';
+type Tab = 'home' | 'nookbook' | 'explore' | 'tasks' | 'shop' | 'research';
+const RAIL_TABS: Tab[] = ['home', 'nookbook', 'explore', 'tasks', 'shop'];
 
 /**
  * Where each pot stands on the garden map (fractions of the picture): x is the pot's centre, y where its base sits,
@@ -75,18 +79,6 @@ type Filter = 'all' | 'owned' | 'missing';
 type ExploreView = 'arcade' | 'outdoors' | 'garden' | 'kitchen' | 'parcels';
 type TasksView = 'tasks' | 'invitations';
 
-const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph: string }> = {
-  buttons: { name: 'Buttons', icon: 'icon_buttons', glyph: '●' },
-  wood: { name: 'Wood', icon: 'icon_wood', glyph: '▤' },
-  fabric: { name: 'Fabric', icon: 'icon_fabric', glyph: '◈' },
-  wishStamps: { name: 'Wish Stamps', icon: 'icon_wish_stamp', glyph: '✉' },
-  mendingThread: { name: 'Mending Thread', icon: 'icon_mending_thread', glyph: '✂' },
-  keepsakes: { name: 'Keepsakes', icon: 'icon_keepsake', glyph: '❖' },
-  ribbons: { name: 'Ribbons', icon: 'icon_ribbon', glyph: '🎀' },
-  treats: { name: 'Treats', icon: 'icon_treats', glyph: '🍪' },
-  hearts: { name: 'Home Hearts', icon: 'icon_home_heart', glyph: '♥' },
-};
-
 const UNLOCK_NAMES: Record<string, string> = {
   crafting: 'Crafting', parcels: 'Mystery Parcels', sunroom: 'The Sunroom', gardening: 'Gardening',
   yard_expansion: 'Bigger yard', rain_decor: 'Rainy-day decor', expeditions: 'Expeditions',
@@ -102,62 +94,6 @@ const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' | 'ceiling'
   { label: 'Wall', layer: 'wall' },
   { label: 'Hanging', layer: 'ceiling' },
 ];
-
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text !== undefined) e.textContent = text;
-  return e;
-}
-
-function button(label: string, cls: string, onClick: () => void, disabled = false): HTMLButtonElement {
-  const b = el('button', cls, label);
-  b.disabled = disabled;
-  b.addEventListener('click', onClick);
-  return b;
-}
-
-function icon(kind: Currency | 'hearts'): HTMLElement {
-  const meta = CURRENCY[kind];
-  const url = artUrl(meta.icon);
-  if (url) {
-    const img = el('img', 'ico-img');
-    img.src = url;
-    img.alt = '';
-    return img;
-  }
-  return el('span', '', meta.glyph);
-}
-
-function costChips(cost: Cost & { hearts?: number }, cls = 'reward'): HTMLElement[] {
-  const out: HTMLElement[] = [];
-  for (const [k, v] of Object.entries(cost) as Array<[Currency | 'hearts', number | undefined]>) {
-    if (!v) continue;
-    const chip = el('span', cls);
-    const name = CURRENCY[k].name;
-    chip.append(icon(k), document.createTextNode(` ${v} ${v === 1 && name.endsWith('s') ? name.slice(0, -1) : name}`));
-    out.push(chip);
-  }
-  return out;
-}
-
-function tagChips(tags: Record<string, number>): HTMLElement {
-  const wrap = el('div', 'tags');
-  const entries = Object.entries(tags);
-  if (entries.length === 0) wrap.append(el('span', 'tag', 'No atmosphere'));
-  for (const [k, v] of entries) wrap.append(el('span', 'tag', `${k} +${v}`));
-  return wrap;
-}
-
-function bondHearts(level: number): HTMLElement {
-  const wrap = el('span', 'bond');
-  for (let i = 1; i <= 5; i++) wrap.append(el('span', i <= level ? '' : 'off', '♥'));
-  return wrap;
-}
-
-function seconds(ms: number): string {
-  return `${Math.max(1, Math.ceil(ms / 1000))}s`;
-}
 
 /** DOM interface around the canvas: left tab rail, top bar, right slide-in panel and full pages. */
 export class GameUI {
@@ -191,6 +127,15 @@ export class GameUI {
   private readonly reveal = document.getElementById('reveal')!;
   private readonly buildBtn = document.getElementById('build-btn') as HTMLButtonElement;
   private readonly researchBtn = document.getElementById('research-btn') as HTMLButtonElement;
+  private readonly homeActions = document.getElementById('home-actions')!;
+  private readonly materials = document.getElementById('materials')!;
+  private readonly shop: ShopView;
+  /** Where every placed item was after the last change, so the last Build change can be undone. */
+  private placementsBefore = new Map<string, { roomId: string; p: Placement }>();
+  /** Commands that put the last Build change back, newest first. */
+  private undo: CommandInput[] = [];
+  private undoAt = 0;
+  private undoing = false;
 
   constructor(
     private readonly content: Content,
@@ -205,15 +150,18 @@ export class GameUI {
     this.buildBtn.addEventListener('click', () => this.setBuild(!this.build));
     this.researchBtn.addEventListener('click', () => this.setTab(this.tab === 'research' ? 'home' : 'research'));
     document.getElementById('fs-btn')!.addEventListener('click', () => void this.toggleFullscreen());
-    document.getElementById('res-stamps-btn')!.addEventListener('click', () => this.setTab('explore'));
-    // Ribbons buy costumes, which are chosen in the Book.
-    document.getElementById('res-ribbons-btn')!.addEventListener('click', () => {
-      this.toast('Ribbons buy costumes for your residents. Open a resident in the Book to see the Wardrobe.', 3000);
+    // The money in the top bar opens every material the home has.
+    const resources = document.getElementById('resources')!;
+    resources.addEventListener('click', () => this.toggleMaterials());
+    resources.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.toggleMaterials();
+      }
     });
-    document.getElementById('res-buttons-btn')!.addEventListener('click', () => {
-      const w = this.getState().wallet;
-      this.toast((Object.keys(w) as Currency[]).map((c) => `${CURRENCY[c].name} ${w[c]}`).join(' · '), 3200);
-    });
+    document.addEventListener('pointerdown', (e) => {
+      if (!this.materials.hidden && !this.materials.contains(e.target as Node) && !resources.contains(e.target as Node)) this.materials.hidden = true;
+    }, true);
     for (const span of document.querySelectorAll<HTMLElement>('.res-ico')) {
       const url = artUrl(`icon_${span.dataset.icon}`);
       if (url) {
@@ -224,6 +172,19 @@ export class GameUI {
         span.append(img);
       }
     }
+    this.shop = new ShopView({
+      content,
+      getState,
+      run: (cmd) => this.run(cmd),
+      render: () => this.render(),
+      toast: (t, ms) => this.toast(t, ms),
+      placeNow: (defId) => this.placeNow(defId),
+      openGarden: () => {
+        this.exploreView = 'garden';
+        this.setTab('explore');
+      },
+      scrollTop: () => { this.page.scrollTop = 0; },
+    });
     this.arcade = new Arcade({
       content,
       getState,
@@ -243,6 +204,12 @@ export class GameUI {
     window.setTimeout(() => this.claimDailyGift(), 1500);
     this.renderTop();
     this.renderBadges();
+    this.snapshotPlacements();
+    // Come back to where the player was.
+    const saved = prefs();
+    if (saved.exploreView && ['arcade', 'outdoors', 'garden', 'kitchen', 'parcels'].includes(saved.exploreView)) this.exploreView = saved.exploreView as ExploreView;
+    if (saved.tab && saved.tab !== 'home' && RAIL_TABS.includes(saved.tab as Tab)) this.setTab(saved.tab as Tab);
+    else this.setTab('home');
   }
 
   /** Swaps in ChatGPT interface art where it exists: tab icons and stitched panels/buttons. */
@@ -256,6 +223,15 @@ export class GameUI {
       img.src = url;
       img.alt = '';
       ico.append(img);
+    }
+    for (const span of document.querySelectorAll<HTMLElement>('.ha-ico')) {
+      const url = artUrl(`icon_${span.dataset.icon}`);
+      if (!url) continue;
+      span.textContent = '';
+      const img = el('img', 'ha-img');
+      img.src = url;
+      img.alt = '';
+      span.append(img);
     }
     const root = document.documentElement;
     const pairs: Array<[string, string]> = [['--ui-panel', 'ui_panel'], ['--ui-button', 'ui_button'], ['--ui-button-primary', 'ui_button_primary']];
@@ -279,17 +255,18 @@ export class GameUI {
 
   setTab(tab: Tab): void {
     this.tab = tab;
+    if (RAIL_TABS.includes(tab)) setPrefs({ tab });
+    this.materials.hidden = true;
     // Research opens from the Home screen, so Home stays highlighted on the rail.
     document.querySelectorAll<HTMLButtonElement>('#rail .tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === (tab === 'research' ? 'home' : tab)));
-    this.researchBtn.hidden = (tab !== 'home' && tab !== 'research') || !this.content.research;
-    this.researchBtn.classList.toggle('on', tab === 'research');
+    this.researchBtn.hidden = !this.content.research;
+    this.homeActions.hidden = tab !== 'home';
     if (tab !== 'home') {
       if (this.build) this.setBuild(false);
       this.selection = { kind: 'none' };
     }
     if (tab !== 'nookbook') this.detailId = null;
     this.page.scrollTop = 0;
-    this.buildBtn.hidden = tab !== 'home';
     this.buildBtn.disabled = !isRoomOpen(this.getState(), this.content, this.roomId);
     this.render();
   }
@@ -297,7 +274,9 @@ export class GameUI {
   setBuild(on: boolean): void {
     this.build = on;
     this.buildBtn.classList.toggle('on', on);
-    this.buildBtn.textContent = on ? 'Done' : 'Build';
+    const label = this.buildBtn.querySelector('.ha-lbl');
+    if (label) label.textContent = on ? 'Done' : 'Build';
+    if (!on) this.undo = [];
     this.getScene()?.setBuildMode(on);
     this.render();
   }
@@ -371,6 +350,7 @@ export class GameUI {
 
   onStateChanged(events: GameEvent[]): void {
     for (const e of events) this.announce(e);
+    this.recordUndo(events);
     // Something changed by itself (the daily gift, a cloud save) while a dropdown is open: redraw once it closes.
     if (this.picking()) {
       this.renderWaiting = true;
@@ -417,6 +397,83 @@ export class GameUI {
     this.toastTimer = window.setTimeout(() => t.classList.remove('show'), ms);
   }
 
+  // ---------- materials ----------
+
+  /** Every material the home has, opened from the money in the top bar. */
+  private toggleMaterials(): void {
+    const box = this.materials;
+    if (!box.hidden) {
+      box.hidden = true;
+      return;
+    }
+    const s = this.getState();
+    box.replaceChildren();
+    box.append(el('h3', '', 'Your materials'));
+    const list = el('div', 'mat-list');
+    const order: Currency[] = ['buttons', 'wishStamps', 'ribbons', 'wood', 'fabric', 'keepsakes', 'mendingThread', 'treats'];
+    for (const c of order) {
+      if (!(c in s.wallet)) continue;
+      // Treats only matter once baking exists.
+      if (c === 'treats' && !this.content.baking) continue;
+      const row = el('div', 'mat');
+      row.append(icon(c), el('span', 'grow', CURRENCY[c].name), el('b', '', String(s.wallet[c] ?? 0)));
+      list.append(row);
+    }
+    box.append(list);
+    const links = el('div', 'mat-links');
+    links.append(
+      button('Get Wood & Fabric', 'btn small', () => { this.exploreView = 'outdoors'; this.setTab('explore'); }),
+      button('Ribbons → Costumes', 'btn small', () => { this.shop.open('costumes'); this.setTab('shop'); }),
+    );
+    box.append(links);
+    box.hidden = false;
+  }
+
+  // ---------- Build undo ----------
+
+  private snapshotPlacements(): void {
+    const map = new Map<string, { roomId: string; p: Placement }>();
+    for (const [roomId, room] of Object.entries(this.getState().rooms)) for (const p of room.placements) map.set(p.uid, { roomId, p });
+    this.placementsBefore = map;
+  }
+
+  /** Remember how to put back the furniture change these events made (moves, flips, placing and storing). */
+  private recordUndo(events: GameEvent[]): void {
+    const before = this.placementsBefore;
+    const steps: CommandInput[] = [];
+    for (const e of events) {
+      if (e.type === 'moved') {
+        const was = before.get(e.placement.uid);
+        if (was) steps.unshift({ type: 'move', roomId: e.roomId, uid: e.placement.uid, col: was.p.col, row: was.p.row });
+      } else if (e.type === 'flipped') {
+        steps.unshift({ type: 'flip', roomId: e.roomId, uid: e.placement.uid });
+      } else if (e.type === 'placed') {
+        steps.unshift({ type: 'store', roomId: e.roomId, uid: e.placement.uid });
+      } else if (e.type === 'stored') {
+        const was = before.get(e.uid);
+        if (was) steps.unshift({ type: 'place', roomId: e.roomId, defId: was.p.defId, col: was.p.col, row: was.p.row, flipped: was.p.flipped });
+      }
+    }
+    this.snapshotPlacements();
+    if (!steps.length || this.undoing || !this.build) return;
+    // A move and a flip confirmed together arrive a moment apart: undo them as one.
+    const now = Date.now();
+    this.undo = now - this.undoAt < 400 ? [...steps, ...this.undo] : steps;
+    this.undoAt = now;
+  }
+
+  private runUndo(): void {
+    const steps = this.undo;
+    this.undo = [];
+    this.undoing = true;
+    let ok = true;
+    for (const cmd of steps) if (!this.dispatch(cmd).ok) ok = false;
+    this.undoing = false;
+    this.snapshotPlacements();
+    this.toast(ok ? 'Undone' : 'Could not put everything back: something is in the way');
+    this.render();
+  }
+
   private announce(e: GameEvent): void {
     switch (e.type) {
       case 'level_up': {
@@ -426,7 +483,7 @@ export class GameUI {
         break;
       }
       case 'crafted':
-        this.toast(`Crafted ${this.content.furniture[e.furnitureId]?.name ?? 'item'}. It's in your storage.`);
+        this.toast(`Bought ${this.content.furniture[e.furnitureId]?.name ?? 'it'}! It's in your storage: tap Place to put it in a room.`, 2600);
         break;
       case 'resident_joined': {
         const where = this.content.rooms[e.roomId]?.name ?? 'your home';
@@ -481,6 +538,9 @@ export class GameUI {
         break;
       case 'thread_traded':
         this.toast(`Stitched ${e.thread} Mending Thread into a Wish Stamp`, 2400);
+        break;
+      case 'seed_bought':
+        this.toast(`A ${this.content.garden?.species[e.speciesId]?.name ?? ''} seed went into your seed bag. Plant it in the Garden.`, 2600);
         break;
       case 'succulent_planted':
         this.toast(`Planted ${this.content.garden?.species[e.speciesId]?.name ?? 'a seed'}`);
@@ -599,6 +659,7 @@ export class GameUI {
     if (this.tab === 'nookbook') this.renderNookbook();
     if (this.tab === 'explore') this.renderExplore();
     if (this.tab === 'research') this.renderResearch();
+    if (this.tab === 'shop') this.shop.render(this.page);
     this.page.scrollTop = scroll;
   }
 
@@ -700,29 +761,12 @@ export class GameUI {
       panel.append(button(`Expand the ${room.name}`, 'btn', () => this.run({ type: 'buy_room', roomId: room.id, kind: 'expand' }), !unlocked));
     }
 
-    panel.append(el('h3', '', 'Craft'));
-    if (!isUnlocked(s, this.content, 'crafting')) {
-      panel.append(el('p', 'hint', 'Crafting unlocks at Home Level 2.'));
-    } else {
-      const tray = el('div', 'tray');
-      const level = levelFor(s.hearts, this.content);
-      const later = Object.values(this.content.recipes).filter((r) => r.requiresLevel > level);
-      for (const r of Object.values(this.content.recipes).filter((r) => r.requiresLevel <= level)) {
-        const def = this.content.furniture[r.furnitureId]!;
-        const affordable = canAfford(s, r.cost);
-        const b = el('button', `chip${affordable ? '' : ' empty'}`);
-        const cost = el('span', 'cost');
-        cost.append(...costChips(r.cost, '').flatMap((c) => [c, document.createTextNode(' ')]));
-        b.append(el('span', '', def.name), cost);
-        b.addEventListener('click', () => {
-          if (!affordable) return this.toast(`Not enough to craft ${def.name}`);
-          this.run({ type: 'craft', recipeId: r.id });
-        });
-        tray.append(b);
-      }
-      panel.append(tray);
-      if (later.length) panel.append(el('p', 'hint', `${later.length} more recipes unlock at higher Home Levels.`));
-    }
+    const tools = el('div', 'acts build-tools');
+    tools.append(
+      button('↶ Undo', 'act', () => this.runUndo(), this.undo.length === 0),
+      button('Get more in the Shop', 'act', () => { this.shop.open('furniture'); this.setTab('shop'); }),
+    );
+    panel.append(tools);
 
     const inv = s.inventory;
     for (const group of GROUPS) {
@@ -730,7 +774,7 @@ export class GameUI {
       const defs = Object.values(this.content.furniture).filter((d) => d.layer === group.layer && (inv[d.id] ?? 0) > 0);
       panel.append(el('h3', '', group.label));
       if (defs.length === 0) {
-        panel.append(el('p', 'hint', 'Nothing in storage.'));
+        panel.append(el('p', 'hint', 'Nothing in storage. Buy furniture in the Shop.'));
         continue;
       }
       const tray = el('div', 'tray');
@@ -1083,44 +1127,12 @@ export class GameUI {
       } else {
         info.append(actions);
       }
-      const wardrobe = this.renderWardrobe(id);
-      if (wardrobe) info.append(wardrobe);
+      if (visibleCostumes(this.content, id).length) {
+        info.append(button('Costumes ›', 'btn costumes-btn', () => { this.shop.open('costumes', { resident: id }); this.setTab('shop'); }));
+      }
     }
     wrap.append(art, info);
     this.page.append(wrap);
-  }
-
-  /** Costumes for one resident: buy with Ribbons, then wear or take off. */
-  private renderWardrobe(id: string): HTMLElement | null {
-    const s = this.getState();
-    const list = visibleCostumes(this.content, id);
-    if (!list.length) return null;
-    const box = el('div', 'wardrobe');
-    box.append(el('h3', '', 'Wardrobe'));
-    const have = el('div', 'rewards');
-    have.append(...costChips({ ribbons: s.wallet.ribbons ?? 0 }));
-    box.append(have);
-    const level = levelFor(s.hearts, this.content);
-    const worn = s.residents[id]?.costume ?? null;
-    for (const c of list) {
-      const row = el('div', 'spot-row');
-      const body = el('div', 'grow');
-      body.append(el('b', '', c.name), el('p', '', c.description));
-      if (!hasCostumeArt(id, c.id)) body.append(el('p', 'hint', 'Costume art is on its way.'));
-      row.append(body);
-      const owned = s.costumesOwned.includes(c.id);
-      if (!owned) {
-        if (level < c.requiresLevel) row.append(el('span', 'muted', `Home Level ${c.requiresLevel}`));
-        else {
-          const cost = el('div', 'rewards');
-          cost.append(...costChips(c.cost));
-          row.append(cost, button('Buy', 'btn primary', () => this.run({ type: 'buy_costume', costumeId: c.id }), !canAfford(s, c.cost)));
-        }
-      } else if (worn === c.id) row.append(button('Take off', 'btn', () => this.run({ type: 'wear_costume', residentId: id, costumeId: null })));
-      else row.append(button('Wear', 'btn primary', () => this.run({ type: 'wear_costume', residentId: id, costumeId: c.id })));
-      box.append(row);
-    }
-    return box;
   }
 
   /** Choose which Arcade companion follows this resident (one each). */
@@ -1385,8 +1397,10 @@ export class GameUI {
     if (!r) return;
     const s = this.getState();
     const now = Date.now();
+    const head = el('div', 'page-h');
+    head.append(button('‹ Home', 'btn light', () => this.setTab('home')), el('h2', '', 'Research'));
+    this.page.append(head);
     const intro = el('div', 'card');
-    intro.append(el('h3', '', 'Research'));
     intro.append(el('p', 'muted', 'Study one thing at a time. Each level is yours for good and makes things in your home go faster.'));
     const a = s.research.active;
     if (a) {
@@ -2100,36 +2114,10 @@ function errorText(error: string): string {
   }
 }
 
-function clock(ms: number): string {
-  const total = Math.max(1, Math.ceil(ms / 1000));
-  if (total >= 3600) {
-    const mins = Math.ceil(total / 60);
-    const rest = mins % 60;
-    return rest ? `${Math.floor(mins / 60)} h ${rest} min` : `${Math.floor(mins / 60)} h`;
-  }
-  const m = Math.floor(total / 60);
-  const sec = total % 60;
-  return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`;
-}
-
 /** The room a task is about, so "Go" can take the player straight there. */
 function taskRoom(def: TaskDef): string | undefined {
   const c = def.condition;
   if (c.kind === 'placed' || c.kind === 'room_items') return c.roomId;
   if (c.kind === 'purchased') return c.key.split(':')[0];
   return undefined;
-}
-
-/** Small square scene art for Explore rows, once ChatGPT delivers it. */
-function cardArt(key: string): HTMLElement | null {
-  const url = artUrl(key);
-  if (!url) return null;
-  const img = el('img', 'card-thumb');
-  img.src = url;
-  img.alt = '';
-  return img;
-}
-
-function hasCostumeArt(id: string, costumeId: string): boolean {
-  return !!artUrl(`char_${id}_costume_${costumeArtName(id, costumeId)}_idle`);
 }

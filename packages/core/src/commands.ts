@@ -90,6 +90,8 @@ export type Command =
   | { id: string; type: 'give_treat'; residentId: string; at: number }
   | { id: string; type: 'claim_series'; seriesId: string }
   | { id: string; type: 'plant_succulent'; pot: number; speciesId: string; at: number }
+  /** Shop: buy a seed packet into the seed bag, to plant later from the Garden. */
+  | { id: string; type: 'buy_seed'; speciesId: string }
   | { id: string; type: 'sell_succulent'; pot: number; at: number }
   | { id: string; type: 'buy_pot' }
   | { id: string; type: 'plant_seed'; pot: number; seed: string; at: number }
@@ -169,6 +171,7 @@ export type GameEvent =
   | { type: 'succulent_sold'; pot: number; speciesId: string; reward: Cost; firstTime: boolean }
   | { type: 'pot_bought'; pots: number }
   | { type: 'seed_planted'; pot: number; seed: string; grownAt: number }
+  | { type: 'seed_bought'; speciesId: string; seed: string }
   | { type: 'pollinated'; pot: number; fromPot: number; readyAt: number }
   | { type: 'pod_collected'; pot: number; seeds: string[]; mutations: number }
   | { type: 'offset_taken'; pot: number; seed: string }
@@ -713,6 +716,18 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'succulent_sold', pot: cmd.pot, speciesId: def.id, reward, firstTime });
       if (firstTime && g.heartsPerNewSpecies > 0) addHearts(d, g.heartsPerNewSpecies, content);
+      return done();
+    }
+
+    case 'buy_seed': {
+      const g = content.garden;
+      const def = g?.species[cmd.speciesId];
+      if (!g || !def) return fail('unknown_species');
+      if (!gardenOpen(state, content)) return fail('locked');
+      if (!canAfford(state, def.seedCost)) return fail('cannot_afford');
+      const seed = seedKey(def.id, def.colour, PLAIN);
+      d.state = { ...state, wallet: addCost(state.wallet, def.seedCost, -1), garden: { ...state.garden, seeds: addSeeds(state.garden.seeds, [seed], 1) } };
+      d.events.push({ type: 'seed_bought', speciesId: def.id, seed });
       return done();
     }
 

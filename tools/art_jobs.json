@@ -2811,5 +2811,38 @@
    "03 ART INBOX — Milestone F/garden_pot.png"
   ],
   "prompt": "A wide game background: a small, sunny, cosy succulent garden patio, made entirely of felt and fabric with fine visible stitching, in the same handmade felt storybook style, lighting and colours as the first reference image (a garden room from the same game). Seen from the front and slightly above, like a dollhouse diorama, filling the whole image edge to edge. Layout, left to right and back to front, keep it exactly like this and keep every spot clearly visible and uncluttered: Along the back, a long low wooden potting bench across the middle of the picture, with THREE empty round cream felt doilies on its top, evenly spaced (left, centre, right), each about the size of the pot in the second reference image, with nothing on them. In front of the bench, on a soft pale stone-and-moss patio floor, THREE more empty round flat stepping stones in a row, evenly spaced (left, centre, right), lower in the picture than the doilies, with nothing on them. On the far right, a small empty round wooden side table. On the far left, a little open wooden garden gate with a heart cut-out. Behind everything: a sage-green stitched hedge, a white trellis with a few tiny pink felt flowers, and a soft blue sky with one stitched sun. Leave the doilies, stepping stones and the side table completely empty: no pots, no plants, no tools, no characters on them. No people, no animals, no text, no letters, no logo, no watermark."
+ },
+ {
+  "stage": "ui_icons",
+  "out": "03 ART INBOX — Milestone F/icon_tab_shop.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/icon_tab_home.png",
+   "03 ART INBOX — Milestone B/icon_tab_explore.png",
+   "03 ART INBOX — Milestone B/icon_tab_tasks_v2.png"
+  ],
+  "prompt": "A tiny felt shop front: a little cream felt shop with a striped awning in berry pink and cream, scalloped at the edge, and a small window showing a felt cushion and a potted plant. A small game interface icon in exactly the same handmade felt-and-stitch style, colours, outline softness, lighting and three-quarter angle as the reference images (other icons from the same game's tab bar). Use them only for the style; do not copy their objects. One single object, centred, filling about 80 percent of the frame, on a plain pure-white background. Simple, chunky shapes that still read clearly when shown very small. No text, no letters, no numbers, no logo, no watermark."
+ },
+ {
+  "stage": "ui_icons",
+  "out": "03 ART INBOX — Milestone F/icon_research.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/icon_tab_home.png",
+   "03 ART INBOX — Milestone B/icon_tab_explore.png",
+   "03 ART INBOX — Milestone B/icon_tab_tasks_v2.png"
+  ],
+  "prompt": "An open felt notebook with a small stitched leaf on one page and a little felt magnifying glass resting on it. A small game interface icon in exactly the same handmade felt-and-stitch style, colours, outline softness, lighting and three-quarter angle as the reference images (other icons from the same game's tab bar). Use them only for the style; do not copy their objects. One single object, centred, filling about 80 percent of the frame, on a plain pure-white background. Simple, chunky shapes that still read clearly when shown very small. No text, no letters, no numbers, no logo, no watermark."
+ },
+ {
+  "stage": "ui_icons",
+  "out": "03 ART INBOX — Milestone F/icon_build.png",
+  "size": "1024x1024",
+  "refs": [
+   "03 ART INBOX — Milestone B/icon_tab_home.png",
+   "03 ART INBOX — Milestone B/icon_tab_explore.png",
+   "03 ART INBOX — Milestone B/icon_tab_tasks_v2.png"
+  ],
+  "prompt": "A small felt hammer with a wooden handle and a soft grey felt head, crossed with a short tape-measure ribbon. A small game interface icon in exactly the same handmade felt-and-stitch style, colours, outline softness, lighting and three-quarter angle as the reference images (other icons from the same game's tab bar). Use them only for the style; do not copy their objects. One single object, centred, filling about 80 percent of the frame, on a plain pure-white background. Simple, chunky shapes that still read clearly when shown very small. No text, no letters, no numbers, no logo, no watermark."
  }
 ]

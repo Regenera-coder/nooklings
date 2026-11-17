@@ -423,5 +423,22 @@ jobs.append({
     ),
 })
 
+# UI redesign (owner, 17 Nov): the Shop becomes a fifth rail tab; Research and Build get small icons on Home.
+ICON_REFS = [f"{B}/icon_tab_home.png", f"{B}/icon_tab_explore.png", f"{B}/icon_tab_tasks_v2.png"]
+ICON_RULES = (
+    " A small game interface icon in exactly the same handmade felt-and-stitch style, colours, outline softness, lighting and"
+    " three-quarter angle as the reference images (other icons from the same game's tab bar). Use them only for the style; do not copy their objects."
+    " One single object, centred, filling about 80 percent of the frame, on a plain pure-white background."
+    " Simple, chunky shapes that still read clearly when shown very small. No text, no letters, no numbers, no logo, no watermark."
+)
+UI_ICONS = [
+    ("icon_tab_shop", "A tiny felt shop front: a little cream felt shop with a striped awning in berry pink and cream, scalloped at the edge, "
+                      "and a small window showing a felt cushion and a potted plant."),
+    ("icon_research", "An open felt notebook with a small stitched leaf on one page and a little felt magnifying glass resting on it."),
+    ("icon_build", "A small felt hammer with a wooden handle and a soft grey felt head, crossed with a short tape-measure ribbon."),
+]
+for name, prompt in UI_ICONS:
+    jobs.append({"stage": "ui_icons", "out": f"{F}/{name}.png", "size": "1024x1024", "refs": ICON_REFS, "prompt": prompt + ICON_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
