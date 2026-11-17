@@ -399,5 +399,29 @@ for k, colour in SEED_COLOURS.items():
                            f"and a little stitched picture on the front of the plant in the first reference image, coloured {colour}. "
                            "The packet is blank apart from that picture: no writing at all." + ITEM_RULES})
 
+# Garden map (owner, 17 Nov): the Succulent Garden gets its own scene instead of a list. Six empty pot spots in
+# fixed places (the game draws each pot and plant on its spot), a side table for the tools, and a gate.
+GARDEN_SCENE_REFS = [f"{E}/room_teagarden_background.png", f"{F}/garden_pot.png"]
+jobs.append({
+    "stage": "garden_scene",
+    "out": f"{F}/garden_scene_background.png",
+    "size": "1536x1024",
+    "refs": GARDEN_SCENE_REFS,
+    "prompt": (
+        "A wide game background: a small, sunny, cosy succulent garden patio, made entirely of felt and fabric with fine visible stitching,"
+        " in the same handmade felt storybook style, lighting and colours as the first reference image (a garden room from the same game)."
+        " Seen from the front and slightly above, like a dollhouse diorama, filling the whole image edge to edge."
+        " Layout, left to right and back to front, keep it exactly like this and keep every spot clearly visible and uncluttered:"
+        " Along the back, a long low wooden potting bench across the middle of the picture, with THREE empty round cream felt doilies on its top,"
+        " evenly spaced (left, centre, right), each about the size of the pot in the second reference image, with nothing on them."
+        " In front of the bench, on a soft pale stone-and-moss patio floor, THREE more empty round flat stepping stones in a row, evenly spaced"
+        " (left, centre, right), lower in the picture than the doilies, with nothing on them."
+        " On the far right, a small empty round wooden side table. On the far left, a little open wooden garden gate with a heart cut-out."
+        " Behind everything: a sage-green stitched hedge, a white trellis with a few tiny pink felt flowers, and a soft blue sky with one stitched sun."
+        " Leave the doilies, stepping stones and the side table completely empty: no pots, no plants, no tools, no characters on them."
+        " No people, no animals, no text, no letters, no logo, no watermark."
+    ),
+})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
