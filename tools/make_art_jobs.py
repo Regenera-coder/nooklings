@@ -346,5 +346,13 @@ OWN = [
 for name, prompt in OWN:
     jobs.append({"stage": "succulent_own", "out": f"{F}/own_{name}.png", "size": "1024x1024", "refs": [], "prompt": prompt + SUC_RULES})
 
+# Teacup Tree redo (owner, 17 Nov): round 1 had a fat bulb trunk and cups that read as flowers.
+TEACUP2 = ("An original, made-up succulent called Teacup Tree, seen from the side: a small bonsai-like jade tree with a slim, "
+           "slightly twisted woody trunk that splits into five or six thin branches. Each branch carries a cluster of many small, "
+           "thick, fleshy, round leaves, and each leaf is gently cupped upward like a tiny saucer. About forty small cupped leaves in total. "
+           "The trunk is thin and woody, not swollen, not a bulb, not a cactus, no face. The leaves are plain fleshy leaves, not flowers, "
+           "no petals. Smooth leaves, no spines. Compact, about as wide as it is tall.")
+jobs.append({"stage": "succulent_own2", "out": f"{F}/own2_teacup_tree.png", "size": "1024x1024", "refs": [], "prompt": TEACUP2 + SUC_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
