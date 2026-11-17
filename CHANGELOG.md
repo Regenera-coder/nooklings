@@ -2,6 +2,22 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Research, and a Cosy Kitchen fix (17 Nov 2026)
+
+### Implemented
+- **Research**, from a new Research button on the Home screen, open from the start. Study one thing at a time; each study has 3 levels (200 Buttons / 1 h, 500 Buttons + 5 Wood / 4 h, 1,000 Buttons + 10 Wood / 12 h), kept for good:
+  - Green Thumb: succulents grow 10% faster per level (offsets too).
+  - Busy Bees: flowering and seed pods 10% faster per level.
+  - Quick Paws: Outdoors trips 10% shorter per level.
+  - Warm Oven: baking 10% shorter per level.
+  - Bountiful Spots: berry bush, cotton patch and woodpile ready 10% sooner per level.
+  - Keen Eye: +1 point per level on the chance of a new colour or pattern.
+- Garden speed-ups apply to plants already growing; trips, baking, pods and gathering use the speed at the time they start. Shown times (trip and bake lengths, grow hours) include research. A dot on the Research button when a study has finished.
+- Pictures reuse art already in the game. Save version 12. Research tests added.
+
+### Fixed
+- **Cosy Kitchen:** ingredients now show on the board, bowl, pot and pan. Before, a carrot put on the board seemed to vanish because the tool only got a faint glow. Chopped pieces shrink and tilt, and tipping the board into the pot carries them across.
+
 ## 0.12.0 — Succulent Garden Phases 3 and 4, garden tidy-up (17 Nov 2026)
 
 ### Changed

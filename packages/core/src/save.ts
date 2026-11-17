@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES, parseSeedKey } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, GardenState, GardenToolId, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -31,6 +31,8 @@ const MIGRATIONS: Record<number, Migration> = {
   9: (raw) => ({ ...raw, version: 10 }),
   // v10 -> v11: leaf patterns (plants and seeds so far are plain), garden tools, gifts and goals.
   10: (raw) => ({ ...raw, version: 11 }),
+  // v11 -> v12: Research (nothing studied yet).
+  11: (raw) => ({ ...raw, version: 12 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -76,6 +78,7 @@ export function newGame(content: Content): GameState {
     baking: null,
     bakesDone: 0,
     garden: emptyGarden(content),
+    research: { levels: {}, active: null },
     seriesClaimed: [],
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
@@ -268,6 +271,20 @@ export function deserialize(text: string, content: Content): GameState {
     garden.goalsClaimed = strings(rg.goalsClaimed).filter((k, i, a) => goalIds.has(k) && a.indexOf(k) === i);
   }
 
+  // Research: finished levels within each study's range; an active study must be the next level of a known study.
+  const rr = (data.research ?? {}) as Raw;
+  const research: GameState['research'] = { levels: {}, active: null };
+  const studies = content.research?.studies ?? {};
+  for (const [id, v] of Object.entries((rr.levels ?? {}) as Raw)) {
+    const def = studies[id];
+    const n = Math.min(nonNegInt(v), def?.levels.length ?? 0);
+    if (def && n > 0) research.levels[id] = n;
+  }
+  const rAct = rr.active as Raw | null | undefined;
+  if (rAct && typeof rAct.studyId === 'string' && studies[rAct.studyId] && nonNegInt(rAct.level) === (research.levels[rAct.studyId] ?? 0) + 1 && nonNegInt(rAct.level) <= studies[rAct.studyId]!.levels.length) {
+    research.active = { studyId: rAct.studyId, level: nonNegInt(rAct.level), startAt: num(rAct.startAt), endAt: num(rAct.endAt) };
+  }
+
   const usedUids = Object.values(rooms).flatMap((r) => r.placements.map((p) => Number(p.uid.slice(1)) || 0));
   const nextUid = Math.max(num(data.nextUid, 1), ...usedUids.map((n) => n + 1), 1);
   const taskIds = new Set(content.tasks.map((t) => t.id));
@@ -295,6 +312,7 @@ export function deserialize(text: string, content: Content): GameState {
     baking,
     bakesDone: nonNegInt(data.bakesDone),
     garden,
+    research,
     seriesClaimed: strings(data.seriesClaimed).filter((id, i, a) => content.series.some((x) => x.id === id && x.reward) && a.indexOf(id) === i),
     costumesOwned,
     ribbonDay,

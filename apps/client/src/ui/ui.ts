@@ -35,6 +35,9 @@ import {
   succulentSellPrice,
   undiscovered,
   unseenPatterns,
+  researchLevel,
+  researchSpeed,
+  nextStudyLevel,
   nextGardenGoal,
   succulentGrowth,
   type Content,
@@ -53,7 +56,7 @@ import { reasonText, type PendingEdit, type RoomScene, type Selection } from '..
 import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
 
-type Tab = 'home' | 'nookbook' | 'explore' | 'tasks';
+type Tab = 'home' | 'nookbook' | 'explore' | 'tasks' | 'research';
 type Filter = 'all' | 'owned' | 'missing';
 type ExploreView = 'arcade' | 'outdoors' | 'garden' | 'kitchen' | 'parcels';
 type TasksView = 'tasks' | 'invitations';
@@ -168,6 +171,7 @@ export class GameUI {
   private readonly page = document.getElementById('page')!;
   private readonly reveal = document.getElementById('reveal')!;
   private readonly buildBtn = document.getElementById('build-btn') as HTMLButtonElement;
+  private readonly researchBtn = document.getElementById('research-btn') as HTMLButtonElement;
 
   constructor(
     private readonly content: Content,
@@ -180,6 +184,7 @@ export class GameUI {
       b.addEventListener('click', () => this.setTab(b.dataset.tab as Tab)),
     );
     this.buildBtn.addEventListener('click', () => this.setBuild(!this.build));
+    this.researchBtn.addEventListener('click', () => this.setTab(this.tab === 'research' ? 'home' : 'research'));
     document.getElementById('fs-btn')!.addEventListener('click', () => void this.toggleFullscreen());
     document.getElementById('res-stamps-btn')!.addEventListener('click', () => this.setTab('explore'));
     document.getElementById('res-buttons-btn')!.addEventListener('click', () => {
@@ -249,7 +254,10 @@ export class GameUI {
 
   setTab(tab: Tab): void {
     this.tab = tab;
-    document.querySelectorAll<HTMLButtonElement>('#rail .tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+    // Research opens from the Home screen, so Home stays highlighted on the rail.
+    document.querySelectorAll<HTMLButtonElement>('#rail .tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === (tab === 'research' ? 'home' : tab)));
+    this.researchBtn.hidden = (tab !== 'home' && tab !== 'research') || !this.content.research;
+    this.researchBtn.classList.toggle('on', tab === 'research');
     if (tab !== 'home') {
       if (this.build) this.setBuild(false);
       this.selection = { kind: 'none' };
@@ -447,6 +455,12 @@ export class GameUI {
       case 'succulent_given':
         this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved the ${e.name} and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the ${e.name}`, 2600);
         break;
+      case 'research_started':
+        this.toast(`Started studying ${this.content.research?.studies[e.studyId]?.name ?? ''}`, 2000);
+        break;
+      case 'research_finished':
+        this.toast(`${this.content.research?.studies[e.studyId]?.name ?? 'Research'} reached Level ${e.level}!`, 2400);
+        break;
       case 'succulent_displayed':
         this.toast(`${this.content.furniture[e.furnitureId]?.name ?? 'Your succulent'} is in storage. Place it from Build!`, 2800);
         break;
@@ -479,7 +493,8 @@ export class GameUI {
     const hasCountdown =
       (this.tab === 'home' && this.selection.kind === 'resident') ||
       (this.tab === 'nookbook' && this.detailId !== null) ||
-      (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen' || this.exploreView === 'garden'));
+      (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen' || this.exploreView === 'garden')) ||
+      (this.tab === 'research' && !!this.getState().research.active);
     if (hasCountdown && !this.revealing && !this.arcade.isOpen) this.render();
     else this.renderBadges();
   }
@@ -512,6 +527,7 @@ export class GameUI {
     if (this.tab === 'tasks') this.renderTasks();
     if (this.tab === 'nookbook') this.renderNookbook();
     if (this.tab === 'explore') this.renderExplore();
+    if (this.tab === 'research') this.renderResearch();
     this.page.scrollTop = scroll;
   }
 
@@ -543,6 +559,9 @@ export class GameUI {
       const b = document.querySelector<HTMLElement>(`#rail .tab[data-tab="${tab}"] .badge`);
       if (b) b.hidden = !on;
     };
+    const active = s.research.active;
+    const dot = this.researchBtn.querySelector('.pill-dot') as HTMLElement | null;
+    if (dot) dot.hidden = !(active && active.endAt <= now);
     set('tasks', tasksDue);
     set('explore', parcelDue);
     set('nookbook', bookDue);
@@ -1188,7 +1207,8 @@ export class GameUI {
       const thumb = cardArt(`exp_${route.id}`);
       if (thumb) row.append(thumb);
       const body = el('div', 'grow');
-      body.append(el('b', '', `${route.name} · ${route.durationMs >= 3_600_000 ? `${Math.round(route.durationMs / 360_000) / 10} h` : `${Math.round(route.durationMs / 60_000)} min`}`), el('p', '', route.description));
+      const tripMs = route.durationMs * researchSpeed(s, this.content).trips;
+      body.append(el('b', '', `${route.name} · ${tripMs >= 3_600_000 ? `${Math.round(tripMs / 360_000) / 10} h` : `${Math.round(tripMs / 60_000)} min`}`), el('p', '', route.description));
       const rewards = el('div', 'rewards');
       rewards.append(...costChips(route.reward));
       if (route.firstTimeResident && !s.expeditionsDone[route.id] && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
@@ -1266,10 +1286,11 @@ export class GameUI {
     for (const { def, unlocked } of bakeRecipes(s, this.content)) {
       const row = el('div', 'spot-row');
       const body = el('div', 'grow');
-      const hours = def.durationMs / 3_600_000;
+      const bakeMs = def.durationMs * researchSpeed(s, this.content).baking;
+      const hours = Math.round(bakeMs / 360_000) / 10;
       const y = bakeYield(this.content, def.id, baker);
       const favourite = !!baker && this.content.residents[baker]?.favouriteBake === def.id;
-      body.append(el('b', '', `${def.name} · ${hours >= 1 ? `${hours} h` : `${Math.round(def.durationMs / 60_000)} min`}`), el('p', '', def.description));
+      body.append(el('b', '', `${def.name} · ${hours >= 1 ? `${hours} h` : `${Math.round(bakeMs / 60_000)} min`}`), el('p', '', def.description));
       const rewards = el('div', 'rewards');
       rewards.append(...costChips({ treats: y.treats }));
       if (favourite) rewards.append(el('span', 'reward', `♥ ${this.content.residents[baker!]?.name}'s favourite`));
@@ -1285,6 +1306,72 @@ export class GameUI {
     this.page.append(card);
   }
 
+  // ---------- Research ----------
+
+  private renderResearch(): void {
+    const r = this.content.research;
+    if (!r) return;
+    const s = this.getState();
+    const now = Date.now();
+    const intro = el('div', 'card');
+    intro.append(el('h3', '', 'Research'));
+    intro.append(el('p', 'muted', 'Study one thing at a time. Each level is yours for good and makes things in your home go faster.'));
+    const a = s.research.active;
+    if (a) {
+      const def = r.studies[a.studyId]!;
+      const row = el('div', 'spot-row');
+      const pic = el('img', 'seed-thumb');
+      pic.src = artUrl(def.icon) ?? '';
+      pic.alt = '';
+      const body = el('div', 'grow');
+      body.append(el('b', '', `Studying ${def.name} · Level ${a.level}`));
+      if (a.endAt > now) {
+        body.append(el('p', 'muted', `${clock(a.endAt - now)} left`));
+        const bar = el('div', 'trip-bar');
+        const fill = el('span');
+        fill.style.width = `${Math.round(Math.min(1, (now - a.startAt) / Math.max(1, a.endAt - a.startAt)) * 100)}%`;
+        bar.append(fill);
+        body.append(bar);
+        row.append(pic, body);
+      } else {
+        body.append(el('p', '', 'Finished!'));
+        row.append(pic, body, button('Learn it', 'btn primary', () => this.run({ type: 'finish_research', at: Date.now() })));
+      }
+      intro.append(row);
+    }
+    this.page.append(intro);
+
+    const list = el('div', 'card');
+    for (const id of r.order) {
+      const def = r.studies[id]!;
+      const lvl = researchLevel(s, id);
+      const next = nextStudyLevel(s, this.content, id);
+      const row = el('div', 'spot-row');
+      const pic = el('img', 'seed-thumb');
+      pic.src = artUrl(def.icon) ?? '';
+      pic.alt = '';
+      const body = el('div', 'grow');
+      body.append(el('b', '', `${def.name} · Level ${lvl}/${def.levels.length}`), el('p', '', def.description));
+      const info = el('div', 'rewards');
+      const amount = (n: number) => (def.effect === 'mutation' ? `+${Math.round(n * 100)}% chance` : `${Math.round(n * 100)}% faster`);
+      if (lvl > 0) info.append(el('span', 'reward', `Now ${amount(def.perLevel * lvl)}`));
+      if (next) info.append(el('span', 'reward', `Next ${amount(def.perLevel * next.level)} · ${clock(next.ms)}`));
+      body.append(info);
+      row.append(pic, body);
+      if (!next) row.append(el('span', 'reward', 'Done ✓'));
+      else {
+        const side = el('div', 'seed-side');
+        const cost = el('span', canAfford(s, next.cost) ? 'muted' : 'no');
+        cost.append(...costChips(next.cost, ''));
+        const busy = !!s.research.active;
+        side.append(cost, button(busy ? 'Busy' : 'Study', 'btn primary', () => this.run({ type: 'start_research', studyId: id, at: Date.now() }), busy || !canAfford(s, next.cost)));
+        row.append(side);
+      }
+      list.append(row);
+    }
+    this.page.append(list);
+  }
+
   // ---------- Explore: Succulent Garden ----------
 
   private renderGarden(): void {
@@ -1297,6 +1384,7 @@ export class GameUI {
     const tintOf = (colour: string) => g.colours[colour] ?? { mature: '#cccccc', blush: '#cccccc' };
     const redraw = () => this.render();
     const tools = s.garden.tools;
+    const speed = researchSpeed(s, this.content);
     const sun = tools.includes('sun_shelf');
     const plantPic = (speciesId: string, colour: string, t: number, pattern = 'plain'): string => {
       const def = g.species[speciesId]!;
@@ -1336,9 +1424,9 @@ export class GameUI {
     }
     const from = this.pollenFrom;
     const fromPlant = from !== null ? s.garden.pots[from] : null;
-    if (from !== null && (!fromPlant || !plantStatus(this.content, fromPlant, now, tools)?.blooming)) this.pollenFrom = null;
+    if (from !== null && (!fromPlant || !plantStatus(this.content, fromPlant, now, tools, speed)?.blooming)) this.pollenFrom = null;
     const giftPlant = this.giftFrom !== null ? s.garden.pots[this.giftFrom] : null;
-    if (this.giftFrom !== null && (!giftPlant || giftPlant.pod || succulentGrowth(this.content, giftPlant.speciesId, giftPlant.plantedAt, now)?.stage !== 'grown')) this.giftFrom = null;
+    if (this.giftFrom !== null && (!giftPlant || giftPlant.pod || succulentGrowth(this.content, giftPlant.speciesId, giftPlant.plantedAt, now, speed.grow)?.stage !== 'grown')) this.giftFrom = null;
     if (this.giftFrom !== null && giftPlant) {
       const pot = this.giftFrom;
       const bar = el('div', 'pollen-bar gift-bar');
@@ -1374,7 +1462,7 @@ export class GameUI {
         pots.append(tile);
         return;
       }
-      const st = plantStatus(this.content, plant, now, tools)!;
+      const st = plantStatus(this.content, plant, now, tools, speed)!;
       const grow = st.growth;
       const stage = el('div', `pot-stage${def.anchor === 'top' ? ' hang' : ''}`);
       const img = el('img', 'plant');
@@ -1511,7 +1599,7 @@ export class GameUI {
       thumb.alt = '';
       thumb.src = artUrl(`garden_seed_${id}`) ?? plantPic(id, def.colour, 1);
       const body = el('div', 'grow');
-      const hours = (def.sproutMs + def.growMs) / 3_600_000;
+      const hours = Math.round(((def.sproutMs + def.growMs) * speed.grow) / 360_000) / 10;
       body.append(el('b', '', def.name), el('p', '', def.description));
       const info = el('div', 'rewards');
       info.append(el('span', 'reward', `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h to grow`));

@@ -309,6 +309,41 @@ export interface SucculentColourDef {
   blush: string;
 }
 
+/** What a Research study speeds up. */
+export type ResearchEffect = 'grow' | 'flower' | 'trips' | 'baking' | 'spots' | 'mutation';
+
+/** One Research study: several levels, each bought and then waited for. Every number is PROPOSED. */
+export interface ResearchStudyDef {
+  id: string;
+  name: string;
+  description: string;
+  /** Art key for its picture. */
+  icon: string;
+  effect: ResearchEffect;
+  /** Per level: time saved (0.1 = 10% shorter) or, for 'mutation', chance added (0.01 = +1 point). */
+  perLevel: number;
+  levels: Array<{ cost: Cost; ms: number }>;
+}
+
+export interface ResearchRules {
+  studies: Record<string, ResearchStudyDef>;
+  order: string[];
+}
+
+export interface ActiveStudy {
+  studyId: string;
+  /** The level being studied (1 = first). */
+  level: number;
+  startAt: number;
+  endAt: number;
+}
+
+export interface ResearchState {
+  /** Finished levels per study. */
+  levels: Record<string, number>;
+  active: ActiveStudy | null;
+}
+
 /** A leaf pattern, drawn in code over the plant's colour. "plain" is no pattern. */
 export interface SucculentPatternDef {
   id: string;
@@ -526,6 +561,7 @@ export interface GameState {
   baking: ActiveBake | null;
   bakesDone: number;
   garden: GardenState;
+  research: ResearchState;
   /** Series whose completion reward has been claimed. */
   seriesClaimed: string[];
   costumesOwned: string[];
@@ -563,6 +599,8 @@ export interface Content {
   baking: BakingRules | null;
   /** null when the build has no Succulent Garden. */
   garden: GardenRules | null;
+  /** null when the build has no Research. */
+  research: ResearchRules | null;
   /** Nookbook tabs, in order. */
   series: SeriesDef[];
   /** Order in which new residents are housed, and the room shown first. */

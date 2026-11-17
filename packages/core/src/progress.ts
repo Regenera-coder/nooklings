@@ -15,6 +15,7 @@ import type {
   PottedSucculent,
   GardenGoalDef,
   GardenToolId,
+  ResearchEffect,
 } from './types';
 
 export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons', 'treats'];
@@ -450,15 +451,18 @@ export function gardenOpen(state: GameState, content: Content): boolean {
   return !!content.garden && isUnlocked(state, content, content.garden.unlock);
 }
 
-export function succulentGrowth(content: Content, speciesId: string, plantedAt: number, now: number): SucculentGrowth | null {
+export function succulentGrowth(content: Content, speciesId: string, plantedAt: number, now: number, growFactor = 1): SucculentGrowth | null {
   const def = content.garden?.species[speciesId];
   if (!def) return null;
-  const total = def.sproutMs + def.growMs;
+  // Research (Green Thumb) shortens the whole grow, for plants already in the ground too.
+  const sproutMs = def.sproutMs * growFactor;
+  const growMs = def.growMs * growFactor;
+  const total = sproutMs + growMs;
   const elapsed = Math.max(0, now - plantedAt);
   const grownAt = plantedAt + total;
   if (elapsed >= total) return { stage: 'grown', progress: 1, colour: 1, grownAt };
-  const colour = elapsed < def.sproutMs ? 0 : (elapsed - def.sproutMs) / def.growMs;
-  return { stage: elapsed < def.sproutMs ? 'seedling' : 'young', progress: elapsed / total, colour, grownAt };
+  const colour = elapsed < sproutMs ? 0 : (elapsed - sproutMs) / growMs;
+  return { stage: elapsed < sproutMs ? 'seedling' : 'young', progress: elapsed / total, colour, grownAt };
 }
 
 /** Price of the next pot, or null when the garden has every pot it can hold. */
@@ -470,7 +474,7 @@ export function nextPotCost(state: GameState, content: Content): Cost | null {
 
 /** A pot holds a fully grown plant that can be sold. */
 export function gardenReady(state: GameState, content: Content, now: number): boolean {
-  return state.garden.pots.some((p) => !!p && succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage === 'grown');
+  return state.garden.pots.some((p) => !!p && succulentGrowth(content, p.speciesId, p.plantedAt, now, researchSpeed(state, content).grow)?.stage === 'grown');
 }
 
 // ---------- succulent garden, Phase 2 ----------
@@ -509,12 +513,18 @@ export interface PlantStatus {
   offsetReady: boolean;
 }
 
-export function plantStatus(content: Content, plant: PottedSucculent, now: number, tools: readonly GardenToolId[] = []): PlantStatus | null {
+export function plantStatus(
+  content: Content,
+  plant: PottedSucculent,
+  now: number,
+  tools: readonly GardenToolId[] = [],
+  speed: { grow: number; flower: number } = { grow: 1, flower: 1 },
+): PlantStatus | null {
   const g = content.garden;
-  const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, now);
+  const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, now, speed.grow);
   if (!g || !growth) return null;
-  const bloomAt = growth.grownAt + Math.round(g.bloomMs * (tools.includes('sun_shelf') ? g.sunBloomFactor : 1));
-  const offsetAt = (plant.offsetTakenAt ?? growth.grownAt) + g.offsetMs;
+  const bloomAt = growth.grownAt + Math.round(g.bloomMs * (tools.includes('sun_shelf') ? g.sunBloomFactor : 1) * speed.flower);
+  const offsetAt = (plant.offsetTakenAt ?? growth.grownAt) + Math.round(g.offsetMs * speed.grow);
   const grown = growth.stage === 'grown';
   return {
     growth,
@@ -541,7 +551,7 @@ export function succulentSellPrice(content: Content, plant: Pick<PottedSucculent
 export function gardenDue(state: GameState, content: Content, now: number): boolean {
   return state.garden.pots.some((p) => {
     if (!p) return false;
-    const st = plantStatus(content, p, now, state.garden.tools);
+    const st = plantStatus(content, p, now, state.garden.tools, researchSpeed(state, content));
     return !!st && (st.podReady || st.offsetReady || st.growth.stage === 'grown');
   });
 }
@@ -550,7 +560,7 @@ export function gardenDue(state: GameState, content: Content, now: number): bool
 export function undiscovered(state: GameState, content: Content, now: number): string[] {
   const out: string[] = [];
   for (const p of state.garden.pots) {
-    if (!p || succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage !== 'grown') continue;
+    if (!p || succulentGrowth(content, p.speciesId, p.plantedAt, now, researchSpeed(state, content).grow)?.stage !== 'grown') continue;
     const key = seedKey(p.speciesId, p.colour);
     if (!state.garden.discovered.includes(key) && !out.includes(key)) out.push(key);
   }
@@ -566,7 +576,7 @@ export function succulentFurnitureId(speciesId: string, colour: string, pattern:
 export function unseenPatterns(state: GameState, content: Content, now: number): string[] {
   const out: string[] = [];
   for (const p of state.garden.pots) {
-    if (!p || p.pattern === PLAIN || succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage !== 'grown') continue;
+    if (!p || p.pattern === PLAIN || succulentGrowth(content, p.speciesId, p.plantedAt, now, researchSpeed(state, content).grow)?.stage !== 'grown') continue;
     if (!state.garden.patternsFound.includes(p.pattern) && !out.includes(p.pattern)) out.push(p.pattern);
   }
   return out;
@@ -590,4 +600,48 @@ export function nextGardenGoal(state: GameState, content: Content): { def: Garde
   if (!def) return null;
   const progress = gardenGoalProgress(state, def);
   return { def, progress: Math.min(progress, def.check.count), done: progress >= def.check.count };
+}
+
+// ---------- research ----------
+
+export function researchLevel(state: GameState, studyId: string): number {
+  return state.research.levels[studyId] ?? 0;
+}
+
+function effectTotal(state: GameState, content: Content, effect: ResearchEffect): number {
+  const r = content.research;
+  if (!r) return 0;
+  let total = 0;
+  for (const id of r.order) {
+    const def = r.studies[id];
+    if (def?.effect === effect) total += def.perLevel * researchLevel(state, id);
+  }
+  return total;
+}
+
+/**
+ * What finished Research does now. Speeds are multipliers on time (0.7 = 30% shorter, never below 0.2);
+ * mutation is a chance added to new colours and patterns.
+ */
+export interface ResearchSpeed {
+  grow: number;
+  flower: number;
+  trips: number;
+  baking: number;
+  spots: number;
+  mutation: number;
+}
+
+export function researchSpeed(state: GameState, content: Content): ResearchSpeed {
+  const f = (e: ResearchEffect) => Math.max(0.2, 1 - effectTotal(state, content, e));
+  return { grow: f('grow'), flower: f('flower'), trips: f('trips'), baking: f('baking'), spots: f('spots'), mutation: effectTotal(state, content, 'mutation') };
+}
+
+/** The next level of a study, or null when it is fully studied. */
+export function nextStudyLevel(state: GameState, content: Content, studyId: string): { level: number; cost: Cost; ms: number } | null {
+  const def = content.research?.studies[studyId];
+  if (!def) return null;
+  const done = researchLevel(state, studyId);
+  const next = def.levels[done];
+  return next ? { level: done + 1, cost: next.cost, ms: next.ms } : null;
 }

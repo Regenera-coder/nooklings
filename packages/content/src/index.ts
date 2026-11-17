@@ -14,6 +14,7 @@ import type {
   ResidentDef,
   RoomDef,
   SucculentDef,
+  ResearchStudyDef,
   SucculentColourDef,
   SucculentPatternDef,
   GardenToolDef,
@@ -574,6 +575,22 @@ function succulentFurniture(): FurnitureDef[] {
   return out;
 }
 
+// Research: studies that make timers shorter (and one that makes new colours and patterns likelier).
+// Every number is PROPOSED. Pictures reuse art already in the game.
+const STUDY_LEVELS = [
+  { cost: { buttons: 200 }, ms: HOUR },
+  { cost: { buttons: 500, wood: 5 }, ms: 4 * HOUR },
+  { cost: { buttons: 1000, wood: 10 }, ms: 12 * HOUR },
+];
+const studies: ResearchStudyDef[] = [
+  { id: 'green_thumb', name: 'Green Thumb', description: 'Succulents grow faster (and make offsets sooner).', icon: 'garden_pot', effect: 'grow', perLevel: 0.1, levels: STUDY_LEVELS },
+  { id: 'busy_bees', name: 'Busy Bees', description: 'Succulents flower sooner and seed pods ripen faster.', icon: 'garden_brush', effect: 'flower', perLevel: 0.1, levels: STUDY_LEVELS },
+  { id: 'quick_paws', name: 'Quick Paws', description: 'Outdoors trips come home sooner.', icon: 'exp_meadow', effect: 'trips', perLevel: 0.1, levels: STUDY_LEVELS },
+  { id: 'warm_oven', name: 'Warm Oven', description: 'Baking takes less time (the Kitchen opens at Home Level 11).', icon: 'furn_little_oven', effect: 'baking', perLevel: 0.1, levels: STUDY_LEVELS },
+  { id: 'bountiful_spots', name: 'Bountiful Spots', description: 'The berry bush, cotton patch and woodpile are ready again sooner.', icon: 'spot_berry_bush', effect: 'spots', perLevel: 0.1, levels: STUDY_LEVELS },
+  { id: 'keen_eye', name: 'Keen Eye', description: 'Seeds are a little likelier to come out in a new colour or pattern.', icon: 'garden_loupe', effect: 'mutation', perLevel: 0.01, levels: STUDY_LEVELS },
+];
+
 function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
   const out: Record<string, T> = {};
   for (const item of list) {
@@ -603,6 +620,7 @@ export const content: Content = {
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
   baking: null,
+  research: { studies: byId(studies, (x) => x.id), order: studies.map((x) => x.id) },
   garden: {
     unlock: 'succulents',
     species: byId(succulents, (x) => x.id),

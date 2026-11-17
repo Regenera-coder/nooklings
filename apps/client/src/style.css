@@ -599,3 +599,6 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
 .kitchen-tool .tool-item.chopped { width: 34%; transform: translateY(calc(var(--i, 0) * 3px)) rotate(calc(var(--i, 0) * -20deg - 14deg)); }
 .kitchen-tool.chop .tool-contents { animation: ar-chop .2s ease-out; }
 .kitchen-tool.stirring .tool-contents { animation: ar-stir .5s linear infinite; }
+#research-btn { position: relative; }
+.pill-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold, #f2b04a); box-shadow: 0 0 0 2px #2b1d2b; }
+.pill-dot[hidden] { display: none; }

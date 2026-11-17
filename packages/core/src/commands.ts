@@ -46,6 +46,8 @@ import {
   unseenPatterns,
   nextGardenGoal,
   PLAIN,
+  researchSpeed,
+  nextStudyLevel,
   seriesProgress,
   treatGivenToday,
 } from './progress';
@@ -94,7 +96,9 @@ export type Command =
   | { id: string; type: 'buy_garden_tool'; toolId: GardenToolId }
   | { id: string; type: 'give_succulent'; pot: number; residentId: string; at: number }
   | { id: string; type: 'claim_garden_goal'; goalId: string }
-  | { id: string; type: 'display_succulent'; pot: number; at: number };
+  | { id: string; type: 'display_succulent'; pot: number; at: number }
+  | { id: string; type: 'start_research'; studyId: string; at: number }
+  | { id: string; type: 'finish_research'; at: number };
 
 export type CommandError =
   | PlacementError
@@ -167,6 +171,8 @@ export type GameEvent =
   | { type: 'succulent_given'; pot: number; residentId: string; name: string; bondUp: boolean; newBondLevel: number }
   | { type: 'garden_goal_claimed'; goalId: string; reward: Cost & { hearts?: number } }
   | { type: 'succulent_displayed'; pot: number; furnitureId: string }
+  | { type: 'research_started'; studyId: string; level: number; endAt: number }
+  | { type: 'research_finished'; studyId: string; level: number }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -457,7 +463,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       d.state = {
         ...state,
         wallet: addCost(state.wallet, spot.yield, 1),
-        gatherReadyAt: { ...state.gatherReadyAt, [cmd.spotId]: cmd.at + spot.cooldownMs },
+        gatherReadyAt: { ...state.gatherReadyAt, [cmd.spotId]: cmd.at + Math.round(spot.cooldownMs * researchSpeed(state, content).spots) },
         gatherCount: state.gatherCount + 1,
       };
       d.events.push({ type: 'gathered', spotId: cmd.spotId, yield: spot.yield });
@@ -471,7 +477,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!state.residents[cmd.residentId]) return fail('not_owned');
       if (state.expedition) return fail('busy');
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
-      const expedition = { routeId: route.id, residentId: cmd.residentId, startAt: cmd.at, endAt: cmd.at + route.durationMs };
+      const expedition = { routeId: route.id, residentId: cmd.residentId, startAt: cmd.at, endAt: cmd.at + Math.round(route.durationMs * researchSpeed(state, content).trips) };
       d.state = { ...state, expedition };
       d.events.push({ type: 'expedition_started', routeId: route.id, residentId: cmd.residentId, endAt: expedition.endAt });
       return done();
@@ -597,7 +603,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
         if (!canBake(state, content, cmd.bakerId)) return fail('locked');
       }
       if (!canAfford(state, recipe.cost)) return fail('cannot_afford');
-      const baking = { recipeId: recipe.id, bakerId: cmd.bakerId, startAt: cmd.at, endAt: cmd.at + recipe.durationMs };
+      const baking = { recipeId: recipe.id, bakerId: cmd.bakerId, startAt: cmd.at, endAt: cmd.at + Math.round(recipe.durationMs * researchSpeed(state, content).baking) };
       d.state = { ...state, wallet: addCost(state.wallet, recipe.cost, -1), baking };
       d.events.push({ type: 'baking_started', recipeId: recipe.id, bakerId: cmd.bakerId, endAt: baking.endAt });
       return done();
@@ -667,7 +673,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const pots = [...state.garden.pots];
       pots[cmd.pot] = { speciesId: def.id, colour: def.colour, pattern: PLAIN, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
       d.state = { ...state, wallet: addCost(state.wallet, def.seedCost, -1), garden: { ...state.garden, pots } };
-      d.events.push({ type: 'succulent_planted', pot: cmd.pot, speciesId: def.id, grownAt: cmd.at + def.sproutMs + def.growMs });
+      d.events.push({ type: 'succulent_planted', pot: cmd.pot, speciesId: def.id, grownAt: cmd.at + Math.round((def.sproutMs + def.growMs) * researchSpeed(state, content).grow) });
       return done();
     }
 
@@ -678,7 +684,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const plant = state.garden.pots[cmd.pot];
       if (!plant) return fail('not_ready');
       const def = g.species[plant.speciesId];
-      const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at);
+      const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at, researchSpeed(state, content).grow);
       if (!def || !growth || !Number.isFinite(cmd.at) || growth.stage !== 'grown') return fail('not_ready');
       if (plant.pod) return fail('busy');
       discover(d, content, cmd.at);
@@ -708,7 +714,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const pots = [...state.garden.pots];
       pots[cmd.pot] = { speciesId: seed.speciesId, colour: seed.colour, pattern: seed.pattern, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
       d.state = { ...state, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, [cmd.seed], -1) } };
-      d.events.push({ type: 'seed_planted', pot: cmd.pot, seed: cmd.seed, grownAt: cmd.at + def.sproutMs + def.growMs });
+      d.events.push({ type: 'seed_planted', pot: cmd.pot, seed: cmd.seed, grownAt: cmd.at + Math.round((def.sproutMs + def.growMs) * researchSpeed(state, content).grow) });
       return done();
     }
 
@@ -722,9 +728,10 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const father = pots[cmd.fromPot];
       if (!mother || !father || !Number.isFinite(cmd.at)) return fail('not_ready');
       const tools = state.garden.tools;
-      if (!plantStatus(content, mother, cmd.at, tools)?.blooming || !plantStatus(content, father, cmd.at, tools)?.blooming) return fail('not_ready');
+      const speed = researchSpeed(state, content);
+      if (!plantStatus(content, mother, cmd.at, tools, speed)?.blooming || !plantStatus(content, father, cmd.at, tools, speed)?.blooming) return fail('not_ready');
       if (mother.pod) return fail('busy');
-      const readyAt = cmd.at + g.podMs;
+      const readyAt = cmd.at + Math.round(g.podMs * researchSpeed(state, content).flower);
       const next = [...pots];
       next[cmd.pot] = { ...mother, pod: { fatherSpecies: father.speciesId, fatherColour: father.colour, fatherPattern: father.pattern, readyAt } };
       d.state = { ...state, garden: { ...state.garden, pots: next } };
@@ -755,7 +762,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       for (let i = 0; i < count; i++) {
         const species = roll() < 0.5 ? plant.speciesId : pod.fatherSpecies;
         let colour = roll() < 0.5 ? plant.colour : pod.fatherColour;
-        if (roll() < g.mutationChance) {
+        if (roll() < g.mutationChance + researchSpeed(state, content).mutation) {
           const others = g.colourOrder.filter((c) => c !== plant.colour && c !== pod.fatherColour);
           if (others.length) {
             colour = pick(others);
@@ -763,7 +770,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
           }
         }
         let pattern = roll() < 0.5 ? plant.pattern : pod.fatherPattern;
-        if (roll() < g.patternMutationChance) {
+        if (roll() < g.patternMutationChance + researchSpeed(state, content).mutation) {
           const others = g.patternOrder.filter((x) => x !== PLAIN && x !== plant.pattern && x !== pod.fatherPattern);
           if (others.length) {
             pattern = pick(others);
@@ -783,7 +790,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!content.garden) return fail('locked');
       if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
       const plant = state.garden.pots[cmd.pot];
-      if (!plant || !Number.isFinite(cmd.at) || !plantStatus(content, plant, cmd.at, state.garden.tools)?.offsetReady) return fail('not_ready');
+      if (!plant || !Number.isFinite(cmd.at) || !plantStatus(content, plant, cmd.at, state.garden.tools, researchSpeed(state, content))?.offsetReady) return fail('not_ready');
       const seed = seedKey(plant.speciesId, plant.colour, plant.pattern);
       const pots = [...state.garden.pots];
       pots[cmd.pot] = { ...plant, offsetTakenAt: cmd.at };
@@ -817,7 +824,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!g) return fail('locked');
       if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
       const plant = state.garden.pots[cmd.pot];
-      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at)?.stage !== 'grown') return fail('not_ready');
+      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at, researchSpeed(state, content).grow)?.stage !== 'grown') return fail('not_ready');
       if (plant.pod) return fail('busy');
       const owned = state.residents[cmd.residentId];
       if (!content.residents[cmd.residentId]) return fail('unknown_resident');
@@ -840,11 +847,33 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       return done();
     }
 
+    case 'start_research': {
+      const def = content.research?.studies[cmd.studyId];
+      if (!def) return fail('unknown_task');
+      if (state.research.active) return fail('busy');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      const next = nextStudyLevel(state, content, def.id);
+      if (!next) return fail('already_done');
+      if (!canAfford(state, next.cost)) return fail('cannot_afford');
+      const active = { studyId: def.id, level: next.level, startAt: cmd.at, endAt: cmd.at + next.ms };
+      d.state = { ...state, wallet: addCost(state.wallet, next.cost, -1), research: { ...state.research, active } };
+      d.events.push({ type: 'research_started', studyId: def.id, level: next.level, endAt: active.endAt });
+      return done();
+    }
+
+    case 'finish_research': {
+      const a = state.research.active;
+      if (!a || !Number.isFinite(cmd.at) || cmd.at < a.endAt) return fail('not_ready');
+      d.state = { ...state, research: { levels: { ...state.research.levels, [a.studyId]: a.level }, active: null } };
+      d.events.push({ type: 'research_finished', studyId: a.studyId, level: a.level });
+      return done();
+    }
+
     case 'display_succulent': {
       if (!content.garden) return fail('locked');
       if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
       const plant = state.garden.pots[cmd.pot];
-      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at)?.stage !== 'grown') return fail('not_ready');
+      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at, researchSpeed(state, content).grow)?.stage !== 'grown') return fail('not_ready');
       if (plant.pod) return fail('busy');
       const furnitureId = succulentFurnitureId(plant.speciesId, plant.colour, plant.pattern);
       if (!content.furniture[furnitureId]) return fail('unknown_species');
