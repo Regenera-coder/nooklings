@@ -2,7 +2,7 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — Ribbons in the top bar and two fixes (17 Nov 2026)
+## 0.15.1 — Ribbons in the top bar and two fixes (17 Nov 2026)
 
 ### Changed
 - **Ribbons show in the top bar** next to Buttons and Wish Stamps. Tapping them explains that Ribbons buy costumes in the Wardrobe.
