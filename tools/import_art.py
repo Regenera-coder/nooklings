@@ -88,6 +88,7 @@ ARCADE_SPRITES: dict[str, int] = {
 ARCADE_PICTURES: dict[str, tuple[int, int]] = {
     **{f"game_{g}_card": (512, 512) for g in ARCADE_GAMES},
     "game_kitchen_counter": (1200, 520), "game_garden_bed": (1200, 520), "game_lantern_backdrop": (1200, 520),
+    "garden_scene_background": (1200, 800),
     **{f"game_spot_scene_{i:02d}_{v}": (720, 624) for i in range(1, 4) for v in ["a", "b"]},
 }
 # Design references kept in art/normalized only (screen mock-ups and the annotated difference images).

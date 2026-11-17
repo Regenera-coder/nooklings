@@ -2,6 +2,15 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Garden map (17 Nov 2026)
+
+### Changed
+- **The Succulent Garden is now a place:** a felt garden patio where each pot sits on its own spot — three stepping stones in front, three more on the potting bench as pots are bought (the next one to buy shows as a "+"). Each pot shows its plant growing, a seed pod when there is one, and a small label (time left, "In flower", "Seeds!", "Offset!").
+- Tap a pot to see it beside the map with its buttons (Pollinate, Collect seeds, Take offset, Give, Put on show, Sell). With pollen on the brush, tapping another flower on the map brushes it.
+- Garden tools you own sit on the little side table. Ribbon Fall trails over the front of its pot.
+- New art: `garden_scene_background`. The Seed bag, seed packets, goals, tools and Succulent book stay below the map. Saves are unchanged.
+- Checked at 740×360 and 640×320, including pollinating by tapping pots on the map.
+
 ## 0.14.0 — Faster Home Levels and more Buttons (17 Nov 2026)
 
 ### Changed: faster Home Levels

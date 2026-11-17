@@ -58,6 +58,19 @@ import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
 
 type Tab = 'home' | 'nookbook' | 'explore' | 'tasks' | 'research';
+
+/**
+ * Where each pot stands on the garden map (fractions of the picture): x is the pot's centre, y where its base sits,
+ * w its width. The first three are the stepping stones in front; bought pots go on the potting bench behind.
+ */
+const GARDEN_SPOTS: Array<{ x: number; y: number; w: number; back?: boolean }> = [
+  { x: 0.254, y: 0.775, w: 0.15 },
+  { x: 0.5, y: 0.775, w: 0.15 },
+  { x: 0.749, y: 0.775, w: 0.15 },
+  { x: 0.303, y: 0.445, w: 0.115, back: true },
+  { x: 0.506, y: 0.445, w: 0.115, back: true },
+  { x: 0.713, y: 0.445, w: 0.115, back: true },
+];
 type Filter = 'all' | 'owned' | 'missing';
 type ExploreView = 'arcade' | 'outdoors' | 'garden' | 'kitchen' | 'parcels';
 type TasksView = 'tasks' | 'invitations';
@@ -164,6 +177,8 @@ export class GameUI {
   private pollenFrom: number | null = null;
   /** Pot whose grown plant is being given to a resident, while choosing who. */
   private giftFrom: number | null = null;
+  /** Pot shown in the garden map's side panel. */
+  private gardenPot: number | null = null;
   private tending = false;
   private readonly arcade: Arcade;
   /** Where to return after Hide and Seek. */
@@ -1402,15 +1417,6 @@ export class GameUI {
       const def = g.species[speciesId]!;
       return succulentImage(def, palette, tintOf(colour), t, redraw, { pattern, sun }) ?? succulentArtUrl(def) ?? '';
     };
-    // The pot is art when it has been imported, else a drawn stand-in.
-    const pot = (hanging: boolean): HTMLElement => {
-      const url = artUrl(hanging ? 'garden_pot_hanging' : 'garden_pot');
-      if (!url) return el('span', 'felt-pot');
-      const img = el('img', 'pot-art');
-      img.src = url;
-      img.alt = '';
-      return img;
-    };
     const overlay = (key: string, cls: string): HTMLElement | null => {
       const url = artUrl(key);
       if (!url) return null;
@@ -1462,78 +1468,163 @@ export class GameUI {
     } else {
       card.append(el('p', 'muted', 'Seedlings start green and take on their colour as they grow. Grown plants flower: brush pollen from one flower onto another for seeds that mix both.'));
     }
-    const pots = el('div', 'pots');
-    s.garden.pots.forEach((plant, i) => {
-      const tile = el('div', 'pot-tile');
-      const def = plant ? g.species[plant.speciesId] : undefined;
-      if (!plant || !def) {
-        tile.classList.add('empty');
-        const empty = el('div', 'pot-stage');
-        empty.append(pot(false));
-        tile.append(empty, el('b', '', 'Empty pot'), el('span', 'muted', 'Plant a seed below'));
-        pots.append(tile);
-        return;
-      }
-      const st = plantStatus(this.content, plant, now, tools, speed)!;
-      const grow = st.growth;
-      const stage = el('div', `pot-stage${def.anchor === 'top' ? ' hang' : ''}`);
-      const img = el('img', 'plant');
-      img.alt = def.name;
-      img.src = plantPic(def.id, plant.colour, grow.colour, plant.pattern);
-      // Seedlings are small and fill out as they grow.
-      const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
-      img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
-      stage.append(img, pot(def.anchor === 'top'));
-      if (plant.pod) {
-        const pod = overlay('garden_pod', `pod${st.podReady ? ' ripe' : ''}`);
-        if (pod) stage.append(pod);
-      }
-      if (this.pollenFrom === i) tile.classList.add('picked');
-      tile.append(stage, el('b', '', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour, plant.pattern) : def.name));
-      if (grow.stage !== 'grown') {
-        tile.append(el('span', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ${clock(grow.grownAt - now)}`));
-        const bar = el('div', 'trip-bar');
-        const fill = el('span');
-        fill.style.width = `${Math.round(grow.progress * 100)}%`;
-        bar.append(fill);
-        tile.append(bar);
-        pots.append(tile);
-        return;
-      }
-      const acts = el('div', 'pot-acts');
-      if (plant.pod) {
-        if (st.podReady) acts.append(button('Collect seeds', 'btn primary small', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
-        else acts.append(el('span', 'muted', `Seed pod · ${clock(plant.pod.readyAt - now)}`));
-      } else if (st.blooming) {
-        if (this.pollenFrom === null) acts.append(button('Pollinate', 'btn small', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
-        else if (this.pollenFrom === i) acts.append(el('span', 'muted', 'Pollen picked'));
-        else acts.append(button('Brush here', 'btn primary small', () => {
-          const fromPot = this.pollenFrom;
-          this.pollenFrom = null;
-          if (fromPot !== null) this.run({ type: 'pollinate', pot: i, fromPot, at: Date.now() });
-          else this.render();
-        }));
-      } else {
-        acts.append(el('span', 'muted', `Flowers in ${clock(st.bloomAt - now)}`));
-      }
-      if (st.offsetReady) acts.append(button('Take offset', 'btn small', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
-      if (!plant.pod && s.residentOrder.length) acts.append(button('Give', 'btn small', () => { this.giftFrom = i; this.pollenFrom = null; this.page.scrollTop = 0; this.render(); }));
-      if (!plant.pod) acts.append(button('Put on show', 'btn small', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
-      const price = succulentSellPrice(this.content, plant).buttons ?? 0;
-      acts.append(button(`Sell · ${price}`, 'btn small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
-      tile.append(acts);
-      pots.append(tile);
-    });
+    // The garden map: each pot sits on its spot in the scene; tap one to see it and act on it.
+    const sceneUrl = artUrl('garden_scene_background');
+    const wrap = el('div', sceneUrl ? 'garden-wrap' : 'garden-wrap no-scene');
+    const scene = el('div', 'garden-scene');
+    if (sceneUrl) scene.style.backgroundImage = `url("${sceneUrl}")`;
+    const side = el('div', 'garden-side');
     const potCost = nextPotCost(s, this.content);
-    if (potCost) {
-      const tile = el('div', 'pot-tile buy');
-      tile.append(el('b', '', 'Another pot'));
+    const owned = s.garden.pots.length;
+    const maxPots = g.maxPots;
+    // Pick something sensible to show: the chosen pot, else one needing attention, else the first.
+    const needs = (i: number): boolean => {
+      const p = s.garden.pots[i];
+      if (!p) return false;
+      const st = plantStatus(this.content, p, now, tools, speed);
+      return !!st && (st.growth.stage === 'grown' || st.podReady || st.offsetReady);
+    };
+    if (this.gardenPot === null || this.gardenPot >= Math.min(maxPots, owned + (potCost ? 1 : 0))) {
+      const first = s.garden.pots.findIndex((_, i) => needs(i));
+      this.gardenPot = first >= 0 ? first : 0;
+    }
+    const selected = this.gardenPot;
+
+    const plantInfo = (i: number) => {
+      const plant = s.garden.pots[i];
+      const def = plant ? g.species[plant.speciesId] : undefined;
+      if (!plant || !def) return null;
+      return { plant, def, st: plantStatus(this.content, plant, now, tools, speed)! };
+    };
+
+    for (let i = 0; i < maxPots; i++) {
+      const spot = GARDEN_SPOTS[i]!;
+      const isOwned = i < owned;
+      const isBuy = !isOwned && i === owned && !!potCost;
+      if (!isOwned && !isBuy) continue;
+      const slot = el('button', `garden-slot${spot.back ? ' back' : ''}${i === selected ? ' selected' : ''}`);
+      slot.style.left = `${spot.x * 100}%`;
+      slot.style.top = `${spot.y * 100}%`;
+      slot.style.width = `${spot.w * 100}%`;
+      const info = plantInfo(i);
+      if (isBuy) {
+        slot.classList.add('buy');
+        slot.append(el('span', 'slot-plus', '+'));
+        slot.setAttribute('aria-label', 'Buy another pot');
+      } else {
+        const stack = el('div', `slot-stack${info?.def.anchor === 'top' ? ' trail' : ''}`);
+        if (info) {
+          const grow = info.st.growth;
+          const img = el('img', 'plant');
+          img.alt = info.def.name;
+          img.src = plantPic(info.def.id, info.plant.colour, grow.colour, info.plant.pattern);
+          const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
+          img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
+          stack.append(img);
+        }
+        const potImg = el('img', 'pot-art');
+        potImg.src = artUrl('garden_pot') ?? '';
+        potImg.alt = '';
+        stack.append(potImg);
+        if (info?.plant.pod) {
+          const pod = overlay('garden_pod', `pod${info.st.podReady ? ' ripe' : ''}`);
+          if (pod) stack.append(pod);
+        }
+        slot.append(stack);
+        // A little tag under each pot: what it needs, or how long until it is ready.
+        let tag = '';
+        if (!info) tag = 'Empty';
+        else if (info.st.podReady) tag = 'Seeds!';
+        else if (info.plant.pod) tag = clock(info.plant.pod.readyAt - now);
+        else if (info.st.growth.stage !== 'grown') tag = clock(info.st.growth.grownAt - now);
+        else if (info.st.offsetReady) tag = 'Offset!';
+        else if (info.st.blooming) tag = 'In flower';
+        else tag = 'Grown';
+        slot.append(el('span', `slot-tag${needs(i) ? ' ready' : ''}`, tag));
+        slot.setAttribute('aria-label', info ? `${info.def.name}, ${tag}` : 'Empty pot');
+        if (this.pollenFrom === i) slot.classList.add('picked');
+      }
+      slot.addEventListener('click', () => {
+        // With pollen on the brush, tapping another flower brushes it straight away.
+        const from = this.pollenFrom;
+        if (from !== null && from !== i && info?.st.blooming && !info.plant.pod) {
+          this.pollenFrom = null;
+          this.gardenPot = i;
+          this.run({ type: 'pollinate', pot: i, fromPot: from, at: Date.now() });
+          return;
+        }
+        this.gardenPot = i;
+        this.render();
+      });
+      scene.append(slot);
+    }
+
+    // Tools you own sit on the little side table.
+    const owned_tools = g.toolOrder.filter((t) => tools.includes(t));
+    if (owned_tools.length) {
+      const table = el('div', 'garden-table');
+      for (const t of owned_tools) {
+        const im = overlay(`garden_${t}`, 'table-tool');
+        if (im) {
+          im.title = g.tools[t].name;
+          table.append(im);
+        }
+      }
+      scene.append(table);
+    }
+
+    // The side panel: the selected pot.
+    const sel = selected;
+    if (sel >= owned && potCost) {
+      side.append(el('b', '', 'Another pot'));
+      side.append(el('p', 'muted', `Room for ${maxPots} pots in all.`));
       const price = el('span', canAfford(s, potCost) ? 'muted' : 'no');
       price.append(...costChips(potCost, ''));
-      tile.append(price, button('Buy', 'btn small', () => this.run({ type: 'buy_pot' }), !canAfford(s, potCost)));
-      pots.append(tile);
+      side.append(price, button('Buy', 'btn primary small', () => this.run({ type: 'buy_pot' }), !canAfford(s, potCost)));
+    } else {
+      const info = plantInfo(sel);
+      if (!info) {
+        side.append(el('b', '', 'Empty pot'), el('p', 'muted', 'Plant a seed from the packets below.'));
+      } else {
+        const { plant, def, st } = info;
+        const grow = st.growth;
+        side.append(el('b', '', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour, plant.pattern) : def.name));
+        if (grow.stage !== 'grown') {
+          side.append(el('p', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ${clock(grow.grownAt - now)}`));
+          const bar = el('div', 'trip-bar');
+          const fill = el('span');
+          fill.style.width = `${Math.round(grow.progress * 100)}%`;
+          bar.append(fill);
+          side.append(bar);
+        } else {
+          const acts = el('div', 'pot-acts');
+          const i = sel;
+          if (plant.pod) {
+            if (st.podReady) acts.append(button('Collect seeds', 'btn primary small', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
+            else acts.append(el('span', 'muted', `Seed pod · ${clock(plant.pod.readyAt - now)}`));
+          } else if (st.blooming) {
+            if (this.pollenFrom === null) acts.append(button('Pollinate', 'btn small', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
+            else if (this.pollenFrom === i) acts.append(el('span', 'muted', 'Pollen picked: tap another flower'));
+            else acts.append(button('Brush here', 'btn primary small', () => {
+              const fromPot = this.pollenFrom;
+              this.pollenFrom = null;
+              if (fromPot !== null) this.run({ type: 'pollinate', pot: i, fromPot, at: Date.now() });
+              else this.render();
+            }));
+          } else {
+            acts.append(el('span', 'muted', `Flowers in ${clock(st.bloomAt - now)}`));
+          }
+          if (st.offsetReady) acts.append(button('Take offset', 'btn small', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
+          if (!plant.pod && s.residentOrder.length) acts.append(button('Give', 'btn small', () => { this.giftFrom = i; this.pollenFrom = null; this.page.scrollTop = 0; this.render(); }));
+          if (!plant.pod) acts.append(button('Put on show', 'btn small', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
+          const price = succulentSellPrice(this.content, plant).buttons ?? 0;
+          acts.append(button(`Sell · ${price}`, 'btn small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
+          side.append(acts);
+        }
+      }
     }
-    card.append(pots);
+    wrap.append(scene, side);
+    card.append(wrap);
     this.page.append(card);
 
     const goal = nextGardenGoal(s, this.content);

@@ -602,3 +602,27 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
 #research-btn { position: relative; }
 .pill-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold, #f2b04a); box-shadow: 0 0 0 2px #2b1d2b; }
 .pill-dot[hidden] { display: none; }
+
+/* ---------- Garden map ---------- */
+.garden-wrap { display: flex; gap: 10px; align-items: flex-start; }
+.garden-scene { position: relative; flex: 0 0 auto; width: min(100%, calc((100vh - 120px) * 1.5), 520px); aspect-ratio: 3 / 2; background-size: cover; background-position: center; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 2px #e6d3c0; }
+.garden-wrap.no-scene .garden-scene { background: #e9f1dc; }
+.garden-side { flex: 1 1 0; min-width: 140px; display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+.garden-side .pot-acts { align-items: stretch; }
+.garden-slot { position: absolute; transform: translate(-50%, -100%); padding: 0; border: 0; background: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 2; }
+.garden-slot.back { z-index: 1; }
+.garden-slot .slot-stack { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.garden-slot .plant { width: calc(100% * var(--grow, 1)); height: auto; max-height: none; margin-bottom: -16%; position: relative; z-index: 1; filter: drop-shadow(0 2px 2px #0002); }
+.garden-slot .pot-art { width: 86%; height: auto; display: block; position: relative; }
+/* Trailing plants sit in the soil with their strands spilling down over the front of the pot. */
+.garden-slot .slot-stack.trail { padding-top: 30%; }
+.garden-slot .slot-stack.trail .plant { position: absolute; top: 18%; left: 50%; transform: translateX(-50%); width: calc(78% * var(--grow, 1)); margin: 0; z-index: 2; }
+.garden-slot .pod { position: absolute; right: -10%; bottom: 18%; width: 38%; z-index: 3; }
+.garden-slot .slot-tag { position: absolute; top: 100%; left: 50%; transform: translate(-50%, -40%); z-index: 4; padding: 0 5px; border-radius: 8px; background: #fffaf0e6; color: #6b5160; font-size: 9px; line-height: 14px; white-space: nowrap; }
+.garden-slot .slot-tag.ready { background: #f2b04a; color: #3b2330; font-weight: 800; }
+.garden-slot.selected .slot-stack { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 2px #f2b04a); }
+.garden-slot.picked .slot-stack { filter: drop-shadow(0 0 4px #f2b04a); }
+.garden-slot.buy { width: 9% !important; aspect-ratio: 1; border-radius: 50%; border: 2px dashed #ffffffcc; background: #ffffff55; transform: translate(-50%, -110%); justify-content: center; }
+.garden-slot .slot-plus { color: #fff; font-size: 22px; font-weight: 800; text-shadow: 0 1px 2px #0005; }
+.garden-table { position: absolute; left: 91.5%; top: 41%; transform: translate(-50%, -100%); display: flex; align-items: flex-end; justify-content: center; width: 15%; }
+.garden-table .table-tool { width: 40%; height: auto; margin: 0 -5%; filter: drop-shadow(0 2px 2px #0003); }
