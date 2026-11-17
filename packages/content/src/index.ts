@@ -22,6 +22,7 @@ import type {
   GardenRules,
   TaskDef,
 } from '@nooklings/core';
+import { FRIEND_SKILL, SERIES_1_MILESTONES, friendRules } from './friends';
 
 /**
  * Build 1 content definitions.
@@ -32,6 +33,7 @@ import type {
 
 export const LIVING_ROOM_ID = 'living_room';
 export const SERIES_1 = 'first_residents';
+
 
 export const SUNROOM_ID = 'sunroom';
 export const YARD_ID = 'yard';
@@ -604,7 +606,7 @@ function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
 export const content: Content = {
   rooms: byId(rooms, (r) => r.id),
   furniture: byId([...furniture, ...succulentFurniture()], (f) => f.id),
-  residents: byId(residents, (r) => r.id),
+  residents: byId(residents.map((r) => ({ ...r, skill: FRIEND_SKILL[r.id] })), (r) => r.id),
   levels,
   recipes: byId(recipes, (r) => r.id),
   invitations: byId(invitations, (i) => i.residentId),
@@ -651,7 +653,8 @@ export const content: Content = {
     giftBondXp: 2,
     goals: gardenGoals,
   },
-  series: [{ id: SERIES_1, name: 'First Residents' }],
+  series: [{ id: SERIES_1, name: 'First Residents', milestones: SERIES_1_MILESTONES }],
+  friends: friendRules,
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
   rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, threadPerStamp: 10, dayOffsetMs: 0 },
   starter: {
@@ -679,6 +682,7 @@ export const content: Content = {
 
 export { SERIES_2, KITCHEN_ID, TEA_GARDEN_ID, withSeries2 } from './series2';
 import { withSeries2 } from './series2';
+export { FRIEND_SKILL, SERIES_1_MILESTONES, friendRules } from './friends';
 
 /**
  * The game with Series 2 "Teatime Friends" added (Home Levels 11 to 20). Not released yet:

@@ -903,3 +903,24 @@ select.pick { min-height: 40px; }
 .task-where { display: inline-flex; align-items: center; gap: 2px; }
 .packet-time { display: inline-flex; align-items: center; gap: 2px; }
 .packet-time .ui-ico { width: 14px; height: 14px; }
+
+/* ---------- Friends: Happy, skills, trip slots, series milestones (17 Nov) ---------- */
+.happy-line { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 12px; }
+p.hint .happy-line, .panel .happy-line { margin: 2px 0 6px; }
+.happy-yes { color: var(--ok); }
+.tag.want { background: #f6e1b8; color: #6b4e1f; }
+.skill-v { font-size: 12px; }
+.ncard { position: relative; }
+.happy-yes { display: inline-flex; align-items: center; gap: 3px; }
+.happy-ico { width: 18px; height: 18px; object-fit: contain; }
+.ncard img.happy-badge, .happy-badge { position: absolute; aspect-ratio: 1; top: 4px; right: 4px; width: 26px; height: 26px; object-fit: contain; border-radius: 50%; background: #fff8ef; padding: 2px; box-shadow: 0 1px 2px #0003; }
+.trip-slots { margin: 0 0 6px; font-size: 12px; }
+.trip-row { border-top: 1px solid #efe1d2; padding-top: 6px; margin-top: 4px; }
+.trip-row p { margin: 0; }
+.trip-row .trip-bar { margin: 4px 0; }
+.milestones { display: flex; gap: 8px; margin: 8px 0 0; flex-wrap: wrap; }
+.milestone { flex: 1 1 200px; display: flex; align-items: center; gap: 8px; background: var(--panel); color: var(--panel-ink); border-radius: 12px; padding: 6px 10px; min-height: 44px; }
+.milestone .rewards { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; }
+.milestone.ready { box-shadow: 0 0 0 2px var(--accent); }
+.milestone.done { opacity: 0.7; }
+.milestone .ok { color: var(--ok); font-weight: 800; }

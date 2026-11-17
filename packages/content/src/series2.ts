@@ -11,7 +11,9 @@ import type {
   ResidentDef,
   RoomDef,
   TaskDef,
+  SeriesMilestone,
 } from '@nooklings/core';
+import { FRIEND_SKILL, SERIES_1_MILESTONES } from './friends';
 
 /**
  * Series 2 "Teatime Friends": Home Levels 11 to 20, the Kitchen and the Tea Garden, ten new
@@ -23,6 +25,12 @@ export const SERIES_2 = 'teatime_friends';
 export const KITCHEN_ID = 'kitchen';
 export const TEA_GARDEN_ID = 'tea_garden';
 const SERIES_1 = 'first_residents';
+
+/** Rewards on the way to finishing Teatime Friends: Treats toward the next Teatime Parcel. */
+const SERIES_2_MILESTONES: SeriesMilestone[] = [
+  { count: 3, reward: { buttons: 200, treats: 8 } },
+  { count: 6, reward: { buttons: 300, treats: 12 } },
+];
 const YARD_ID = 'yard';
 const HOUR = 3_600_000;
 
@@ -390,7 +398,7 @@ export function withSeries2(base: Content): Content {
     ...base,
     rooms: add(base.rooms, rooms, (r) => r.id),
     furniture: add(base.furniture, furniture, (f) => f.id),
-    residents: add(base.residents, residents, (r) => r.id),
+    residents: add(base.residents, residents.map((r) => ({ ...r, skill: FRIEND_SKILL[r.id] })), (r) => r.id),
     levels: [...base.levels, ...levels],
     recipes: add(base.recipes, recipes, (r) => r.id),
     invitations: add(base.invitations, invitations, (i) => i.residentId),
@@ -410,8 +418,8 @@ export function withSeries2(base: Content): Content {
       giftBondXp: 1,
     },
     series: [
-      { id: SERIES_1, name: 'First Residents', reward: { cost: { ribbons: 10 }, furnitureId: 'first_residents_trophy' } },
-      { id: SERIES_2, name: 'Teatime Friends', reward: { cost: { ribbons: 15 }, furnitureId: 'teatime_trophy' } },
+      { id: SERIES_1, name: 'First Residents', reward: { cost: { ribbons: 10 }, furnitureId: 'first_residents_trophy' }, milestones: SERIES_1_MILESTONES },
+      { id: SERIES_2, name: 'Teatime Friends', reward: { cost: { ribbons: 15 }, furnitureId: 'teatime_trophy' }, milestones: SERIES_2_MILESTONES },
     ],
   };
 }

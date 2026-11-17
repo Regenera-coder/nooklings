@@ -162,6 +162,31 @@ export interface ResidentDef {
   palette: { body: string; accent: string };
   /** Baking recipe this resident is best at (Series 2). */
   favouriteBake?: string;
+  /** What this friend speeds up while Happy and at home. */
+  skill?: FriendSkill;
+}
+
+/** What a Happy friend at home speeds up: gathering spots, trips, baking or Research studies. */
+export type FriendSkill = 'gathering' | 'trips' | 'baking' | 'study';
+
+/** Why more friends matter: Happy friends, their skills and more trips at once. Every number is PROPOSED. */
+export interface FriendRules {
+  /** A friend is Happy when each of their favourite tags reaches this in the room they live in. */
+  happyMin: number;
+  /** Collected once a day for each Happy friend at home. */
+  happyGift: Cost;
+  /** Time saved by each Happy friend at home with a skill (0.05 = 5% shorter). */
+  skillPerFriend: number;
+  /** Most time one skill can save. */
+  skillMax: number;
+  /** Friends needed for each trip slot: [1, 5] = one trip at a time, two from five friends. */
+  tripSlotsAt: number[];
+}
+
+/** A step on the way to finishing a series: a reward for having this many of its friends. */
+export interface SeriesMilestone {
+  count: number;
+  reward: Cost;
 }
 
 export interface LevelDef {
@@ -437,6 +462,8 @@ export interface SeriesDef {
   name: string;
   /** One-time reward for having every resident of the series. */
   reward?: { cost: Cost; furnitureId?: string };
+  /** Rewards on the way, for having some of the series' friends (claimed once each). */
+  milestones?: SeriesMilestone[];
 }
 
 export interface ActiveBake {
@@ -568,7 +595,8 @@ export interface GameState {
   /** When each gathering spot is ready again (ms). */
   gatherReadyAt: Record<string, number>;
   gatherCount: number;
-  expedition: ActiveExpedition | null;
+  /** Trips under way (more friends, more trips at once: see FriendRules.tripSlotsAt). */
+  expeditions: ActiveExpedition[];
   expeditionsDone: Record<string, number>;
   /** The batch in the oven, if any. */
   baking: ActiveBake | null;
@@ -579,6 +607,10 @@ export interface GameState {
   dailyGiftDay: number;
   /** Series whose completion reward has been claimed. */
   seriesClaimed: string[];
+  /** Series milestones claimed, as "<seriesId>:<count>". */
+  seriesMilestones: string[];
+  /** Day number (see dayOf) Happy friends' gifts were last collected; -1 = never. */
+  happyGiftDay: number;
   costumesOwned: string[];
   /** Daily Ribbon counters for playing with residents; reset when the day changes. (games is unused since v5.) */
   ribbonDay: { day: number; fromPlay: number; games: number };
@@ -617,6 +649,8 @@ export interface Content {
   dailyGift: DailyGiftRules | null;
   /** null when the build has no Research. */
   research: ResearchRules | null;
+  /** null when friends give nothing beyond joining and bonds. */
+  friends: FriendRules | null;
   /** Nookbook tabs, in order. */
   series: SeriesDef[];
   /** Order in which new residents are housed, and the room shown first. */

@@ -13,6 +13,7 @@ import {
   newGame,
   spotUnlocked,
   taskStates,
+  tripSlots,
   validatePlacement,
   type Command,
   type Content,
@@ -130,11 +131,16 @@ export function playWholeGame(content: Content, schedule?: Schedule, opts: { giv
     }
 
     // Expeditions: the Old Mill first (it brings Pippo home), then the Meadow
-    if (s.expedition && t >= s.expedition.endAt) tryRun({ type: 'collect_expedition', at: t });
-    if (!s.expedition && isUnlocked(s, content, 'expeditions')) {
-      const fresh = Object.values(content.expeditions).find((r) => r.firstTimeResident && !s.expeditionsDone[r.id] && isUnlocked(s, content, r.requiresUnlock));
-      tryRun({ type: 'start_expedition', routeId: fresh?.id ?? 'meadow', residentId: 'snug', at: t });
+    // Every trip slot in use (more friends, more trips at once)
+    if (s.expeditions.some((x) => t >= x.endAt)) tryRun({ type: 'collect_expedition', at: t });
+    while (isUnlocked(s, content, 'expeditions') && s.expeditions.length < tripSlots(s, content)) {
+      const fresh = Object.values(content.expeditions).find((r) => r.firstTimeResident && !(r.firstTimeResident in s.residents) && isUnlocked(s, content, r.requiresUnlock) && !s.expeditions.some((x) => x.routeId === r.id));
+      const traveller = s.residentOrder.find((id) => !s.expeditions.some((x) => x.residentId === id));
+      if (!traveller || !tryRun({ type: 'start_expedition', routeId: fresh?.id ?? 'meadow', residentId: traveller, at: t })) break;
     }
+    // Happy friends' gifts and series milestones
+    tryRun({ type: 'collect_happy_gifts', at: t });
+    for (const series of content.series) for (const m of series.milestones ?? []) tryRun({ type: 'claim_series_milestone', seriesId: series.id, count: m.count });
 
     // Baking: the longest recipe available, with a baker who likes it if there is one
     if (s.baking && t >= s.baking.endAt) tryRun({ type: 'collect_baking', at: t });
@@ -162,7 +168,7 @@ export function playWholeGame(content: Content, schedule?: Schedule, opts: { giv
     }
   }
   for (const series of content.series) if (series.reward) tryRun({ type: 'claim_series', seriesId: series.id });
-  for (let i = 0; i < 3; i++) for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
+  for (let i = 0; i < 10; i++) for (const ts of taskStates(s, content)) if (ts.status === 'claimable') tryRun({ type: 'claim_task', taskId: ts.def.id });
   if (process.env.SIM_DEBUG) console.log(JSON.stringify({ hearts: s.hearts, wallet: s.wallet, residents: Object.keys(s.residents), active: taskStates(s, content).find((x) => x.status !== 'claimed'), purchases: s.purchases, rooms: Object.fromEntries(Object.entries(s.rooms).map(([k, v]) => [k, v.placements.map((p) => p.defId)])), inv: s.inventory, levelAt }));
   return { s, levelAt, joinedAt, minutes: (t - start) / 60_000 };
 }

@@ -61,7 +61,7 @@ describe('expeditions', () => {
     let s = rich(7);
     expect(err(rich(6), { type: 'start_expedition', routeId: 'old_mill', residentId: 'snug', at: 0 })).toBe('locked');
     s = ok(s, { type: 'start_expedition', routeId: 'old_mill', residentId: 'snug', at: 0 });
-    expect(err(s, { type: 'start_expedition', routeId: 'meadow', residentId: 'snug', at: 1 })).toBe('busy');
+    expect(err(s, { type: 'start_expedition', routeId: 'meadow', residentId: 'snug', at: 1 })).toBe('away');
     expect(err(s, { type: 'play', residentId: 'snug', at: 1_000_000 })).toBe('away');
     expect(err(s, { type: 'collect_expedition', at: 60_000 })).toBe('not_ready');
     s = ok(s, { type: 'collect_expedition', at: content.expeditions.old_mill!.durationMs });
@@ -102,14 +102,14 @@ describe('save v3', () => {
     expect(s.residents.snug!.costume).toBeNull();
     expect(s.residents.snug!.room).toBe(LIVING_ROOM_ID);
     expect(s.purchases).toEqual([]);
-    expect(s.expedition).toBeNull();
+    expect(s.expeditions).toEqual([]);
   });
 
   it('round-trips an expedition in progress and drops nonsense', () => {
     let s = ok(rich(7), { type: 'start_expedition', routeId: 'meadow', residentId: 'snug', at: 5 });
     s = { ...s, purchases: [...s.purchases, 'yard:open', 'nowhere:expand'] };
     const back = deserialize(serialize(s), content);
-    expect(back.expedition).toEqual(s.expedition);
+    expect(back.expeditions).toEqual(s.expeditions);
     expect(back.purchases).toEqual([]);
   });
 });

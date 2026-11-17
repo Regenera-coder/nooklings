@@ -54,6 +54,11 @@ import {
   arcadeButtonsLeft,
   seriesProgress,
   treatGivenToday,
+  onTrip,
+  tripSlots,
+  happyFriends,
+  happyGiftAmount,
+  seriesMilestones,
 } from './progress';
 import type { ArcadeGameId, Content, Cost, GameState, GardenToolId, ParcelKind, ParcelRecord, Placement } from './types';
 
@@ -105,7 +110,10 @@ export type Command =
   | { id: string; type: 'display_succulent'; pot: number; at: number }
   | { id: string; type: 'start_research'; studyId: string; at: number }
   | { id: string; type: 'finish_research'; at: number }
-  | { id: string; type: 'claim_daily_gift'; at: number };
+  | { id: string; type: 'claim_daily_gift'; at: number }
+  /** Collect today's gifts from every Happy friend at home. */
+  | { id: string; type: 'collect_happy_gifts'; at: number }
+  | { id: string; type: 'claim_series_milestone'; seriesId: string; count: number };
 
 export type CommandError =
   | PlacementError
@@ -183,6 +191,9 @@ export type GameEvent =
   | { type: 'research_started'; studyId: string; level: number; endAt: number }
   | { type: 'research_finished'; studyId: string; level: number }
   | { type: 'daily_gift'; buttons: number; hearts: number }
+  | { type: 'resident_waiting'; residentId: string }
+  | { type: 'happy_gifts'; residents: string[]; reward: Cost }
+  | { type: 'series_milestone'; seriesId: string; count: number; reward: Cost }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -406,7 +417,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const owned = state.residents[cmd.residentId];
       if (!content.residents[cmd.residentId]) return fail('unknown_resident');
       if (!owned) return fail('not_owned');
-      if (state.expedition?.residentId === cmd.residentId) return fail('away');
+      if (onTrip(state, cmd.residentId)) return fail('away');
       if (!Number.isFinite(cmd.at) || cmd.at < playReadyAt(state, content, cmd.residentId)) return fail('cooldown');
       const playsLeft = playsLeftToday(state, content, cmd.residentId, cmd.at);
       if (playsLeft <= 0) return fail('daily_limit');
@@ -488,32 +499,37 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!route) return fail('unknown_route');
       if (!isUnlocked(state, content, route.requiresUnlock)) return fail('locked');
       if (!state.residents[cmd.residentId]) return fail('not_owned');
-      if (state.expedition) return fail('busy');
+      if (onTrip(state, cmd.residentId)) return fail('away');
+      if (state.expeditions.length >= tripSlots(state, content)) return fail('busy');
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
       const expedition = { routeId: route.id, residentId: cmd.residentId, startAt: cmd.at, endAt: cmd.at + Math.round(route.durationMs * researchSpeed(state, content).trips) };
-      d.state = { ...state, expedition };
+      d.state = { ...state, expeditions: [...state.expeditions, expedition] };
       d.events.push({ type: 'expedition_started', routeId: route.id, residentId: cmd.residentId, endAt: expedition.endAt });
       return done();
     }
 
     case 'collect_expedition': {
-      const trip = state.expedition;
-      if (!trip) return fail('not_ready');
-      if (!Number.isFinite(cmd.at) || cmd.at < trip.endAt) return fail('not_ready');
-      const route = content.expeditions[trip.routeId];
-      if (!route) return fail('unknown_route');
-      const { hearts = 0, ...cost } = route.reward;
-      const firstTime = !state.expeditionsDone[route.id];
-      d.state = {
-        ...state,
-        wallet: addCost(state.wallet, cost, 1),
-        expedition: null,
-        expeditionsDone: { ...state.expeditionsDone, [route.id]: (state.expeditionsDone[route.id] ?? 0) + 1 },
-      };
-      d.events.push({ type: 'expedition_done', routeId: route.id, residentId: trip.residentId, reward: route.reward });
-      addHearts(d, hearts, content);
-      if (firstTime && route.firstTimeResident && !(route.firstTimeResident in d.state.residents)) {
-        grantResident(d, content, route.firstTimeResident, 'expedition');
+      // Collects every trip that has come home.
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      const home = state.expeditions.filter((t) => cmd.at >= t.endAt);
+      if (!home.length) return fail('not_ready');
+      d.state = { ...state, expeditions: state.expeditions.filter((t) => cmd.at < t.endAt) };
+      for (const trip of home) {
+        const route = content.expeditions[trip.routeId];
+        if (!route) continue;
+        const { hearts = 0, ...cost } = route.reward;
+        d.state = {
+          ...d.state,
+          wallet: addCost(d.state.wallet, cost, 1),
+          expeditionsDone: { ...d.state.expeditionsDone, [route.id]: (d.state.expeditionsDone[route.id] ?? 0) + 1 },
+        };
+        d.events.push({ type: 'expedition_done', routeId: route.id, residentId: trip.residentId, reward: route.reward });
+        addHearts(d, hearts, content);
+        // The route's friend comes home with the first traveller back while the home has space.
+        if (route.firstTimeResident && !(route.firstTimeResident in d.state.residents)) {
+          if (homeHasSpace(d.state, content)) grantResident(d, content, route.firstTimeResident, 'expedition');
+          else d.events.push({ type: 'resident_waiting', residentId: route.firstTimeResident });
+        }
       }
       return done();
     }
@@ -616,7 +632,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (cmd.bakerId !== null) {
         if (!content.residents[cmd.bakerId]) return fail('unknown_resident');
         if (!state.residents[cmd.bakerId]) return fail('not_owned');
-        if (state.expedition?.residentId === cmd.bakerId) return fail('away');
+        if (onTrip(state, cmd.bakerId)) return fail('away');
         if (!canBake(state, content, cmd.bakerId)) return fail('locked');
       }
       if (!canAfford(state, recipe.cost)) return fail('cannot_afford');
@@ -644,7 +660,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!content.residents[cmd.residentId]) return fail('unknown_resident');
       if (!owned) return fail('not_owned');
       if (!rules) return fail('locked');
-      if (state.expedition?.residentId === cmd.residentId) return fail('away');
+      if (onTrip(state, cmd.residentId)) return fail('away');
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
       if (treatGivenToday(state, content, cmd.residentId, cmd.at)) return fail('daily_limit');
       if (!canAfford(state, rules.giftCost)) return fail('cannot_afford');
@@ -858,7 +874,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const owned = state.residents[cmd.residentId];
       if (!content.residents[cmd.residentId]) return fail('unknown_resident');
       if (!owned) return fail('not_owned');
-      if (state.expedition?.residentId === cmd.residentId) return fail('away');
+      if (onTrip(state, cmd.residentId)) return fail('away');
       if (treatGivenToday(state, content, cmd.residentId, cmd.at)) return fail('daily_limit');
       discover(d, content, cmd.at);
       const before = bondLevel(owned.bondXp, content);
@@ -886,6 +902,27 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       return done();
     }
 
+    case 'collect_happy_gifts': {
+      if (!content.friends || !Number.isFinite(cmd.at)) return fail('locked');
+      if (state.happyGiftDay === dayOf(cmd.at, content)) return fail('daily_limit');
+      const residents = happyFriends(state, content);
+      if (!residents.length) return fail('not_ready');
+      const reward = happyGiftAmount(state, content);
+      d.state = { ...state, wallet: addCost(state.wallet, reward, 1), happyGiftDay: dayOf(cmd.at, content) };
+      d.events.push({ type: 'happy_gifts', residents, reward });
+      return done();
+    }
+
+    case 'claim_series_milestone': {
+      const m = seriesMilestones(state, content, cmd.seriesId).find((x) => x.count === cmd.count);
+      if (!m) return fail('unknown_series');
+      if (m.claimed) return fail('already_done');
+      if (!m.reached) return fail('not_ready');
+      d.state = { ...state, wallet: addCost(state.wallet, m.reward, 1), seriesMilestones: [...state.seriesMilestones, m.key] };
+      d.events.push({ type: 'series_milestone', seriesId: cmd.seriesId, count: m.count, reward: m.reward });
+      return done();
+    }
+
     case 'start_research': {
       const def = content.research?.studies[cmd.studyId];
       if (!def) return fail('unknown_task');
@@ -894,7 +931,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const next = nextStudyLevel(state, content, def.id);
       if (!next) return fail('already_done');
       if (!canAfford(state, next.cost)) return fail('cannot_afford');
-      const active = { studyId: def.id, level: next.level, startAt: cmd.at, endAt: cmd.at + next.ms };
+      const active = { studyId: def.id, level: next.level, startAt: cmd.at, endAt: cmd.at + Math.round(next.ms * researchSpeed(state, content).study) };
       d.state = { ...state, wallet: addCost(state.wallet, next.cost, -1), research: { ...state.research, active } };
       d.events.push({ type: 'research_started', studyId: def.id, level: next.level, endAt: active.endAt });
       return done();

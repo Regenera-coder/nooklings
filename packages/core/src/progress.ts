@@ -16,6 +16,8 @@ import type {
   GardenGoalDef,
   GardenToolId,
   ResearchEffect,
+  FriendSkill,
+  ActiveExpedition,
 } from './types';
 
 export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons', 'treats'];
@@ -62,9 +64,18 @@ export function effectiveRoom(state: GameState, content: Content, roomId: string
   return room;
 }
 
+/** The trip this resident is on, if any. */
+export function tripOf(state: GameState, residentId: string): ActiveExpedition | null {
+  return state.expeditions.find((t) => t.residentId === residentId) ?? null;
+}
+
+export function onTrip(state: GameState, residentId: string): boolean {
+  return state.expeditions.some((t) => t.residentId === residentId);
+}
+
 /** Residents living in a room who are at home (not away on an expedition). */
 export function residentsAtHome(state: GameState, roomId: string): string[] {
-  return state.residentOrder.filter((id) => state.residents[id]?.room === roomId && state.expedition?.residentId !== id);
+  return state.residentOrder.filter((id) => state.residents[id]?.room === roomId && !onTrip(state, id));
 }
 
 export function residentsInRoom(state: GameState, roomId: string): string[] {
@@ -413,7 +424,7 @@ export function bakingOpen(state: GameState, content: Content): boolean {
 /** Can this resident help at the oven? Owned, of the baking series, and not away on a trip. */
 export function canBake(state: GameState, content: Content, residentId: string): boolean {
   const def = content.residents[residentId];
-  return !!content.baking && !!def && def.series === content.baking.bakerSeries && residentId in state.residents && state.expedition?.residentId !== residentId;
+  return !!content.baking && !!def && def.series === content.baking.bakerSeries && residentId in state.residents && !onTrip(state, residentId);
 }
 
 /** Treats a batch gives with this baker (null = nobody helping). */
@@ -432,6 +443,17 @@ export function treatGivenToday(state: GameState, content: Content, residentId: 
 }
 
 // ---------- series ----------
+
+/** A series' milestones with whether each is reached and claimed. */
+export function seriesMilestones(state: GameState, content: Content, seriesId: string) {
+  const series = content.series.find((x) => x.id === seriesId);
+  const { owned } = seriesProgress(state, content, seriesId);
+  return (series?.milestones ?? []).map((m) => {
+    const key = `${seriesId}:${m.count}`;
+    const claimed = state.seriesMilestones.includes(key);
+    return { ...m, key, reached: owned >= m.count, claimed, claimable: owned >= m.count && !claimed };
+  });
+}
 
 export function seriesProgress(state: GameState, content: Content, seriesId: string): { owned: number; total: number; complete: boolean; claimed: boolean } {
   const all = Object.values(content.residents).filter((r) => r.series === seriesId);
@@ -634,12 +656,96 @@ export interface ResearchSpeed {
   trips: number;
   baking: number;
   spots: number;
+  /** Research studies themselves (only friends speed these up). */
+  study: number;
   mutation: number;
 }
 
+/**
+ * Every speed-up in force: finished Research plus the skills of Happy friends at home.
+ * Friends only touch times fixed when something starts (gathering, trips, baking, studies), never
+ * plant growth, which is worked out live and must not run backwards when a friend stops being Happy.
+ */
 export function researchSpeed(state: GameState, content: Content): ResearchSpeed {
-  const f = (e: ResearchEffect) => Math.max(0.2, 1 - effectTotal(state, content, e));
-  return { grow: f('grow'), flower: f('flower'), trips: f('trips'), baking: f('baking'), spots: f('spots'), mutation: effectTotal(state, content, 'mutation') };
+  const skill = friendSkills(state, content);
+  const f = (e: ResearchEffect, extra = 0) => Math.max(0.2, 1 - effectTotal(state, content, e) - extra);
+  return {
+    grow: f('grow'),
+    flower: f('flower'),
+    trips: f('trips', skill.trips),
+    baking: f('baking', skill.baking),
+    spots: f('spots', skill.gathering),
+    study: Math.max(0.2, 1 - skill.study),
+    mutation: effectTotal(state, content, 'mutation'),
+  };
+}
+
+// ---------- friends: Happy, skills and trip slots ----------
+
+export const FRIEND_SKILLS: readonly FriendSkill[] = ['gathering', 'trips', 'baking', 'study'];
+
+export interface HappyStatus {
+  happy: boolean;
+  /** Each favourite tag in the friend's room against what Happy needs. */
+  tags: Array<{ tag: string; have: number; need: number; ok: boolean }>;
+  room: string;
+}
+
+/** Is this friend Happy: every favourite tag in their room at least `happyMin`? */
+export function happyStatus(state: GameState, content: Content, residentId: string): HappyStatus | null {
+  const rules = content.friends;
+  const def = content.residents[residentId];
+  const owned = state.residents[residentId];
+  if (!rules || !def || !owned) return null;
+  const atm = atmosphere(state, content, owned.room);
+  const tags = def.favouriteTags.map((tag) => ({ tag, have: atm[tag] ?? 0, need: rules.happyMin, ok: (atm[tag] ?? 0) >= rules.happyMin }));
+  return { happy: tags.length > 0 && tags.every((t) => t.ok), tags, room: owned.room };
+}
+
+/** Happy friends at home (a friend on a trip is away), in join order. */
+export function happyFriends(state: GameState, content: Content): string[] {
+  if (!content.friends) return [];
+  return state.residentOrder.filter((id) => !onTrip(state, id) && happyStatus(state, content, id)?.happy);
+}
+
+/** Time each skill saves right now, from Happy friends at home (0.1 = 10% shorter). */
+export function friendSkills(state: GameState, content: Content): Record<FriendSkill, number> {
+  const out: Record<FriendSkill, number> = { gathering: 0, trips: 0, baking: 0, study: 0 };
+  const rules = content.friends;
+  if (!rules) return out;
+  for (const id of happyFriends(state, content)) {
+    const skill = content.residents[id]?.skill;
+    if (skill) out[skill] = Math.min(rules.skillMax, out[skill] + rules.skillPerFriend);
+  }
+  return out;
+}
+
+/** What today's Happy friends' gifts add up to. */
+export function happyGiftAmount(state: GameState, content: Content): Cost {
+  const rules = content.friends;
+  const n = happyFriends(state, content).length;
+  const out: Cost = {};
+  if (!rules) return out;
+  for (const [k, v] of Object.entries(rules.happyGift) as Array<[Currency, number]>) out[k] = v * n;
+  return out;
+}
+
+export function happyGiftReady(state: GameState, content: Content, at: number): boolean {
+  return !!content.friends && state.happyGiftDay !== dayOf(at, content) && happyFriends(state, content).length > 0;
+}
+
+/** Trips that can be under way at once: one more at each friend count in `tripSlotsAt`. */
+export function tripSlots(state: GameState, content: Content): number {
+  const at = content.friends?.tripSlotsAt;
+  if (!at) return 1;
+  const friends = Object.keys(state.residents).length;
+  return Math.max(1, at.filter((n) => friends >= n).length);
+}
+
+/** Friends needed for the next trip slot, or null when every slot is open. */
+export function nextTripSlotAt(state: GameState, content: Content): number | null {
+  const friends = Object.keys(state.residents).length;
+  return content.friends?.tripSlotsAt.find((n) => n > friends) ?? null;
 }
 
 /** The next level of a study, or null when it is fully studied. */
@@ -671,7 +777,7 @@ export function arcadeButtonsLeft(state: GameState, content: Content, at: number
 
 // ---------- Ready summary (Home screen) ----------
 
-export type ReadyKind = 'gather' | 'trip' | 'garden' | 'garden_goal' | 'research' | 'baking' | 'tasks' | 'invitations' | 'series' | 'parcels';
+export type ReadyKind = 'happy' | 'gather' | 'trip' | 'garden' | 'garden_goal' | 'research' | 'baking' | 'tasks' | 'invitations' | 'series' | 'parcels';
 
 export interface ReadyItem {
   kind: ReadyKind;
@@ -688,8 +794,9 @@ export function readySummary(state: GameState, content: Content, now: number): R
   const add = (kind: ReadyKind, count: number) => {
     if (count > 0) out.push({ kind, count });
   };
+  add('happy', happyGiftReady(state, content, now) ? happyFriends(state, content).length : 0);
   add('gather', Object.keys(content.gatherSpots).filter((id) => spotUnlocked(state, content, id) && gatherReadyIn(state, content, id, now) === 0).length);
-  add('trip', state.expedition && state.expedition.endAt <= now ? 1 : 0);
+  add('trip', state.expeditions.filter((t) => t.endAt <= now).length);
   if (content.garden && gardenOpen(state, content)) {
     const speed = researchSpeed(state, content);
     add('garden', state.garden.pots.filter((p) => {
@@ -703,7 +810,10 @@ export function readySummary(state: GameState, content: Content, now: number): R
   add('baking', state.baking && state.baking.endAt <= now ? 1 : 0);
   add('tasks', taskStates(state, content).filter((t) => t.status === 'claimable').length);
   add('invitations', Object.keys(content.invitations).filter((id) => invitationStatus(state, content, id)?.ready).length);
-  add('series', content.series.filter((x) => x.reward && seriesProgress(state, content, x.id).complete && !state.seriesClaimed.includes(x.id)).length);
+  add('series', content.series.reduce((n, x) => {
+    const done = x.reward && seriesProgress(state, content, x.id).complete && !state.seriesClaimed.includes(x.id) ? 1 : 0;
+    return n + done + seriesMilestones(state, content, x.id).filter((m) => m.claimable).length;
+  }, 0));
   add('parcels', Object.values(content.parcels).some((p) => poolCanOpen(state, content, p, 'friend')) ? 1 : 0);
   return out;
 }

@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES, parseSeedKey } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, GardenState, GardenToolId, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 13;
+export const SAVE_VERSION = 14;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -35,6 +35,11 @@ const MIGRATIONS: Record<number, Migration> = {
   11: (raw) => ({ ...raw, version: 12 }),
   // v12 -> v13: Arcade Buttons counter and the daily gift (not yet claimed).
   12: (raw) => ({ ...raw, version: 13 }),
+  // v13 -> v14: several trips at once (the one trip under way becomes a list), Happy friends' gifts, series milestones.
+  13: (raw) => {
+    const { expedition, ...rest } = raw;
+    return { ...rest, expeditions: expedition ? [expedition] : [], version: 14 };
+  },
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -75,7 +80,7 @@ export function newGame(content: Content): GameState {
     purchases: [],
     gatherReadyAt: {},
     gatherCount: 0,
-    expedition: null,
+    expeditions: [],
     expeditionsDone: {},
     baking: null,
     bakesDone: 0,
@@ -83,6 +88,8 @@ export function newGame(content: Content): GameState {
     research: { levels: {}, active: null },
     dailyGiftDay: -1,
     seriesClaimed: [],
+    seriesMilestones: [],
+    happyGiftDay: -1,
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
     arcade: { day: 0, plays: {}, ribbons: 0, buttons: 0, best: {}, prizes: [] },
@@ -184,11 +191,13 @@ export function deserialize(text: string, content: Content): GameState {
   for (const [k, v] of Object.entries((data.gatherReadyAt ?? {}) as Raw)) if (content.gatherSpots[k]) gatherReadyAt[k] = num(v);
   const expeditionsDone: Record<string, number> = {};
   for (const [k, v] of Object.entries((data.expeditionsDone ?? {}) as Raw)) if (content.expeditions[k]) expeditionsDone[k] = nonNegInt(v);
-  const rawTrip = data.expedition as Raw | null | undefined;
-  const expedition =
-    rawTrip && typeof rawTrip.routeId === 'string' && content.expeditions[rawTrip.routeId] && typeof rawTrip.residentId === 'string' && rawTrip.residentId in residents
-      ? { routeId: rawTrip.routeId, residentId: rawTrip.residentId, startAt: num(rawTrip.startAt), endAt: num(rawTrip.endAt) }
-      : null;
+  // Trips: known routes, owned travellers, one trip per traveller.
+  const expeditions: GameState['expeditions'] = [];
+  for (const rawTrip of (Array.isArray(data.expeditions) ? data.expeditions : []) as Array<Raw | null>) {
+    if (!rawTrip || typeof rawTrip.routeId !== 'string' || !content.expeditions[rawTrip.routeId]) continue;
+    if (typeof rawTrip.residentId !== 'string' || !(rawTrip.residentId in residents) || expeditions.some((t) => t.residentId === rawTrip.residentId)) continue;
+    expeditions.push({ routeId: rawTrip.routeId, residentId: rawTrip.residentId, startAt: num(rawTrip.startAt), endAt: num(rawTrip.endAt) });
+  }
 
   const parcelsByPool: Record<string, number> = {};
   for (const [k, v] of Object.entries((data.parcelsByPool ?? {}) as Raw)) if (content.parcels[k] && nonNegInt(v) > 0) parcelsByPool[k] = nonNegInt(v);
@@ -310,7 +319,7 @@ export function deserialize(text: string, content: Content): GameState {
     purchases,
     gatherReadyAt,
     gatherCount: nonNegInt(data.gatherCount),
-    expedition,
+    expeditions,
     expeditionsDone,
     baking,
     bakesDone: nonNegInt(data.bakesDone),
@@ -318,6 +327,12 @@ export function deserialize(text: string, content: Content): GameState {
     research,
     dailyGiftDay: typeof data.dailyGiftDay === 'number' && Number.isInteger(data.dailyGiftDay) ? data.dailyGiftDay : -1,
     seriesClaimed: strings(data.seriesClaimed).filter((id, i, a) => content.series.some((x) => x.id === id && x.reward) && a.indexOf(id) === i),
+    seriesMilestones: strings(data.seriesMilestones).filter((key, i, a) => {
+      const cut = key.lastIndexOf(':');
+      const series = content.series.find((x) => x.id === key.slice(0, cut));
+      return !!series?.milestones?.some((m) => String(m.count) === key.slice(cut + 1)) && a.indexOf(key) === i;
+    }),
+    happyGiftDay: typeof data.happyGiftDay === 'number' && Number.isInteger(data.happyGiftDay) ? data.happyGiftDay : -1,
     costumesOwned,
     ribbonDay,
     arcade,

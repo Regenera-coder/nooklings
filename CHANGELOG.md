@@ -2,6 +2,21 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.17.0 — Friends matter more (17 Nov 2026)
+
+Owner's ask: give more purpose to getting more friends. Every number is a PROPOSED value in `packages/content/src/friends.ts`. Saves move to version 14 (older saves upgrade by themselves). No new currencies and no new art: the icons are ones the game already has.
+
+### Added
+- **Happy friends.** A friend is Happy when each of their favourite decor tags reaches 3 in the room they live in. Their page and the room panel show "Happy" with the felt smile icon, or what is still needed ("Needs Crafty 0/3 here"); Happy friends wear a small smile on their Nookbook card, and the game says when someone becomes Happy.
+- **A gift a day from each Happy friend** at home: 15 Buttons each, collected from the Ready list on Home.
+- **Friend skills.** Every friend has one: Gathering, Trips, Baking or Study. Each Happy friend at home makes that thing 5% quicker (up to 20%), for gathering spots, trips, baking and Research studies started from then on. Plant growth is never touched, so a plant cannot shrink if a friend stops being Happy.
+- **More trips at once:** a second trip at 6 friends and a third at 14. Expeditions lists every trip under way, says when the next one opens, and **Welcome home** brings everyone back together.
+- **Series milestones:** rewards at 3 and 6 friends in each series, on top of the reward for finishing it. First Residents: 150 Buttons and a Wish Stamp, then 250 Buttons and a Wish Stamp. Teatime Friends: 200 Buttons and 8 Treats, then 300 Buttons and 12 Treats. Collected from the Nookbook or the Ready list.
+
+### Changed
+- A trip's special friend (Pippo at the Old Mill, Toffee at the Moonlit Market) now waits if every room is full, and comes home with the next traveller back from that place once there is space. Before, they could squeeze into a full room.
+- Pacing (scripted player, two short sittings a day): Home Level 10 still on day 3; finishing Series 1 moves from day 5 to day 4; Level 20 moves from day 9 to day 7, mostly from the extra trips.
+
 ## 0.16.0 — The Shop and an easier-to-use layout (17 Nov 2026)
 
 From the UX audit and mock-ups in Drive (`UX Audit & Shop Redesign`). No new currencies, no price changes; saves are unchanged (still version 13).

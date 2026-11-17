@@ -24,7 +24,7 @@ describe('Ready summary', () => {
     const s = home(8);
     const busy: GameState = {
       ...s,
-      expedition: { routeId: Object.keys(c.expeditions)[0]!, residentId: 'snug', startAt: T - H, endAt: T + H },
+      expeditions: [{ routeId: Object.keys(c.expeditions)[0]!, residentId: 'snug', startAt: T - H, endAt: T + H }],
       research: { ...s.research, active: { studyId: 'quick_paws', level: 1, startAt: T - H, endAt: T + H } },
     };
     const kinds = (st: GameState, at: number) => readySummary(st, c, at).map((r) => r.kind);

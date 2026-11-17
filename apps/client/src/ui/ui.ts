@@ -42,6 +42,15 @@ import {
   nextGardenGoal,
   succulentGrowth,
   readySummary,
+  happyGiftAmount,
+  happyStatus,
+  happyFriends as happyFriendsOf,
+  friendSkills,
+  seriesMilestones,
+  onTrip,
+  tripSlots,
+  nextTripSlotAt,
+  type FriendSkill,
   type ReadyItem,
   type Content,
   type Currency,
@@ -64,6 +73,14 @@ import type { CommandInput } from '../store';
 
 type Tab = 'home' | 'nookbook' | 'explore' | 'tasks' | 'shop' | 'research';
 const RAIL_TABS: Tab[] = ['home', 'nookbook', 'explore', 'tasks', 'shop'];
+
+/** How each friend skill is shown. Icons reuse existing art. */
+const SKILL: Record<FriendSkill, { name: string; does: (pct: number) => string; icon: string; glyph: string }> = {
+  gathering: { name: 'Gathering', does: (p) => `gathering spots refill ${p}% sooner`, icon: 'icon_wood', glyph: '▤' },
+  trips: { name: 'Trips', does: (p) => `trips are ${p}% shorter`, icon: 'icon_keepsake', glyph: '❖' },
+  baking: { name: 'Baking', does: (p) => `Treats bake ${p}% sooner`, icon: 'icon_treats', glyph: '🍪' },
+  study: { name: 'Study', does: (p) => `studies finish ${p}% sooner`, icon: 'icon_research', glyph: '✎' },
+};
 
 /**
  * Where each pot stands on the garden map (fractions of the picture): x is the pot's centre, y where its base sits,
@@ -357,8 +374,21 @@ export class GameUI {
     this.render();
   }
 
+  /** Friends who were Happy after the last change, so a friend who just became Happy gets a word. */
+  private happyBefore: Set<string> | null = null;
+
+  private noticeHappy(events: GameEvent[]): void {
+    const now = new Set(happyFriendsOf(this.getState(), this.content));
+    const before = this.happyBefore;
+    this.happyBefore = now;
+    if (!before || !events.length) return;
+    const fresh = [...now].filter((id) => !before.has(id) && !events.some((e) => e.type === 'resident_joined' && e.residentId === id) && !events.some((e) => e.type === 'expedition_done' && e.residentId === id));
+    if (fresh.length) this.toast(`${fresh.map((id) => this.content.residents[id]?.name ?? id).join(' and ')} ${fresh.length > 1 ? 'are' : 'is'} Happy here!`, 2600);
+  }
+
   onStateChanged(events: GameEvent[]): void {
     for (const e of events) this.announce(e);
+    this.noticeHappy(events);
     this.recordUndo(events);
     // Something changed by itself (the daily gift, a cloud save) while a dropdown is open: redraw once it closes.
     if (this.picking()) {
@@ -409,15 +439,16 @@ export class GameUI {
   // ---------- Ready list (Home) ----------
 
   private static readonly READY: Record<ReadyItem['kind'], { icon: string; glyph: string; label: (n: number) => string; act: string; collect?: boolean }> = {
+    happy: { icon: 'icon_mood', glyph: '☺', label: (n) => `${n} happy friend${n > 1 ? 's' : ''} left you gifts`, act: 'Collect', collect: true },
     gather: { icon: 'icon_wood', glyph: '▤', label: (n) => `${n} gathering spot${n > 1 ? 's' : ''} ready`, act: 'Gather all', collect: true },
-    trip: { icon: 'icon_keepsake', glyph: '❖', label: () => 'Back from a trip', act: 'Welcome', collect: true },
+    trip: { icon: 'icon_keepsake', glyph: '❖', label: (n) => (n > 1 ? `${n} friends back from trips` : 'Back from a trip'), act: 'Welcome', collect: true },
     garden: { icon: 'garden_pot', glyph: '✿', label: (n) => `${n} plant${n > 1 ? 's' : ''} ready`, act: 'Garden' },
     garden_goal: { icon: 'icon_home_heart', glyph: '♥', label: () => 'Garden goal done', act: 'Claim', collect: true },
     research: { icon: 'icon_research', glyph: '✎', label: () => 'Study finished', act: 'Learn', collect: true },
     baking: { icon: 'icon_treats', glyph: '🍪', label: () => 'Treats are baked', act: 'Collect', collect: true },
     tasks: { icon: 'icon_tab_tasks', glyph: '✓', label: (n) => `${n} task reward${n > 1 ? 's' : ''}`, act: 'Claim', collect: true },
     invitations: { icon: 'icon_tab_nookbook', glyph: '✉', label: (n) => `${n} friend${n > 1 ? 's' : ''} can be invited`, act: 'Invite' },
-    series: { icon: 'icon_tab_nookbook', glyph: '★', label: () => 'Series reward', act: 'Collect', collect: true },
+    series: { icon: 'icon_tab_nookbook', glyph: '★', label: (n) => `${n} series reward${n > 1 ? 's' : ''}`, act: 'Collect', collect: true },
     parcels: { icon: 'icon_wish_stamp', glyph: '✉', label: () => 'A Friend Parcel to open', act: 'Open' },
   };
 
@@ -458,7 +489,9 @@ export class GameUI {
         img.alt = '';
         row.append(img);
       } else row.append(el('span', 'ready-ico glyph', meta.glyph));
-      row.append(el('span', 'grow', meta.label(item.count)));
+      const label = el('span', 'grow', meta.label(item.count));
+      if (item.kind === 'happy') label.append(' ', ...costChips(happyGiftAmount(this.getState(), this.content)));
+      row.append(label);
       row.append(button(meta.act, 'btn small primary', () => this.actReady(item.kind)));
       list.append(row);
     }
@@ -481,6 +514,7 @@ export class GameUI {
         if (text) this.toast(`Gathered ${text}`);
         break;
       }
+      case 'happy': this.run({ type: 'collect_happy_gifts', at: now }); break;
       case 'trip': this.run({ type: 'collect_expedition', at: now }); break;
       case 'garden': go('garden'); break;
       case 'garden_goal': { const g = nextGardenGoal(s, this.content); if (g?.done) this.run({ type: 'claim_garden_goal', goalId: g.def.id }); break; }
@@ -492,7 +526,10 @@ export class GameUI {
         break;
       case 'invitations': this.tasksView = 'invitations'; this.setTab('tasks'); break;
       case 'series':
-        for (const x of this.content.series) if (x.reward && seriesProgress(this.getState(), this.content, x.id).complete && !this.getState().seriesClaimed.includes(x.id)) this.run({ type: 'claim_series', seriesId: x.id });
+        for (const x of this.content.series) {
+          for (const m of seriesMilestones(this.getState(), this.content, x.id)) if (m.claimable) this.run({ type: 'claim_series_milestone', seriesId: x.id, count: m.count });
+          if (x.reward && seriesProgress(this.getState(), this.content, x.id).complete && !this.getState().seriesClaimed.includes(x.id)) this.run({ type: 'claim_series', seriesId: x.id });
+        }
         break;
       case 'parcels': go('parcels'); break;
     }
@@ -740,6 +777,21 @@ export class GameUI {
       case 'pot_bought':
         this.toast(`A new pot! You have ${e.pots} now.`);
         break;
+      case 'happy_gifts': {
+        const names = e.residents.map((id) => this.content.residents[id]?.name ?? id);
+        const who = names.length > 2 ? `${names.length} happy friends` : names.join(' and ');
+        this.toast(`Gifts from ${who}: +${e.reward.buttons ?? 0} Buttons`, 2800);
+        break;
+      }
+      case 'series_milestone': {
+        const series = this.content.series.find((x) => x.id === e.seriesId)?.name ?? 'Series';
+        const got = Object.entries(e.reward).map(([k, v]) => `${v} ${v === 1 ? CURRENCY[k as Currency].name.replace(/s$/, '') : CURRENCY[k as Currency].name}`).join(', ');
+        this.toast(`${series}: ${e.count} friends home! +${got}`, 3000);
+        break;
+      }
+      case 'resident_waiting':
+        this.toast(`${this.content.residents[e.residentId]?.name} wants to come home, but every room is full. Open a room, then go on that trip again.`, 4200);
+        break;
       case 'series_claimed': {
         const gift = e.furnitureId ? this.content.furniture[e.furnitureId]?.name : null;
         this.toast(`Series complete!${gift ? ` ${gift} is in your storage.` : ''}`, 3200);
@@ -834,11 +886,11 @@ export class GameUI {
       Object.keys(this.content.invitations).some((id) => invitationStatus(s, this.content, id)?.ready);
     const now = Date.now();
     const parcelDue = this.parcelsDue() || this.outdoorsDue(now) || (!!s.baking && s.baking.endAt <= now);
+    const ready = readySummary(s, this.content, now);
     const bookDue =
       s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug') ||
-      this.content.series.some((x) => x.reward && seriesProgress(s, this.content, x.id).complete && !s.seriesClaimed.includes(x.id));
+      ready.some((r) => r.kind === 'series');
     // Numbers for things waiting to be collected; a plain dot for something new to look at.
-    const ready = readySummary(s, this.content, now);
     const count = (kinds: ReadyItem['kind'][]) => ready.filter((r) => kinds.includes(r.kind)).reduce((a, r) => a + r.count, 0);
     const counts: Partial<Record<Tab, number>> = {
       explore: count(['gather', 'trip', 'garden', 'garden_goal', 'baking', 'parcels']),
@@ -997,16 +1049,40 @@ export class GameUI {
     const line = el('p', 'hint');
     line.append(document.createTextNode('Bond '), bondHearts(bond.level));
     panel.append(line);
-    panel.append(el('p', 'hint', def.tagline));
+    const happy = this.happyLine(id);
+    if (happy) panel.append(happy);
+    else panel.append(el('p', 'hint', def.tagline));
     const acts = el('div', 'acts');
     acts.append(this.playButton(id, 'act primary'), button('Open page', 'act wide', () => this.openCharacter(id)));
     panel.append(acts);
   }
 
+  /** "Happy" with today's gift, or what the room still needs, tag by tag. Null when friends rules are off. */
+  private happyLine(id: string): HTMLElement | null {
+    const s = this.getState();
+    const st = happyStatus(s, this.content, id);
+    const rules = this.content.friends;
+    if (!st || !rules) return null;
+    const line = el('span', `happy-line${st.happy ? ' is-happy' : ''}`);
+    if (st.happy) {
+      const yes = el('b', 'happy-yes');
+      yes.append(uiIcon('icon_mood', '☺', 'happy-ico'), document.createTextNode('Happy'));
+      line.append(yes);
+      if (onTrip(s, id)) line.append(document.createTextNode('· away on a trip'));
+      else line.append(document.createTextNode('· a gift a day'), ...costChips(rules.happyGift));
+      return line;
+    }
+    line.append(document.createTextNode('Needs'));
+    for (const t of st.tags.filter((x) => !x.ok)) line.append(el('span', 'tag want', `${t.tag} ${t.have}/${t.need}`));
+    line.append(document.createTextNode('here'));
+    line.title = `More ${st.tags.filter((x) => !x.ok).map((x) => x.tag).join(' and ')} decor in the ${this.content.rooms[st.room]?.name ?? 'room'} makes ${this.content.residents[id]?.name} Happy`;
+    return line;
+  }
+
   private playButton(id: string, cls: string): HTMLButtonElement {
     const wait = playReadyAt(this.getState(), this.content, id) - Date.now();
     const def = this.content.residents[id]!;
-    if (this.getState().expedition?.residentId === id) return button(`${def.name} is exploring`, cls, () => undefined, true);
+    if (onTrip(this.getState(), id)) return button(`${def.name} is exploring`, cls, () => undefined, true);
     const left = playsLeftToday(this.getState(), this.content, id, Date.now());
     if (left <= 0) return button('Play again tomorrow', cls, () => undefined, true);
     return button(wait > 0 ? `Play in ${seconds(wait)}` : `Play · ${left} left today`, cls, () => {
@@ -1235,7 +1311,7 @@ export class GameUI {
           this.page.scrollTop = 0;
           this.render();
         });
-        if (x.reward && p.complete && !p.claimed) b.append(el('span', 'dot'));
+        if ((x.reward && p.complete && !p.claimed) || seriesMilestones(s, this.content, x.id).some((m) => m.claimable)) b.append(el('span', 'dot'));
         tabs.append(b);
       }
       this.page.append(tabs);
@@ -1251,6 +1327,23 @@ export class GameUI {
     fill.style.width = `${(ownedCount / series.length) * 100}%`;
     bar.append(fill);
     this.page.append(bar);
+    const steps = seriesMilestones(s, this.content, this.seriesTab);
+    if (steps.length) {
+      // Rewards on the way to finishing the series.
+      const row = el('div', 'milestones');
+      for (const m of steps) {
+        const chip = el('div', `milestone${m.claimed ? ' done' : m.reached ? ' ready' : ''}`);
+        chip.append(el('b', '', `${m.count} friends`));
+        const rewards = el('span', 'rewards');
+        rewards.append(...costChips(m.reward));
+        chip.append(rewards);
+        if (m.claimed) chip.append(el('span', 'ok', '✓'));
+        else if (m.reached) chip.append(button('Collect', 'btn small primary', () => this.run({ type: 'claim_series_milestone', seriesId: this.seriesTab, count: m.count })));
+        else chip.append(el('span', 'muted', `${ownedCount}/${m.count}`));
+        row.append(chip);
+      }
+      this.page.append(row);
+    }
     const filters = el('div', 'filters');
     filters.style.margin = '8px 0';
     for (const f of ['all', 'owned', 'missing'] as Filter[]) {
@@ -1269,6 +1362,11 @@ export class GameUI {
       img.src = portraitUrl(r, { silhouette: !owned, decorated: s.residents[r.id]?.form === 'decorated', costume: s.residents[r.id]?.costume });
       img.alt = owned ? r.name : 'Not yet found';
       card.append(img, el('span', 'nm', owned ? r.name : '???'), el('span', `rar ${r.rarity}`, r.rarity));
+      if (owned && happyStatus(s, this.content, r.id)?.happy) {
+        const tag = uiIcon('icon_mood', '☺', 'happy-badge');
+        tag.title = 'Happy';
+        card.append(tag);
+      }
       card.addEventListener('click', () => this.openDetail(r.id));
       grid.append(card);
     }
@@ -1348,6 +1446,14 @@ export class GameUI {
     };
     fact(['icon_mood', '☺'], 'Mood', def.mood);
     fact(['icon_decor', '✿'], 'Favourite decor', def.favouriteTags.join(', '));
+    const happy = this.happyLine(id);
+    if (happy) fact(['icon_mood', '☺'], 'Happy', happy);
+    if (def.skill && this.content.friends) {
+      const meta = SKILL[def.skill];
+      const cell = el('span', 'skill-v');
+      cell.append(el('b', '', meta.name), document.createTextNode(` · ${meta.does(Math.round(this.content.friends.skillPerFriend * 100))} while Happy at home`));
+      fact([meta.icon, meta.glyph], 'Skill', cell);
+    }
     const bondCell = el('span');
     bondCell.append(bondHearts(bond.level), document.createTextNode(bond.span ? ` ${bond.into}/${bond.span} to next` : ' Max'));
     fact(['icon_home_heart', '♥'], 'Bond', bondCell);
@@ -1360,7 +1466,7 @@ export class GameUI {
     const acts = el('div', 'profile-acts');
     acts.append(this.playButton(id, 'btn primary big'));
     if (this.content.baking && levelFor(s.hearts, this.content) >= (this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99)) {
-      const away = s.expedition?.residentId === id;
+      const away = onTrip(s, id);
       const given = treatGivenToday(s, this.content, id, Date.now());
       const afford = canAfford(s, this.content.baking.giftCost);
       acts.append(button(given ? 'Treat given today' : `Give a Treat (${s.wallet.treats})`, 'btn', () => this.run({ type: 'give_treat', residentId: id, at: Date.now() }), away || given || !afford));
@@ -1517,22 +1623,34 @@ export class GameUI {
       this.page.append(card);
       return;
     }
-    const trip = s.expedition;
-    if (trip) {
+    const slots = tripSlots(s, this.content);
+    const head = el('p', 'muted trip-slots');
+    head.append(document.createTextNode(`Trips under way: ${s.expeditions.length} of ${slots}`));
+    const nextAt = nextTripSlotAt(s, this.content);
+    if (nextAt !== null) head.append(document.createTextNode(` · another trip at ${nextAt} friends`));
+    const skill = friendSkills(s, this.content).trips;
+    if (skill > 0) head.append(document.createTextNode(` · Happy friends make trips ${Math.round(skill * 100)}% shorter`));
+    card.append(head);
+    for (const trip of s.expeditions) {
       const route = this.content.expeditions[trip.routeId]!;
       const who = this.content.residents[trip.residentId]!.name;
       const left = trip.endAt - now;
-      card.append(el('p', '', left > 0 ? `${who} is exploring ${route.name}.` : `${who} is back from ${route.name}!`));
+      const row = el('div', 'trip-row');
+      row.append(el('p', '', left > 0 ? `${who} is exploring ${route.name}.` : `${who} is back from ${route.name}!`));
       const bar = el('div', 'trip-bar');
       const fill = el('span');
       fill.style.width = `${Math.min(100, Math.max(0, ((now - trip.startAt) / (trip.endAt - trip.startAt)) * 100))}%`;
       bar.append(fill);
-      card.append(bar);
-      card.append(left > 0 ? el('p', 'timer', `Home in ${clock(left)}`) : button('Welcome home', 'btn primary', () => this.run({ type: 'collect_expedition', at: Date.now() })));
+      row.append(bar);
+      if (left > 0) row.append(el('p', 'timer', `Home in ${clock(left)}`));
+      card.append(row);
+    }
+    if (s.expeditions.some((t) => t.endAt <= now)) card.append(button('Welcome home', 'btn primary', () => this.run({ type: 'collect_expedition', at: Date.now() })));
+    if (s.expeditions.length >= slots) {
       this.page.append(card);
       return;
     }
-    const owned = s.residentOrder;
+    const owned = s.residentOrder.filter((id) => !onTrip(s, id));
     if (!owned.includes(this.tripResident)) this.tripResident = owned[0] ?? '';
     const pickRow = el('div', 'spot-row');
     pickRow.append(el('span', 'grow', 'Who goes?'));
@@ -1555,7 +1673,7 @@ export class GameUI {
       body.append(el('b', '', `${route.name} · ${tripMs >= 3_600_000 ? `${Math.round(tripMs / 360_000) / 10} h` : `${Math.round(tripMs / 60_000)} min`}`), el('p', '', route.description));
       const rewards = el('div', 'rewards');
       rewards.append(...costChips(route.reward));
-      if (route.firstTimeResident && !s.expeditionsDone[route.id] && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
+      if (route.firstTimeResident && !(route.firstTimeResident in s.residents)) rewards.append(el('span', 'reward', '✦ Someone special'));
       body.append(rewards);
       if (isUnlocked(s, this.content, route.requiresUnlock)) {
         row.append(body, button('Send', 'btn primary', () => this.run({ type: 'start_expedition', routeId: route.id, residentId: this.tripResident, at: Date.now() })));
@@ -1889,7 +2007,7 @@ export class GameUI {
       const pot = this.giftFrom;
       body.append(el('b', '', `Give ${succulentName(this.content, giftPlant.speciesId, giftPlant.colour, giftPlant.pattern)} to:`));
       const who = el('div', 'gift-who');
-      for (const id of s.residentOrder.filter((r) => s.expedition?.residentId !== r)) {
+      for (const id of s.residentOrder.filter((r) => !onTrip(s, r))) {
         const given = treatGivenToday(s, this.content, id, now);
         const b = button(this.content.residents[id]?.name ?? id, 'btn small', () => { this.giftFrom = null; this.run({ type: 'give_succulent', pot, residentId: id, at: Date.now() }); }, given);
         if (given) b.title = 'Already had a gift today';
@@ -2127,7 +2245,7 @@ export class GameUI {
     const s = this.getState();
     return (
       Object.keys(this.content.gatherSpots).some((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0) ||
-      (!!s.expedition && s.expedition.endAt <= now)
+      s.expeditions.some((t) => t.endAt <= now)
     );
   }
 

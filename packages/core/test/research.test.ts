@@ -76,7 +76,7 @@ describe('Research', () => {
     expect(g.gatherReadyAt[spot.id]).toBe(T + Math.round(spot.cooldownMs * 0.9));
     const route = Object.values(c.expeditions)[0]!;
     const e = run(s, { type: 'start_expedition', routeId: route.id, residentId: 'snug', at: T } as In);
-    if (e.ok) expect(e.state.expedition!.endAt).toBe(T + Math.round(route.durationMs * 0.7));
+    if (e.ok) expect(e.state.expeditions[0]!.endAt).toBe(T + Math.round(route.durationMs * 0.7));
   });
 
   it('keeps research through a save and starts old saves with none', () => {
