@@ -12,8 +12,9 @@ Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but 
 - Save version 9. Older saves open with three empty pots. Tests cover growth timing, the smooth colour blend, planting, selling, pots and saves.
 - Checked in the browser at 740×360 and 640×320: planting, selling and buying a pot work by tapping; no page errors.
 
+- **Garden art:** felt terracotta pot, a hanging pot for Ribbon Fall (its strands spill over the bowl), and a seed packet for each species. The seed pod and the Phase 2–3 tools (Soft Brush, Pollen Jar, Loupe, Sun Shelf) are imported too, ready for later phases.
+
 ### Placeholder
-- The pot is drawn in CSS until pot art exists. Ribbon Fall hangs from its pot.
 - Every number (seed prices, grow times, sell prices, pot price) is a PROPOSED value.
 
 ### Planned

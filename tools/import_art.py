@@ -80,6 +80,9 @@ ARCADE_SPRITES: dict[str, int] = {
     "ui_star_burst": 384, "ui_play_button": 512,
     # Succulent Garden: neutral felt bodies, tinted in the game as they grow
     **{f"succ_{k}": 512 for k in ["meringue_rose", "gumdrop_cluster", "stitchback", "teacup_tree", "ribbon_fall"]},
+    "garden_pot": 384, "garden_pot_hanging": 384, "garden_sun_shelf": 384,
+    **{f"garden_seed_{k}": 256 for k in ["meringue_rose", "gumdrop_cluster", "stitchback", "teacup_tree", "ribbon_fall"]},
+    **{f"garden_{k}": 256 for k in ["pod", "brush", "pollen_jar", "loupe"]},
 }
 # Full-bleed pictures (no background removal): name -> game copy size.
 ARCADE_PICTURES: dict[str, tuple[int, int]] = {

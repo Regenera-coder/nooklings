@@ -1251,6 +1251,15 @@ export class GameUI {
     const now = Date.now();
     const at = this.content.levels.find((l) => l.unlocks.includes(g.unlock))?.level ?? 99;
     const palette = { seedling: g.seedlingColour };
+    // The pot is art when it has been imported, else a drawn stand-in.
+    const pot = (hanging: boolean): HTMLElement => {
+      const url = artUrl(hanging ? 'garden_pot_hanging' : 'garden_pot');
+      if (!url) return el('span', 'felt-pot');
+      const img = el('img', 'pot-art');
+      img.src = url;
+      img.alt = '';
+      return img;
+    };
     const card = el('div', 'card');
     card.append(el('h3', '', 'Succulent Garden'));
     if (!gardenOpen(s, this.content)) {
@@ -1265,9 +1274,9 @@ export class GameUI {
       const def = plant ? g.species[plant.speciesId] : undefined;
       if (!plant || !def) {
         tile.classList.add('empty');
-        const pot = el('div', 'pot-stage');
-        pot.append(el('span', 'felt-pot'));
-        tile.append(pot, el('b', '', 'Empty pot'), el('span', 'muted', 'Pick a seed below'));
+        const empty = el('div', 'pot-stage');
+        empty.append(pot(false));
+        tile.append(empty, el('b', '', 'Empty pot'), el('span', 'muted', 'Pick a seed below'));
         pots.append(tile);
         return;
       }
@@ -1279,7 +1288,7 @@ export class GameUI {
       // Seedlings are small and fill out as they grow.
       const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
       img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
-      stage.append(img, el('span', 'felt-pot'));
+      stage.append(img, pot(def.anchor === 'top'));
       tile.append(stage, el('b', '', def.name));
       if (grow.stage === 'grown') {
         tile.append(button(`Sell · ${def.sellPrice.buttons ?? 0}`, 'btn primary small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() })));
@@ -1314,8 +1323,8 @@ export class GameUI {
       const thumb = el('img', 'seed-thumb');
       thumb.alt = '';
       const grown = s.garden.grown.includes(id);
-      // A species you have grown shows its full colour; a new one shows as a green seedling.
-      thumb.src = succulentImage(def, palette, grown ? 1 : 0, () => this.render()) ?? succulentArtUrl(def) ?? '';
+      // The seed packet art; without it, the plant itself (full colour once grown, a green seedling before).
+      thumb.src = artUrl(`garden_seed_${id}`) ?? succulentImage(def, palette, grown ? 1 : 0, () => this.render()) ?? succulentArtUrl(def) ?? '';
       const body = el('div', 'grow');
       const hours = (def.sproutMs + def.growMs) / 3_600_000;
       body.append(el('b', '', `${def.name}${grown ? ' ✓' : ''}`), el('p', '', def.description));
