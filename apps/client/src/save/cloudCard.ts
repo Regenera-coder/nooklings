@@ -68,7 +68,7 @@ function when(ms: number): string {
   return today ? `today at ${time}` : `${d.toLocaleDateString([], { day: 'numeric', month: 'short' })} at ${time}`;
 }
 
-const line = (s: Summary): string => (s ? `Home Level ${s.level}, ${s.friends} ${s.friends === 1 ? 'Nookling' : 'Nooklings'}` : 'a save from a newer version of the game');
+const line = (s: Summary): string => (s ? `Home Level ${s.level}, ${s.friends} ${s.friends === 1 ? 'friend' : 'friends'}` : 'a save from a newer version of the game');
 
 /** The "Cloud save" card for the Tasks page, or null while cloud save is not set up. */
 export function cloudCard(cloud: CloudSync, describe: (text: string) => Summary, local: () => string): HTMLElement | null {

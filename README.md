@@ -1,4 +1,6 @@
-# Nooklings: Little Worlds
+# Momolumi: Little Worlds
+
+(Formerly the working title "Nooklings". Code, package names, storage keys, the repository and the nooklings.pages.dev address keep the old name so saves and hosting are untouched.)
 
 Cozy character-collecting and home-decoration game. Phone, **landscape only**, browser/PWA first.
 

@@ -2,6 +2,12 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.17.1 — New name: Momolumi: Little Worlds (17 Nov 2026)
+
+### Changed
+- The game is now called **Momolumi: Little Worlds** (browser tab, home-screen name "Momolumi", the turn-your-phone message). The cloud save card says "friends" instead of "Nooklings".
+- Unchanged on purpose: the web address (nooklings.pages.dev), the repository, package names and the save and settings keys, so every save keeps working.
+
 ## 0.17.0 — Friends matter more (17 Nov 2026)
 
 Owner's ask: give more purpose to getting more friends. Every number is a PROPOSED value in `packages/content/src/friends.ts`. Saves move to version 14 (older saves upgrade by themselves). No new currencies and no new art: the icons are ones the game already has.

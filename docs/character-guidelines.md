@@ -1,4 +1,4 @@
-# Nooklings — character art guidelines (changes to the approved designs)
+# Momolumi — character art guidelines (changes to the approved designs)
 
 The approved concept board ("02 APPROVED — First Residents concept board.png") and "01 APPROVED ART" remain the visual reference. Changes recorded here override them where they differ.
 
