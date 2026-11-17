@@ -95,10 +95,41 @@ export const kitchen: GameFactory = (ctx) => {
     const wrap = el('div', `kitchen-tool tool-${t}`);
     wrap.dataset.tool = t;
     wrap.setAttribute('aria-label', NAMES[t]);
-    wrap.append(art(`game_kitchen_${t}`, 'tool-img', NAMES[t]), el('span', 'tool-fill'), el('span', 'tool-ring'));
+    wrap.append(art(`game_kitchen_${t}`, 'tool-img', NAMES[t]), el('span', 'tool-contents'), el('span', 'tool-fill'), el('span', 'tool-ring'));
     tools.append(wrap);
     toolEls.set(t, wrap);
   }
+
+  // What is sitting in each tool, drawn on top of it (it used to show only a faint glow, so a carrot on the board seemed to vanish).
+  const contents = new Map<Tool, Array<{ item: Ingredient; chopped: boolean }>>();
+  const drawContents = (t: Tool) => {
+    const box = toolEls.get(t)!.querySelector('.tool-contents') as HTMLElement;
+    const list = contents.get(t) ?? [];
+    box.replaceChildren(
+      ...list.slice(-4).map((c, i, a) => {
+        const img = art(`game_kitchen_${c.item}`, `tool-item${c.chopped ? ' chopped' : ''}`, NAMES[c.item]);
+        img.style.setProperty('--i', String(i - (a.length - 1) / 2));
+        return img;
+      }),
+    );
+  };
+  const putIn = (t: Tool, item: Ingredient) => {
+    const list = contents.get(t) ?? [];
+    // Several berries show as one berry pile.
+    if (!list.some((c) => c.item === item)) list.push({ item, chopped: false });
+    contents.set(t, list);
+    drawContents(t);
+  };
+  const tipInto = (from: Tool, to: Tool) => {
+    contents.set(to, [...(contents.get(to) ?? []), ...(contents.get(from) ?? [])]);
+    contents.set(from, []);
+    drawContents(from);
+    drawContents(to);
+  };
+  const chopAll = (t: Tool) => {
+    for (const c of contents.get(t) ?? []) c.chopped = true;
+    drawContents(t);
+  };
 
   let recipeIndex = 0;
   let stepIndex = 0;
@@ -164,6 +195,10 @@ export const kitchen: GameFactory = (ctx) => {
     progress += 1;
     const tool = toolEls.get(to)!;
     tool.dataset.has = item;
+    if (toolEls.has(item as Tool)) {
+      tipInto(item as Tool, to);
+      delete toolEls.get(item as Tool)!.dataset.has;
+    } else putIn(to, item as Ingredient);
     sparkle(field, centreIn(field, tool), 70, reduced);
     if (progress >= (s.count ?? 1)) completeStep(tool);
     else ctx.say(`${(s.count ?? 1) - progress} more!`);
@@ -205,6 +240,8 @@ export const kitchen: GameFactory = (ctx) => {
     progress = 0;
     between = false;
     for (const n of toolEls.values()) delete n.dataset.has;
+    contents.clear();
+    for (const t of toolEls.keys()) drawContents(t);
     renderCard();
     renderShelf();
     ctx.say(stepText(step()!));
@@ -281,7 +318,10 @@ export const kitchen: GameFactory = (ctx) => {
           node.classList.remove('chop');
           void node.offsetWidth;
           if (!reduced) node.classList.add('chop');
-          if (progress >= s.taps) completeStep(node);
+          if (progress >= s.taps) {
+            chopAll(t);
+            completeStep(node);
+          }
           return;
         }
         if (selected) {

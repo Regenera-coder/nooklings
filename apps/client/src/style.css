@@ -593,3 +593,9 @@ body.ui-art .ar-card, .ar-card { border-style: solid; border-width: 0; }
 .book-cell.unknown { filter: brightness(0); opacity: 0.18; }
 .gift-bar { flex-wrap: wrap; }
 .book-patterns { margin-top: 8px; align-items: center; }
+/* What is in each kitchen tool, sitting on top of it. */
+.kitchen-tool .tool-contents { position: absolute; inset: 22% 14% 30%; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 2; }
+.kitchen-tool .tool-item { width: 44%; height: auto; margin: 0 -7%; transform: translateY(calc(var(--i, 0) * 3px)) rotate(calc(var(--i, 0) * 9deg)); filter: drop-shadow(0 3px 3px #0003); animation: pop .3s ease-out; }
+.kitchen-tool .tool-item.chopped { width: 34%; transform: translateY(calc(var(--i, 0) * 3px)) rotate(calc(var(--i, 0) * -20deg - 14deg)); }
+.kitchen-tool.chop .tool-contents { animation: ar-chop .2s ease-out; }
+.kitchen-tool.stirring .tool-contents { animation: ar-stir .5s linear infinite; }
