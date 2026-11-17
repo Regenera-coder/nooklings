@@ -48,6 +48,9 @@ import {
   PLAIN,
   researchSpeed,
   nextStudyLevel,
+  dailyGiftAmount,
+  dailyGiftReady,
+  arcadeButtonsLeft,
   seriesProgress,
   treatGivenToday,
 } from './progress';
@@ -98,7 +101,8 @@ export type Command =
   | { id: string; type: 'claim_garden_goal'; goalId: string }
   | { id: string; type: 'display_succulent'; pot: number; at: number }
   | { id: string; type: 'start_research'; studyId: string; at: number }
-  | { id: string; type: 'finish_research'; at: number };
+  | { id: string; type: 'finish_research'; at: number }
+  | { id: string; type: 'claim_daily_gift'; at: number };
 
 export type CommandError =
   | PlacementError
@@ -148,7 +152,7 @@ export type GameEvent =
   | { type: 'ribbons_earned'; amount: number; source: 'play' | 'arcade' | 'expedition' }
   | { type: 'costume_bought'; costumeId: string }
   | { type: 'costume_worn'; residentId: string; costumeId: string | null }
-  | { type: 'arcade_done'; gameId: ArcadeGameId; score: number; best: number; newBest: boolean; ribbons: number; playsLeft: number; ribbonsLeft: number }
+  | { type: 'arcade_done'; gameId: ArcadeGameId; score: number; best: number; newBest: boolean; ribbons: number; playsLeft: number; ribbonsLeft: number; buttons: number; buttonsLeft: number }
   | { type: 'prize_won'; gameId: ArcadeGameId; index: number; kind: 'furniture' | 'companion'; id: string; residentId: string | null }
   | { type: 'companion_assigned'; companionId: string; residentId: string | null }
   | { type: 'parcel_opened'; record: ParcelRecord; threadGranted: number }
@@ -173,6 +177,7 @@ export type GameEvent =
   | { type: 'succulent_displayed'; pot: number; furnitureId: string }
   | { type: 'research_started'; studyId: string; level: number; endAt: number }
   | { type: 'research_finished'; studyId: string; level: number }
+  | { type: 'daily_gift'; buttons: number }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -560,15 +565,19 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const sameDay = state.arcade.day === day;
       const plays = sameDay ? { ...state.arcade.plays } : {};
       const ribbonsToday = (sameDay ? state.arcade.ribbons : 0) + ribbons;
+      // Buttons too: a share of the score, up to a daily Arcade limit.
+      const buttonsLeft = arcadeButtonsLeft(state, content, cmd.at);
+      const buttons = Math.min(Math.floor(score * content.arcade.buttonsPerPoint), buttonsLeft);
+      const buttonsToday = (sameDay ? state.arcade.buttons : 0) + buttons;
       plays[cmd.gameId] = (plays[cmd.gameId] ?? 0) + 1;
       const oldBest = state.arcade.best[cmd.gameId] ?? 0;
       const best = Math.max(oldBest, score);
       d.state = {
         ...state,
-        wallet: addCost(state.wallet, { ribbons }, 1),
-        arcade: { ...state.arcade, day, plays, ribbons: ribbonsToday, best: { ...state.arcade.best, [cmd.gameId]: best } },
+        wallet: addCost(state.wallet, { ribbons, buttons }, 1),
+        arcade: { ...state.arcade, day, plays, ribbons: ribbonsToday, buttons: buttonsToday, best: { ...state.arcade.best, [cmd.gameId]: best } },
       };
-      d.events.push({ type: 'arcade_done', gameId: cmd.gameId, score, best, newBest: score > oldBest, ribbons, playsLeft: left - 1, ribbonsLeft: ribbonsLeft - ribbons });
+      d.events.push({ type: 'arcade_done', gameId: cmd.gameId, score, best, newBest: score > oldBest, ribbons, playsLeft: left - 1, ribbonsLeft: ribbonsLeft - ribbons, buttons, buttonsLeft: buttonsLeft - buttons });
       if (ribbons > 0) d.events.push({ type: 'ribbons_earned', amount: ribbons, source: 'arcade' });
       // Prizes: each is granted once, the first time a round reaches its score.
       game.prizes.forEach((prize, index) => {
@@ -844,6 +853,15 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'succulent_given', pot: cmd.pot, residentId: cmd.residentId, name: succulentName(content, plant.speciesId, plant.colour, plant.pattern), bondUp: after > before, newBondLevel: after });
       if (after > before) addHearts(d, content.bond.heartsPerBondLevel * (after - before), content);
+      return done();
+    }
+
+    case 'claim_daily_gift': {
+      if (!content.dailyGift || !Number.isFinite(cmd.at)) return fail('locked');
+      if (!dailyGiftReady(state, content, cmd.at)) return fail('daily_limit');
+      const buttons = dailyGiftAmount(state, content);
+      d.state = { ...state, wallet: addCost(state.wallet, { buttons }, 1), dailyGiftDay: dayOf(cmd.at, content) };
+      d.events.push({ type: 'daily_gift', buttons });
       return done();
     }
 

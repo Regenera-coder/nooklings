@@ -100,6 +100,10 @@ export interface ArcadeRules {
   maxRibbonsPerGame: number;
   /** Most Ribbons the whole Arcade gives in one day; rounds after that still count for best scores and prizes. */
   maxRibbonsPerDay: number;
+  /** Buttons for each point scored in a round. */
+  buttonsPerPoint: number;
+  /** Most Buttons the whole Arcade gives in one day. */
+  maxButtonsPerDay: number;
   /** Display order on the Arcade page. */
   order: ArcadeGameId[];
 }
@@ -325,6 +329,12 @@ export interface ResearchStudyDef {
   levels: Array<{ cost: Cost; ms: number }>;
 }
 
+/** The daily gift: Buttons the first time the game is opened each day, more at higher Home Levels. */
+export interface DailyGiftRules {
+  buttons: number;
+  buttonsPerLevel: number;
+}
+
 export interface ResearchRules {
   studies: Record<string, ResearchStudyDef>;
   order: string[];
@@ -526,6 +536,8 @@ export interface ArcadeState {
   plays: Partial<Record<ArcadeGameId, number>>;
   /** Ribbons earned in the Arcade today, across all games. */
   ribbons: number;
+  /** Buttons earned in the Arcade today, across all games. */
+  buttons: number;
   /** Best single-round score ever, per game. */
   best: Partial<Record<ArcadeGameId, number>>;
   /** Prizes already granted, as "<gameId>:<index>". */
@@ -562,6 +574,8 @@ export interface GameState {
   bakesDone: number;
   garden: GardenState;
   research: ResearchState;
+  /** Day number (see dayOf) of the last daily gift claimed; -1 = never. */
+  dailyGiftDay: number;
   /** Series whose completion reward has been claimed. */
   seriesClaimed: string[];
   costumesOwned: string[];
@@ -599,6 +613,7 @@ export interface Content {
   baking: BakingRules | null;
   /** null when the build has no Succulent Garden. */
   garden: GardenRules | null;
+  dailyGift: DailyGiftRules | null;
   /** null when the build has no Research. */
   research: ResearchRules | null;
   /** Nookbook tabs, in order. */

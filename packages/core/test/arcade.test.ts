@@ -164,7 +164,7 @@ describe('save v5', () => {
     delete v4.companions;
     const s = deserialize(JSON.stringify(v4), content);
     expect(s.version).toBe(SAVE_VERSION);
-    expect(s.arcade).toEqual({ day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] });
+    expect(s.arcade).toEqual({ day: 0, plays: {}, ribbons: 0, buttons: 0, best: {}, prizes: [] });
     expect(s.companions).toEqual({});
   });
 
@@ -173,7 +173,7 @@ describe('save v5', () => {
     raw.arcade = { day: 3, plays: { memory: 99, nope: 1 }, best: { memory: 5000, nope: 4 }, prizes: ['memory:0', 'memory:0', 'memory:7', 'nope:1'] };
     raw.companions = { button_mouse: { residentId: 'snug' }, firefly: { residentId: 'snug' }, unknown_pet: { residentId: null }, owl: 5, curious_owl: { residentId: 'hush' } };
     const s = deserialize(JSON.stringify(raw), content);
-    expect(s.arcade).toEqual({ day: 3, plays: { memory: 3 }, ribbons: 0, best: { memory: 100 }, prizes: ['memory:0'] });
+    expect(s.arcade).toEqual({ day: 3, plays: { memory: 3 }, ribbons: 0, buttons: 0, best: { memory: 100 }, prizes: ['memory:0'] });
     expect(s.companions).toEqual({ button_mouse: { residentId: 'snug' }, firefly: { residentId: null }, curious_owl: { residentId: null } });
   });
 });

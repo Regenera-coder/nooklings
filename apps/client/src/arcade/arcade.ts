@@ -355,6 +355,18 @@ export class Arcade {
     }
     rib.append(document.createTextNode(done && done.ribbons > 0 ? `+${done.ribbons} Ribbon${done.ribbons === 1 ? '' : 's'}` : done && done.ribbonsLeft <= 0 ? 'Ribbons full today' : done ? '+0 Ribbons' : 'No Ribbons'));
     mid.append(rib);
+    if (done) {
+      const btn = el('span', 'ar-pill2 ribbon');
+      const bi = artUrl('icon_buttons');
+      if (bi) {
+        const img = el('img');
+        img.src = bi;
+        img.alt = '';
+        btn.append(img);
+      }
+      btn.append(document.createTextNode(done.buttons > 0 ? `+${done.buttons} Buttons` : done.buttonsLeft <= 0 ? 'Buttons full today' : '+0 Buttons'));
+      mid.append(btn);
+    }
     if (error) mid.append(el('p', 'ar-note', error));
     else if (done) {
       mid.append(el('p', 'ar-note', `Plays left today ${done.playsLeft}/${this.content.arcade.playsPerDay}`));

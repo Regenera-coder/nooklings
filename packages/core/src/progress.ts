@@ -645,3 +645,21 @@ export function nextStudyLevel(state: GameState, content: Content, studyId: stri
   const next = def.levels[done];
   return next ? { level: done + 1, cost: next.cost, ms: next.ms } : null;
 }
+
+// ---------- daily gift and Arcade Buttons ----------
+
+/** Buttons the daily gift gives at this Home Level. */
+export function dailyGiftAmount(state: GameState, content: Content): number {
+  const g = content.dailyGift;
+  return g ? g.buttons + g.buttonsPerLevel * levelFor(state.hearts, content) : 0;
+}
+
+export function dailyGiftReady(state: GameState, content: Content, at: number): boolean {
+  return !!content.dailyGift && state.dailyGiftDay !== dayOf(at, content);
+}
+
+/** Arcade Buttons still available today. */
+export function arcadeButtonsLeft(state: GameState, content: Content, at: number): number {
+  const earned = state.arcade.day === dayOf(at, content) ? state.arcade.buttons : 0;
+  return Math.max(0, content.arcade.maxButtonsPerDay - earned);
+}

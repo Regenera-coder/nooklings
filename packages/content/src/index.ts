@@ -491,27 +491,27 @@ const HOUR = 60 * MINUTE;
 const succulents: SucculentDef[] = [
   {
     id: 'meringue_rose', name: 'Meringue Rose', description: 'A swirl of plump leaves that curl up into soft peaks.',
-    seedCost: { buttons: 40 }, sproutMs: 30 * MINUTE, growMs: 4 * HOUR, sellPrice: { buttons: 70 },
+    seedCost: { buttons: 40 }, sproutMs: 30 * MINUTE, growMs: 4 * HOUR, sellPrice: { buttons: 100 },
     colour: 'blueberry', anchor: 'centre',
   },
   {
     id: 'gumdrop_cluster', name: 'Gumdrop Cluster', description: 'A low mound of round, bead-like leaves.',
-    seedCost: { buttons: 50 }, sproutMs: 30 * MINUTE, growMs: 5 * HOUR, sellPrice: { buttons: 90 },
+    seedCost: { buttons: 50 }, sproutMs: 30 * MINUTE, growMs: 5 * HOUR, sellPrice: { buttons: 125 },
     colour: 'taro', anchor: 'base',
   },
   {
     id: 'stitchback', name: 'Stitchback', description: 'Tall pointed leaves with a neat stitched seam down each one.',
-    seedCost: { buttons: 60 }, sproutMs: 30 * MINUTE, growMs: 6 * HOUR, sellPrice: { buttons: 110 },
+    seedCost: { buttons: 60 }, sproutMs: 30 * MINUTE, growMs: 6 * HOUR, sellPrice: { buttons: 150 },
     colour: 'apricot', anchor: 'base',
   },
   {
     id: 'teacup_tree', name: 'Teacup Tree', description: 'A tiny tree whose leaves are little cupped saucers.',
-    seedCost: { buttons: 80 }, sproutMs: 30 * MINUTE, growMs: 7 * HOUR, sellPrice: { buttons: 140 },
+    seedCost: { buttons: 80 }, sproutMs: 30 * MINUTE, growMs: 7 * HOUR, sellPrice: { buttons: 200 },
     colour: 'strawberry', anchor: 'base',
   },
   {
     id: 'ribbon_fall', name: 'Ribbon Fall', description: 'Long braided strands that tumble over the side of the pot.',
-    seedCost: { buttons: 100 }, sproutMs: 30 * MINUTE, growMs: 8 * HOUR, sellPrice: { buttons: 180 },
+    seedCost: { buttons: 100 }, sproutMs: 30 * MINUTE, growMs: 8 * HOUR, sellPrice: { buttons: 250 },
     colour: 'plum', anchor: 'top',
   },
 ];
@@ -615,11 +615,12 @@ export const content: Content = {
   gatherSpots: byId(gatherSpots, (g) => g.id),
   costumes: byId(costumes, (c) => c.id),
   ribbons: { perPlay: 1, playsPerDay: 5 },
-  arcade: { playsPerDay: 3, maxRibbonsPerGame: 5, maxRibbonsPerDay: 10, order: arcadeGames.map((g) => g.id) },
+  arcade: { playsPerDay: 3, maxRibbonsPerGame: 5, maxRibbonsPerDay: 10, buttonsPerPoint: 0.5, maxButtonsPerDay: 150, order: arcadeGames.map((g) => g.id) },
   arcadeGames: byId(arcadeGames, (g) => g.id) as Record<ArcadeGameId, ArcadeGameDef>,
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
   baking: null,
+  dailyGift: { buttons: 50, buttonsPerLevel: 5 },
   research: { studies: byId(studies, (x) => x.id), order: studies.map((x) => x.id) },
   garden: {
     unlock: 'succulents',

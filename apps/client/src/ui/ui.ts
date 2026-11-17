@@ -36,6 +36,7 @@ import {
   undiscovered,
   unseenPatterns,
   researchLevel,
+  dailyGiftReady,
   researchSpeed,
   nextStudyLevel,
   nextGardenGoal,
@@ -216,6 +217,7 @@ export class GameUI {
     this.applyInterfaceArt();
     this.renderRoomTabs();
     window.setInterval(() => this.tick(), 1000);
+    window.setTimeout(() => this.claimDailyGift(), 1500);
     this.renderTop();
     this.renderBadges();
   }
@@ -455,6 +457,9 @@ export class GameUI {
       case 'succulent_given':
         this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved the ${e.name} and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the ${e.name}`, 2600);
         break;
+      case 'daily_gift':
+        this.toast(`Daily gift: +${e.buttons} Buttons. See you tomorrow!`, 3000);
+        break;
       case 'research_started':
         this.toast(`Started studying ${this.content.research?.studies[e.studyId]?.name ?? ''}`, 2000);
         break;
@@ -489,7 +494,14 @@ export class GameUI {
     return res.events;
   }
 
+  /** The daily gift arrives by itself the first time the game is open on a new day. */
+  private claimDailyGift(): void {
+    if (this.revealing || this.arcade.isOpen) return;
+    if (dailyGiftReady(this.getState(), this.content, Date.now())) this.run({ type: 'claim_daily_gift', at: Date.now() });
+  }
+
   private tick(): void {
+    this.claimDailyGift();
     const hasCountdown =
       (this.tab === 'home' && this.selection.kind === 'resident') ||
       (this.tab === 'nookbook' && this.detailId !== null) ||

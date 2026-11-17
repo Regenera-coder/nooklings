@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES, parseSeedKey } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, GardenState, GardenToolId, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 12;
+export const SAVE_VERSION = 13;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -33,6 +33,8 @@ const MIGRATIONS: Record<number, Migration> = {
   10: (raw) => ({ ...raw, version: 11 }),
   // v11 -> v12: Research (nothing studied yet).
   11: (raw) => ({ ...raw, version: 12 }),
+  // v12 -> v13: Arcade Buttons counter and the daily gift (not yet claimed).
+  12: (raw) => ({ ...raw, version: 13 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -79,10 +81,11 @@ export function newGame(content: Content): GameState {
     bakesDone: 0,
     garden: emptyGarden(content),
     research: { levels: {}, active: null },
+    dailyGiftDay: -1,
     seriesClaimed: [],
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
-    arcade: { day: 0, plays: {}, ribbons: 0, best: {}, prizes: [] },
+    arcade: { day: 0, plays: {}, ribbons: 0, buttons: 0, best: {}, prizes: [] },
     companions: {},
     rngState: content.starter.rngSeed >>> 0,
     nextUid,
@@ -208,7 +211,7 @@ export function deserialize(text: string, content: Content): GameState {
   // Arcade: keep only known games and prizes; scores within each game's range.
   const ra = (data.arcade ?? {}) as Raw;
   const isGame = (k: string): k is ArcadeGameId => k in content.arcadeGames;
-  const arcade: ArcadeState = { day: nonNegInt(ra.day), plays: {}, ribbons: Math.min(content.arcade.maxRibbonsPerDay, nonNegInt(ra.ribbons)), best: {}, prizes: [] };
+  const arcade: ArcadeState = { day: nonNegInt(ra.day), plays: {}, ribbons: Math.min(content.arcade.maxRibbonsPerDay, nonNegInt(ra.ribbons)), buttons: Math.min(content.arcade.maxButtonsPerDay, nonNegInt(ra.buttons)), best: {}, prizes: [] };
   for (const [k, v] of Object.entries((ra.plays ?? {}) as Raw)) if (isGame(k)) arcade.plays[k] = Math.min(content.arcade.playsPerDay, nonNegInt(v));
   for (const [k, v] of Object.entries((ra.best ?? {}) as Raw)) if (isGame(k)) arcade.best[k] = Math.min(content.arcadeGames[k].maxScore, nonNegInt(v));
   arcade.prizes = strings(ra.prizes).filter((key, i, all) => {
@@ -313,6 +316,7 @@ export function deserialize(text: string, content: Content): GameState {
     bakesDone: nonNegInt(data.bakesDone),
     garden,
     research,
+    dailyGiftDay: typeof data.dailyGiftDay === 'number' && Number.isInteger(data.dailyGiftDay) ? data.dailyGiftDay : -1,
     seriesClaimed: strings(data.seriesClaimed).filter((id, i, a) => content.series.some((x) => x.id === id && x.reward) && a.indexOf(id) === i),
     costumesOwned,
     ribbonDay,

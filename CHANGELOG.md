@@ -2,6 +2,14 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — More Buttons (17 Nov 2026)
+
+### Changed
+- **The Arcade pays Buttons:** half a Button for every point scored, up to 150 Buttons a day across all games, on top of Ribbons and prizes. The result screen shows the Buttons won.
+- **Daily gift:** the first time the game is open each day, 50 Buttons plus 5 per Home Level arrive by themselves (55 at Level 1, 100 at Level 10).
+- **Succulents sell for more:** about 2.5 times the seed price (Meringue Rose 100, Gumdrop Cluster 125, Stitchback 150, Teacup Tree 200, Ribbon Fall 250). The new-colour and pattern bonuses apply on top.
+- Hearts are unchanged, so Home Levels still take about a week. Save version 13. Tests cover the daily gift, the Arcade Button limit and garden prices.
+
 ## 0.13.0 — Research, and a Cosy Kitchen fix (17 Nov 2026)
 
 ### Implemented
