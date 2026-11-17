@@ -313,5 +313,11 @@ SUC2 = [
 for name, prompt in SUC2:
     jobs.append({"stage": "succulent_test2", "out": f"{F}/succ2_{name}.png", "size": "1024x1024", "refs": [], "prompt": prompt + SUC_RULES})
 
+# Succulent Garden, fifth species (owner, 17 Nov): Graptopetalum (ghost plant). Pale, plump, slightly open rosette.
+GRAPTO = ("A mature ghost plant (Graptopetalum) rosette seen from above: a loose, open rosette of about sixteen plump, pointed, "
+          "smooth leaves with a soft, slightly flattened top, arranged in spreading rings. Matte, powdery-looking surface. "
+          "Smooth leaves only, no spines, no fluff. Looks like a real ghost plant.")
+jobs.append({"stage": "succulent_test3", "out": f"{F}/succ3_graptopetalum_mature.png", "size": "1024x1024", "refs": [], "prompt": GRAPTO + SUC_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})

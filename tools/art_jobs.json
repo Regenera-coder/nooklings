@@ -2639,5 +2639,12 @@
   "size": "1024x1024",
   "refs": [],
   "prompt": "A young jade plant (Crassula ovata) seen from the side: a short, branching woody stem with pairs of thick, fleshy, oval, smooth leaves arranged in neat opposite pairs along each branch. Compact, shrub-like, not a tree. Smooth leaves only. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
+ },
+ {
+  "stage": "succulent_test3",
+  "out": "03 ART INBOX — Milestone F/succ3_graptopetalum_mature.png",
+  "size": "1024x1024",
+  "refs": [],
+  "prompt": "A mature ghost plant (Graptopetalum) rosette seen from above: a loose, open rosette of about sixteen plump, pointed, smooth leaves with a soft, slightly flattened top, arranged in spreading rings. Matte, powdery-looking surface. Smooth leaves only, no spines, no fluff. Looks like a real ghost plant. Felt craft with fine visible stitching along the leaf edges and veins, lit softly from the upper left. Plain pure-white background. One single object, centred, filling about 70 percent of the frame. No pot, no ground, no shadow on the floor, no text, no letters, no logo, no watermark. Nothing cropped. Colour: a pale neutral sage-grey felt with very little colour, so the game can tint it in code."
  }
 ]
