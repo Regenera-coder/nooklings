@@ -121,3 +121,16 @@ export function art(key: string, cls: string, alt = ''): HTMLImageElement | null
   img.alt = alt;
   return img;
 }
+
+/** A small felt interface icon, or its stand-in symbol until the art exists. */
+export function uiIcon(key: string, glyph: string, cls = 'ui-ico'): HTMLElement {
+  return art(key, cls) ?? el('span', `${cls} glyph`, glyph);
+}
+
+/** A button with a small icon before its label. */
+export function iconButton(key: string, glyph: string, label: string, cls: string, onClick: () => void, disabled = false): HTMLButtonElement {
+  const b = button('', cls, onClick, disabled);
+  b.append(uiIcon(key, glyph), document.createTextNode(label));
+  b.classList.add('with-ico');
+  return b;
+}

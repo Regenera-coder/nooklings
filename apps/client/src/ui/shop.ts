@@ -14,7 +14,7 @@ import {
 import { artUrl, costumeArtName } from '../assets';
 import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
-import { art, button, el, priceChips } from './dom';
+import { art, button, el, priceChips, uiIcon } from './dom';
 import { prefs, setPrefs } from './prefs';
 
 export type ShopTab = 'furniture' | 'gardening' | 'costumes';
@@ -145,7 +145,7 @@ export class ShopView {
       const pic = art(`furn_${def.id}`, 'shop-art', def.name) ?? el('div', 'shop-art ph', def.name);
       card.append(pic, el('b', 'shop-name', def.name));
       if (locked) {
-        card.append(el('span', 'lock-chip', `🔒 Home Level ${Math.max(r.requiresLevel, craftAt)}`));
+        card.append((() => { const l = el('span', 'lock-chip'); l.append(uiIcon('icon_lock', '🔒'), document.createTextNode(` Home Level ${Math.max(r.requiresLevel, craftAt)}`)); return l; })());
       } else {
         const price = el('div', 'price-row');
         price.append(...priceChips(r.cost, s.wallet));
@@ -199,7 +199,9 @@ export class ShopView {
       const pic = art(`garden_seed_${id}`, 'packet-art', def.name);
       if (pic) card.append(pic);
       const hours = Math.round(((def.sproutMs + def.growMs) * speed.grow) / 360_000) / 10;
-      card.append(el('b', '', def.name), el('span', 'packet-time', `🌱 ${Number.isInteger(hours) ? hours : hours.toFixed(1)} h to grow`));
+      const time = el('span', 'packet-time');
+      time.append(uiIcon('icon_sprout', '🌱'), document.createTextNode(` ${Number.isInteger(hours) ? hours : hours.toFixed(1)} h to grow`));
+      card.append(el('b', '', def.name), time);
       const mine = Object.entries(s.garden.seeds).filter(([k]) => k.startsWith(`${id}:`)).reduce((a, [, n]) => a + n, 0);
       if (mine) card.append(el('span', 'packet-bag', `In bag ×${mine}`));
       const price = el('div', 'price-row');
@@ -320,7 +322,7 @@ export class ShopView {
       card.append(el('b', 'shop-name', c.name), el('p', 'costume-desc', c.description));
       const owned = s.costumesOwned.includes(c.id);
       if (!owned) {
-        if (level < c.requiresLevel) card.append(el('span', 'lock-chip', `🔒 Home Level ${c.requiresLevel}`));
+        if (level < c.requiresLevel) card.append((() => { const l = el('span', 'lock-chip'); l.append(uiIcon('icon_lock', '🔒'), document.createTextNode(` Home Level ${c.requiresLevel}`)); return l; })());
         else {
           const price = el('div', 'price-row');
           price.append(...priceChips(c.cost, s.wallet));

@@ -440,5 +440,22 @@ UI_ICONS = [
 for name, prompt in UI_ICONS:
     jobs.append({"stage": "ui_icons", "out": f"{F}/{name}.png", "size": "1024x1024", "refs": ICON_REFS, "prompt": prompt + ICON_RULES})
 
+# UI redesign, second set (owner, 17 Nov): small felt icons that replace the emoji and symbols the new screens use.
+UI_ICONS2 = [
+    ("icon_mood", "A round felt face with closed happy eyes and rosy cheeks, soft butter-yellow felt, like a little smiling sun without rays."),
+    ("icon_decor", "A tiny plump felt armchair in lavender with a cream cushion and a small stitched star on the back."),
+    ("icon_form", "A soft cream felt feather with a pale pink stitched spine and two tiny sparkles beside it."),
+    ("icon_companion", "A single felt paw print in warm caramel brown: one round pad and four small toe pads, with cream stitching."),
+    ("icon_costumes", "A small lavender felt T-shirt on a tiny wooden coat hanger, with a little yellow stitched star on the chest."),
+    ("icon_pollinate", "A small round felt bumblebee in butter yellow and soft brown stripes, with two pale blue stitched wings, seen from the front."),
+    ("icon_give", "A small cream felt gift box tied with a pink felt ribbon and a big bow on top."),
+    ("icon_show", "A little glass display dome on a round wooden base, with a tiny yellow felt star inside it."),
+    ("icon_lock", "A small chunky padlock made of soft grey-brown felt with a cream stitched keyhole and a rounded shackle."),
+    ("icon_pin", "A small map pin made of berry-pink felt with a round cream centre, standing on its point."),
+    ("icon_sprout", "A tiny green felt seedling with two round leaves on a short stem, coming out of a small mound of brown felt soil."),
+]
+for name, prompt in UI_ICONS2:
+    jobs.append({"stage": "ui_icons2", "out": f"{F}/{name}.png", "size": "1024x1024", "refs": ICON_REFS, "prompt": prompt + ICON_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})

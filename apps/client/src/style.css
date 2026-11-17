@@ -891,3 +891,15 @@ select.pick { min-height: 40px; }
   .gacts .btn { min-height: 40px; font-size: 12px; }
   .glinks .btn { min-height: 36px; }
 }
+/* Small felt icons inside text and buttons */
+.ui-ico { width: 18px; height: 18px; object-fit: contain; vertical-align: -4px; flex: none; }
+.ui-ico.glyph { display: inline-block; width: auto; height: auto; vertical-align: baseline; }
+.with-ico { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.with-ico .ui-ico { width: 22px; height: 22px; }
+.fact-ico { width: 22px; height: 22px; object-fit: contain; }
+.fact-ico.glyph { text-align: center; color: #c4457c; }
+.room-lock { width: 16px; height: 16px; object-fit: contain; }
+.lock-chip { display: inline-flex; align-items: center; gap: 4px; }
+.task-where { display: inline-flex; align-items: center; gap: 2px; }
+.packet-time { display: inline-flex; align-items: center; gap: 2px; }
+.packet-time .ui-ico { width: 14px; height: 14px; }

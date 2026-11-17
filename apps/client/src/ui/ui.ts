@@ -57,7 +57,7 @@ import { artUrl } from '../assets';
 import { succulentArtUrl, succulentImage } from '../garden/succulentArt';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
-import { bondHearts, button, cardArt, clock, costChips, CURRENCY, el, icon, seconds, tagChips } from './dom';
+import { bondHearts, button, cardArt, clock, costChips, CURRENCY, el, icon, iconButton, seconds, tagChips, uiIcon } from './dom';
 import { prefs, setPrefs } from './prefs';
 import { ShopView } from './shop';
 import type { CommandInput } from '../store';
@@ -319,7 +319,8 @@ export class GameUI {
       // Every room shows, so players can see what is coming; locked ones say what they need when tapped.
       const unlockLevel = room.access ? this.content.levels.find((l) => l.unlocks.includes(room.access!.unlock))?.level ?? 99 : 1;
       const b = el('button', `${id === this.roomId ? 'on' : ''}${open ? '' : ' locked'}`);
-      b.append(document.createTextNode(open ? room.name : `🔒 ${room.name}`));
+      if (!open) b.append(uiIcon('icon_lock', '🔒', 'room-lock'));
+      b.append(document.createTextNode(room.name));
       if (!open) b.title = level < unlockLevel ? `Opens at Home Level ${unlockLevel}` : 'Ready to open';
       if (!open && level >= unlockLevel && canAfford(s, room.access!.cost)) b.append(el('span', 'dot'));
       b.addEventListener('click', () => this.showRoom(id));
@@ -1132,7 +1133,9 @@ export class GameUI {
     const head = el('div', 'task-head');
     const titles = el('div', 'grow');
     titles.append(el('h3', '', def.title), el('p', '', def.description));
-    head.append(titles, el('span', 'task-where', `📍 ${room?.name ?? ''} · ${done}/${c.furnitureIds.length} placed`));
+    const where = el('span', 'task-where');
+    where.append(uiIcon('icon_pin', '📍'), document.createTextNode(` ${room?.name ?? ''} · ${done}/${c.furnitureIds.length} placed`));
+    head.append(titles, where);
     card.append(head);
     for (const fid of c.furnitureIds) {
       const f = this.content.furniture[fid];
@@ -1178,7 +1181,9 @@ export class GameUI {
     const body = el('div', 'grow');
     // A task from a later chapter waits for its Home Level, not for another task.
     const waitsForLevel = status === 'locked' && levelFor(this.getState().hearts, this.content) < (def.fromLevel ?? 1);
-    body.append(el('h3', '', waitsForLevel ? 'A new chapter' : status === 'locked' ? '🔒 Next task' : def.title));
+    const h = el('h3', '', waitsForLevel ? 'A new chapter' : status === 'locked' ? 'Next task' : def.title);
+    if (status === 'locked' && !waitsForLevel) h.prepend(uiIcon('icon_lock', '🔒'));
+    body.append(h);
     body.append(el('p', '', waitsForLevel ? `Opens at Home Level ${def.fromLevel}. Play with your friends, upgrade their looks and craft new things to earn Home Hearts.` : status === 'locked' ? 'Finish the task above to reveal it.' : def.description));
     if (status !== 'locked' && status !== 'claimed') {
       const rewards = el('div', 'rewards');
@@ -1333,23 +1338,23 @@ export class GameUI {
     const cols = el('div', 'profile-cols');
     const facts = el('div', 'facts');
     const bond = bondProgress(owned.bondXp, this.content);
-    const fact = (ico: string, k: string, v: string | HTMLElement) => {
+    const fact = (ico: [string, string], k: string, v: string | HTMLElement) => {
       const row = el('div', 'fact');
-      row.append(el('span', 'fact-ico', ico), el('span', 'fact-k', k));
+      row.append(uiIcon(ico[0], ico[1], 'fact-ico'), el('span', 'fact-k', k));
       const val = el('span', 'fact-v');
       val.append(v);
       row.append(val);
       facts.append(row);
     };
-    fact('☺', 'Mood', def.mood);
-    fact('✿', 'Favourite decor', def.favouriteTags.join(', '));
+    fact(['icon_mood', '☺'], 'Mood', def.mood);
+    fact(['icon_decor', '✿'], 'Favourite decor', def.favouriteTags.join(', '));
     const bondCell = el('span');
     bondCell.append(bondHearts(bond.level), document.createTextNode(bond.span ? ` ${bond.into}/${bond.span} to next` : ' Max'));
-    fact('♥', 'Bond', bondCell);
-    fact('✦', 'Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
-    fact('⌂', 'Lives in', this.homePicker(id, owned.room));
+    fact(['icon_home_heart', '♥'], 'Bond', bondCell);
+    fact(['icon_form', '✦'], 'Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
+    fact(['icon_tab_home', '⌂'], 'Lives in', this.homePicker(id, owned.room));
     const pets = this.companionPicker(id);
-    if (pets) fact('🐾', 'Companion', pets);
+    if (pets) fact(['icon_companion', '🐾'], 'Companion', pets);
     cols.append(facts);
 
     const acts = el('div', 'profile-acts');
@@ -1378,7 +1383,7 @@ export class GameUI {
       acts.append(box);
     }
     if (visibleCostumes(this.content, id).length) {
-      acts.append(button('👚 Costumes ›', 'btn costumes-btn', () => { this.shop.open('costumes', { resident: id }); this.setTab('shop'); }));
+      acts.append(iconButton('icon_costumes', '👚', 'Costumes ›', 'btn costumes-btn', () => { this.shop.open('costumes', { resident: id }); this.setTab('shop'); }));
     }
     cols.append(acts);
     right.append(cols);
@@ -1938,7 +1943,7 @@ export class GameUI {
               if (st.podReady) acts.append(button('Collect seeds', 'btn primary wide', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
               else acts.append(el('span', 'muted wide', `Seed pod ripens in ${clock(plant.pod.readyAt - now)}`));
             } else if (st.blooming) {
-              if (this.pollenFrom === null) acts.append(button('🐝 Pollinate', 'btn primary', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
+              if (this.pollenFrom === null) acts.append(iconButton('icon_pollinate', '🐝', 'Pollinate', 'btn primary', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
               else if (this.pollenFrom === i) acts.append(el('span', 'muted wide', 'Now tap another flower'));
               else acts.append(button('Brush here', 'btn primary', () => {
                 const fromPot = this.pollenFrom;
@@ -1950,10 +1955,10 @@ export class GameUI {
               acts.append(el('span', 'muted wide', `Flowers in ${clock(st.bloomAt - now)}`));
             }
             if (st.offsetReady) acts.append(button('Take offset', 'btn', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
-            if (!plant.pod && s.residentOrder.length) acts.append(button('🎁 Give', 'btn', () => { this.giftFrom = i; this.pollenFrom = null; this.render(); }));
-            if (!plant.pod) acts.append(button('Put on show', 'btn', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
+            if (!plant.pod && s.residentOrder.length) acts.append(iconButton('icon_give', '🎁', 'Give', 'btn', () => { this.giftFrom = i; this.pollenFrom = null; this.render(); }));
+            if (!plant.pod) acts.append(iconButton('icon_show', '✦', 'Put on show', 'btn', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
             const price = succulentSellPrice(this.content, plant).buttons ?? 0;
-            acts.append(button(`Sell · ${price}`, 'btn', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
+            acts.append(iconButton('icon_buttons', '●', `Sell · ${price}`, 'btn', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
             body.append(acts);
           }
         }

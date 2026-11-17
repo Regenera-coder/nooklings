@@ -111,7 +111,7 @@ ROOMS = {"living": (2400, 1040), "sunroom": (2400, 1092), "yard": (2400, 886), "
 # Square scene cards for Explore (gathering spots and expedition routes).
 CARDS = ["spot_woodpile", "spot_berry_bush", "spot_cotton_patch", "exp_meadow", "exp_old_mill", "exp_moonlit_market"]
 PARCELS = ["parcel_closed", "parcel_open", "parcel_teatime_closed", "parcel_teatime_open"]
-ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "tab_shop", "research", "build", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon", "treats"]
+ICONS = ["tab_home", "tab_nookbook", "tab_explore", "tab_tasks", "tab_shop", "research", "build", "mood", "decor", "form", "companion", "costumes", "pollinate", "give", "show", "lock", "pin", "sprout", "buttons", "wish_stamp", "wood", "fabric", "mending_thread", "home_heart", "keepsake", "ribbon", "treats"]
 EXPECTED = (
     [f"char_{c}_{p}" for c in CHARACTERS for p in POSES if not p.startswith("decorated_") or c in DECORATED_CHARACTERS]
     + [f"room_{r}_background" for r in ROOMS]
