@@ -41,8 +41,8 @@ describe('Succulent Garden content', () => {
     expect(garden.order).toEqual(['meringue_rose', 'gumdrop_cluster', 'stitchback', 'teacup_tree', 'ribbon_fall']);
     for (const id of garden.order) {
       const def = garden.species[id]!;
-      expect(def.colour.mature).toMatch(/^#[0-9a-f]{6}$/);
-      expect(def.colour.blush).toMatch(/^#[0-9a-f]{6}$/);
+      expect(garden.colours[def.colour]!.mature).toMatch(/^#[0-9a-f]{6}$/);
+      expect(garden.colours[def.colour]!.blush).toMatch(/^#[0-9a-f]{6}$/);
       expect(def.sellPrice.buttons!).toBeGreaterThan(def.seedCost.buttons!);
     }
     expect(c.levels.find((l) => l.unlocks.includes(garden.unlock))!.level).toBe(5);
@@ -78,7 +78,7 @@ describe('growing', () => {
     const before = s.wallet.buttons;
     s = ok(s, { type: 'plant_succulent', pot: 1, speciesId: rose.id, at: T }).state;
     expect(s.wallet.buttons).toBe(before - rose.seedCost.buttons!);
-    expect(s.garden.pots[1]).toEqual({ speciesId: rose.id, plantedAt: T });
+    expect(s.garden.pots[1]).toEqual({ speciesId: rose.id, colour: rose.colour, plantedAt: T, pod: null, offsetTakenAt: null });
     expect(err(s, { type: 'plant_succulent', pot: 1, speciesId: rose.id, at: T })).toBe('busy');
     expect(err(s, { type: 'sell_succulent', pot: 1, at: T + total - 1 })).toBe('not_ready');
     expect(gardenReady(s, c, T + total)).toBe(true);
@@ -89,7 +89,7 @@ describe('growing', () => {
     expect(s.wallet.buttons).toBe(before - rose.seedCost.buttons! + rose.sellPrice.buttons!);
     expect(s.garden.pots[1]).toBeNull();
     expect(s.garden.grown).toEqual([rose.id]);
-    expect(s.hearts).toBe(hearts + garden.heartsPerNewSpecies);
+    expect(s.hearts).toBe(hearts + garden.heartsPerNewSpecies + garden.heartsPerDiscovery);
     expect(r.events).toContainEqual(expect.objectContaining({ type: 'succulent_sold', firstTime: true }));
 
     // A second plant of the same species gives no new Hearts.
@@ -133,7 +133,7 @@ describe('saves', () => {
     old.version = 8;
     const upgraded = deserialize(JSON.stringify(old), c);
     expect(upgraded.version).toBe(SAVE_VERSION);
-    expect(upgraded.garden).toEqual({ pots: [null, null, null], grown: [], sold: 0 });
+    expect(upgraded.garden).toEqual({ pots: [null, null, null], grown: [], sold: 0, seeds: {}, discovered: [] });
   });
 
   it('drops plants of unknown species and clamps the pot count', () => {
@@ -142,7 +142,7 @@ describe('saves', () => {
     const s = deserialize(JSON.stringify(raw), c);
     expect(s.garden.pots).toHaveLength(garden.maxPots);
     expect(s.garden.pots[0]).toBeNull();
-    expect(s.garden.pots[1]).toEqual({ speciesId: 'stitchback', plantedAt: T });
+    expect(s.garden.pots[1]).toMatchObject({ speciesId: 'stitchback', colour: 'apricot', plantedAt: T, pod: null });
     expect(s.garden.grown).toEqual(['stitchback']);
     expect(levelFor(s.hearts, c)).toBe(5);
   });

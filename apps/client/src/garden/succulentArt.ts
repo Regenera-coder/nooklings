@@ -55,9 +55,9 @@ function fromHsl([h, s, l]: RGB): RGB {
 }
 
 /** Body colour at a point of the growth blend (0 = seedling green, 1 = grown), turning the short way round the colour wheel. */
-export function bodyColour(def: SucculentDef, seedling: string, t: number): RGB {
+export function bodyColour(seedling: string, mature: string, t: number): RGB {
   const a = toHsl(hexToRgb(seedling));
-  const b = toHsl(hexToRgb(def.colour.mature));
+  const b = toHsl(hexToRgb(mature));
   let dh = b[0] - a[0];
   if (dh > 0.5) dh -= 1;
   if (dh < -0.5) dh += 1;
@@ -228,15 +228,15 @@ export interface Palette {
  * Picture of a succulent at a point of its growth blend, as an image URL.
  * Returns null if it is not ready yet (the first call starts preparing it); `onReady` runs once it is.
  */
-export function succulentImage(def: SucculentDef, palette: Palette, colour: number, onReady: () => void): string | null {
+export function succulentImage(def: SucculentDef, palette: Palette, tint: { mature: string; blush: string }, colour: number, onReady: () => void): string | null {
   const step = Math.round(Math.max(0, Math.min(1, colour)) * STEPS);
-  const key = `${def.id}:${step}`;
+  const key = `${def.id}:${tint.mature}:${step}`;
   const hit = rendered.get(key);
   if (hit) return hit;
   void prepared$(def).then((p) => {
     if (!p || rendered.has(key)) return;
     const t = step / STEPS;
-    rendered.set(key, paint(p, bodyColour(def, palette.seedling, t), hexToRgb(def.colour.blush), blushAt(t)));
+    rendered.set(key, paint(p, bodyColour(palette.seedling, tint.mature, t), hexToRgb(tint.blush), blushAt(t)));
     onReady();
   });
   return null;

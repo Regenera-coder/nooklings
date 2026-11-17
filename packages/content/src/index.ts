@@ -14,6 +14,7 @@ import type {
   ResidentDef,
   RoomDef,
   SucculentDef,
+  SucculentColourDef,
   TaskDef,
 } from '@nooklings/core';
 
@@ -486,28 +487,37 @@ const succulents: SucculentDef[] = [
   {
     id: 'meringue_rose', name: 'Meringue Rose', description: 'A swirl of plump leaves that curl up into soft peaks.',
     seedCost: { buttons: 40 }, sproutMs: 30 * MINUTE, growMs: 4 * HOUR, sellPrice: { buttons: 70 },
-    colour: { mature: '#b3cced', blush: '#f26b8c' }, anchor: 'centre',
+    colour: 'blueberry', anchor: 'centre',
   },
   {
     id: 'gumdrop_cluster', name: 'Gumdrop Cluster', description: 'A low mound of round, bead-like leaves.',
     seedCost: { buttons: 50 }, sproutMs: 30 * MINUTE, growMs: 5 * HOUR, sellPrice: { buttons: 90 },
-    colour: { mature: '#ccbaed', blush: '#eb6b9e' }, anchor: 'base',
+    colour: 'taro', anchor: 'base',
   },
   {
     id: 'stitchback', name: 'Stitchback', description: 'Tall pointed leaves with a neat stitched seam down each one.',
     seedCost: { buttons: 60 }, sproutMs: 30 * MINUTE, growMs: 6 * HOUR, sellPrice: { buttons: 110 },
-    colour: { mature: '#facca3', blush: '#ed6b40' }, anchor: 'base',
+    colour: 'apricot', anchor: 'base',
   },
   {
     id: 'teacup_tree', name: 'Teacup Tree', description: 'A tiny tree whose leaves are little cupped saucers.',
     seedCost: { buttons: 80 }, sproutMs: 30 * MINUTE, growMs: 7 * HOUR, sellPrice: { buttons: 140 },
-    colour: { mature: '#f5b8c7', blush: '#e04761' }, anchor: 'base',
+    colour: 'strawberry', anchor: 'base',
   },
   {
     id: 'ribbon_fall', name: 'Ribbon Fall', description: 'Long braided strands that tumble over the side of the pot.',
     seedCost: { buttons: 100 }, sproutMs: 30 * MINUTE, growMs: 8 * HOUR, sellPrice: { buttons: 180 },
-    colour: { mature: '#b88abd', blush: '#ed668c' }, anchor: 'top',
+    colour: 'plum', anchor: 'top',
   },
+];
+
+// Colours every species can grow into (Phase 2). Each species starts in its own; pollinating mixes them.
+const succulentColours: SucculentColourDef[] = [
+  { id: 'blueberry', name: 'Blueberry', mature: '#b3cced', blush: '#f26b8c' },
+  { id: 'taro', name: 'Taro', mature: '#ccbaed', blush: '#eb6b9e' },
+  { id: 'apricot', name: 'Apricot', mature: '#facca3', blush: '#ed6b40' },
+  { id: 'strawberry', name: 'Strawberry', mature: '#f5b8c7', blush: '#e04761' },
+  { id: 'plum', name: 'Plum', mature: '#b88abd', blush: '#ed668c' },
 ];
 
 function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
@@ -548,6 +558,15 @@ export const content: Content = {
     potCost: { buttons: 150, wood: 5 },
     heartsPerNewSpecies: 3,
     seedlingColour: '#8fc780',
+    colours: byId(succulentColours, (x) => x.id),
+    colourOrder: succulentColours.map((x) => x.id),
+    bloomMs: 2 * HOUR,
+    podMs: 4 * HOUR,
+    seedsPerPod: 2,
+    mutationChance: 0.05,
+    offsetMs: 8 * HOUR,
+    newColourSellBonus: 1.5,
+    heartsPerDiscovery: 1,
   },
   series: [{ id: SERIES_1, name: 'First Residents' }],
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],

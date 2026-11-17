@@ -2,6 +2,21 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Succulent Garden, Phase 2 (17 Nov 2026)
+
+### Implemented
+- **Five colours** every shape can grow into: Blueberry, Taro, Apricot, Strawberry and Plum. Shop seeds grow in their species' own colour.
+- **Flowers and pollinating.** A grown plant flowers 2 hours later. Tap Pollinate on one flower, then Brush here on another: the second plant forms a seed pod that ripens in 4 hours.
+- **Seeds.** A pod gives 2 seeds. Each takes its shape from one parent and its colour from one parent; 1 seed in 20 comes out in a colour neither parent had. Seeds go into a Seed bag and are planted for free.
+- **Offsets.** A grown plant makes an offset (a copy of itself) 8 hours after it is grown, and every 8 hours after one is taken.
+- **Succulent book:** all 25 shape-and-colour combinations, shown as silhouettes until grown. Each new one gives 1 Home Heart. Plants are named by colour and shape, e.g. "Strawberry Meringue Rose".
+- Plants in a colour that is not their species' own sell for 50% more. A plant with a seed pod can't be sold until the pod is collected.
+- The flower spike and seed pod art are shown on the plants. Save version 10 (older plants keep their species' colour). 15 garden tests, including the mix of shapes and colours and the mutation rate over 800 seeds.
+- Checked at 740×360 and 640×320: pollinate, brush, collect seeds, take an offset and plant from the seed bag all work by tapping; no page errors.
+
+### Placeholder
+- Every number (bloom 2 h, pod 4 h, 2 seeds, 5% new colour, offsets every 8 h, +50% sell price) is a PROPOSED value.
+
 ## 0.10.0 — Succulent Garden, Phase 1 (17 Nov 2026)
 
 ### Implemented

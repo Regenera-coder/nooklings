@@ -36,6 +36,11 @@ import {
   gardenOpen,
   nextPotCost,
   succulentGrowth,
+  parseSeedKey,
+  plantStatus,
+  seedKey,
+  succulentSellPrice,
+  undiscovered,
   seriesProgress,
   treatGivenToday,
 } from './progress';
@@ -75,7 +80,12 @@ export type Command =
   | { id: string; type: 'claim_series'; seriesId: string }
   | { id: string; type: 'plant_succulent'; pot: number; speciesId: string; at: number }
   | { id: string; type: 'sell_succulent'; pot: number; at: number }
-  | { id: string; type: 'buy_pot' };
+  | { id: string; type: 'buy_pot' }
+  | { id: string; type: 'plant_seed'; pot: number; seed: string; at: number }
+  | { id: string; type: 'pollinate'; pot: number; fromPot: number; at: number }
+  | { id: string; type: 'collect_pod'; pot: number; at: number }
+  | { id: string; type: 'take_offset'; pot: number; at: number }
+  | { id: string; type: 'tend_garden'; at: number };
 
 export type CommandError =
   | PlacementError
@@ -139,6 +149,11 @@ export type GameEvent =
   | { type: 'succulent_planted'; pot: number; speciesId: string; grownAt: number }
   | { type: 'succulent_sold'; pot: number; speciesId: string; reward: Cost; firstTime: boolean }
   | { type: 'pot_bought'; pots: number }
+  | { type: 'seed_planted'; pot: number; seed: string; grownAt: number }
+  | { type: 'pollinated'; pot: number; fromPot: number; readyAt: number }
+  | { type: 'pod_collected'; pot: number; seeds: string[]; mutations: number }
+  | { type: 'offset_taken'; pot: number; seed: string }
+  | { type: 'discovered'; keys: string[] }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -151,6 +166,25 @@ const MAX_PARCEL_LOG = 50;
 const FLAG_PATTERN = /^viewed:[a-z_]+$/;
 
 type Draft = { state: GameState; events: GameEvent[] };
+
+function addSeeds(seeds: Record<string, number>, keys: string[], sign: 1 | -1): Record<string, number> {
+  const out = { ...seeds };
+  for (const k of keys) {
+    out[k] = (out[k] ?? 0) + sign;
+    if (out[k]! <= 0) delete out[k];
+  }
+  return out;
+}
+
+/** Add every grown plant's species-and-colour to the Succulent book, with Hearts for each new one. */
+function discover(d: Draft, content: Content, at: number): void {
+  const g = content.garden;
+  const keys = undiscovered(d.state, content, at);
+  if (!g || !keys.length) return;
+  d.state = { ...d.state, garden: { ...d.state.garden, discovered: [...d.state.garden.discovered, ...keys] } };
+  d.events.push({ type: 'discovered', keys });
+  if (g.heartsPerDiscovery > 0) addHearts(d, g.heartsPerDiscovery * keys.length, content);
+}
 
 function addHearts(d: Draft, amount: number, content: Content): void {
   if (amount <= 0) return;
@@ -617,7 +651,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
       if (!canAfford(state, def.seedCost)) return fail('cannot_afford');
       const pots = [...state.garden.pots];
-      pots[cmd.pot] = { speciesId: def.id, plantedAt: cmd.at };
+      pots[cmd.pot] = { speciesId: def.id, colour: def.colour, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
       d.state = { ...state, wallet: addCost(state.wallet, def.seedCost, -1), garden: { ...state.garden, pots } };
       d.events.push({ type: 'succulent_planted', pot: cmd.pot, speciesId: def.id, grownAt: cmd.at + def.sproutMs + def.growMs });
       return done();
@@ -632,16 +666,112 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const def = g.species[plant.speciesId];
       const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at);
       if (!def || !growth || !Number.isFinite(cmd.at) || growth.stage !== 'grown') return fail('not_ready');
-      const firstTime = !state.garden.grown.includes(def.id);
-      const pots = [...state.garden.pots];
+      if (plant.pod) return fail('busy');
+      discover(d, content, cmd.at);
+      const firstTime = !d.state.garden.grown.includes(def.id);
+      const reward = succulentSellPrice(content, plant);
+      const pots = [...d.state.garden.pots];
       pots[cmd.pot] = null;
       d.state = {
-        ...state,
-        wallet: addCost(state.wallet, def.sellPrice, 1),
-        garden: { pots, grown: firstTime ? [...state.garden.grown, def.id] : state.garden.grown, sold: state.garden.sold + 1 },
+        ...d.state,
+        wallet: addCost(d.state.wallet, reward, 1),
+        garden: { ...d.state.garden, pots, grown: firstTime ? [...d.state.garden.grown, def.id] : d.state.garden.grown, sold: d.state.garden.sold + 1 },
       };
-      d.events.push({ type: 'succulent_sold', pot: cmd.pot, speciesId: def.id, reward: def.sellPrice, firstTime });
+      d.events.push({ type: 'succulent_sold', pot: cmd.pot, speciesId: def.id, reward, firstTime });
       if (firstTime && g.heartsPerNewSpecies > 0) addHearts(d, g.heartsPerNewSpecies, content);
+      return done();
+    }
+
+    case 'plant_seed': {
+      const g = content.garden;
+      if (!g || !gardenOpen(state, content)) return fail('locked');
+      const seed = parseSeedKey(content, cmd.seed);
+      if (!seed || !(state.garden.seeds[cmd.seed]! > 0)) return fail('unknown_species');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      if (state.garden.pots[cmd.pot]) return fail('busy');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      const def = g.species[seed.speciesId]!;
+      const pots = [...state.garden.pots];
+      pots[cmd.pot] = { speciesId: seed.speciesId, colour: seed.colour, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
+      d.state = { ...state, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, [cmd.seed], -1) } };
+      d.events.push({ type: 'seed_planted', pot: cmd.pot, seed: cmd.seed, grownAt: cmd.at + def.sproutMs + def.growMs });
+      return done();
+    }
+
+    case 'pollinate': {
+      const g = content.garden;
+      if (!g || !gardenOpen(state, content)) return fail('locked');
+      const pots = state.garden.pots;
+      const ok = (i: number) => Number.isInteger(i) && i >= 0 && i < pots.length;
+      if (!ok(cmd.pot) || !ok(cmd.fromPot) || cmd.pot === cmd.fromPot) return fail('unknown_pot');
+      const mother = pots[cmd.pot];
+      const father = pots[cmd.fromPot];
+      if (!mother || !father || !Number.isFinite(cmd.at)) return fail('not_ready');
+      if (!plantStatus(content, mother, cmd.at)?.blooming || !plantStatus(content, father, cmd.at)?.blooming) return fail('not_ready');
+      if (mother.pod) return fail('busy');
+      const readyAt = cmd.at + g.podMs;
+      const next = [...pots];
+      next[cmd.pot] = { ...mother, pod: { fatherSpecies: father.speciesId, fatherColour: father.colour, readyAt } };
+      d.state = { ...state, garden: { ...state.garden, pots: next } };
+      discover(d, content, cmd.at);
+      d.events.push({ type: 'pollinated', pot: cmd.pot, fromPot: cmd.fromPot, readyAt });
+      return done();
+    }
+
+    case 'collect_pod': {
+      const g = content.garden;
+      if (!g) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      const plant = state.garden.pots[cmd.pot];
+      if (!plant?.pod || !Number.isFinite(cmd.at) || cmd.at < plant.pod.readyAt) return fail('not_ready');
+      // Each seed takes its shape from one parent and its colour from one parent, chosen separately;
+      // now and then the colour mutates to one neither parent has.
+      let rng = state.rngState;
+      const roll = () => {
+        const [v, n] = nextRandom(rng);
+        rng = n;
+        return v;
+      };
+      const seeds: string[] = [];
+      let mutations = 0;
+      const parents = [plant.colour, plant.pod.fatherColour];
+      for (let i = 0; i < g.seedsPerPod; i++) {
+        const species = roll() < 0.5 ? plant.speciesId : plant.pod.fatherSpecies;
+        let colour = roll() < 0.5 ? plant.colour : plant.pod.fatherColour;
+        if (roll() < g.mutationChance) {
+          const others = g.colourOrder.filter((c) => !parents.includes(c));
+          if (others.length) {
+            colour = others[Math.min(others.length - 1, Math.floor(roll() * others.length))]!;
+            mutations++;
+          }
+        }
+        seeds.push(seedKey(g.species[species] ? species : plant.speciesId, g.colours[colour] ? colour : plant.colour));
+      }
+      const pots = [...state.garden.pots];
+      pots[cmd.pot] = { ...plant, pod: null };
+      d.state = { ...state, rngState: rng, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, seeds, 1) } };
+      d.events.push({ type: 'pod_collected', pot: cmd.pot, seeds, mutations });
+      return done();
+    }
+
+    case 'take_offset': {
+      if (!content.garden) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      const plant = state.garden.pots[cmd.pot];
+      if (!plant || !Number.isFinite(cmd.at) || !plantStatus(content, plant, cmd.at)?.offsetReady) return fail('not_ready');
+      const seed = seedKey(plant.speciesId, plant.colour);
+      const pots = [...state.garden.pots];
+      pots[cmd.pot] = { ...plant, offsetTakenAt: cmd.at };
+      d.state = { ...state, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, [seed], 1) } };
+      discover(d, content, cmd.at);
+      d.events.push({ type: 'offset_taken', pot: cmd.pot, seed });
+      return done();
+    }
+
+    case 'tend_garden': {
+      if (!content.garden || !Number.isFinite(cmd.at)) return fail('locked');
+      if (!undiscovered(state, content, cmd.at).length) return fail('already_done');
+      discover(d, content, cmd.at);
       return done();
     }
 

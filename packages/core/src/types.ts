@@ -291,13 +291,23 @@ export interface SucculentDef {
   growMs: number;
   /** Paid when a grown plant is sold. */
   sellPrice: Cost;
-  /** Mature body colour and sun-blush colour, as #rrggbb. Seedlings are always green. */
-  colour: { mature: string; blush: string };
+  /** Its own colour (a GardenRules.colours id): what shop seeds grow into. Seedlings are always green. */
+  colour: string;
   /** Where the plant grows from, so blush sits on the far leaf tips: rosettes from the centre, trailing plants from the top. */
   anchor: 'centre' | 'base' | 'top';
 }
 
-/** Succulent Garden (Phase 1: grow and sell). */
+/** A colour a succulent can grow into. Several species can share one. */
+export interface SucculentColourDef {
+  id: string;
+  /** Sweet-treat name used in discovery names, e.g. "Strawberry" -> "Strawberry Gumdrop Cluster". */
+  name: string;
+  /** Mature body colour and leaf-tip blush, as #rrggbb. */
+  mature: string;
+  blush: string;
+}
+
+/** Succulent Garden: Phase 1 grow and sell, Phase 2 flowers, pollinating, seeds, offsets and discoveries. */
 export interface GardenRules {
   /** Level unlock that opens the garden. */
   unlock: string;
@@ -310,8 +320,24 @@ export interface GardenRules {
   potCost: Cost;
   /** Hearts the first time each species is grown and sold. */
   heartsPerNewSpecies: number;
-  /** Colour of every seedling. It blends by hue toward each species' own colour as the plant grows. */
+  /** Colour of every seedling. It blends by hue toward the plant's colour as it grows. */
   seedlingColour: string;
+  colours: Record<string, SucculentColourDef>;
+  colourOrder: string[];
+  /** A grown plant flowers this long after it is grown. */
+  bloomMs: number;
+  /** A pollinated flower ripens into a seed pod over this long. */
+  podMs: number;
+  /** Seeds in one pod. */
+  seedsPerPod: number;
+  /** Chance that a seed's colour mutates to a colour neither parent had. */
+  mutationChance: number;
+  /** A grown plant makes an offset this long after it is grown, and again this long after each one is taken. */
+  offsetMs: number;
+  /** Sell price multiplier for a plant in a colour that is not its species' own. */
+  newColourSellBonus: number;
+  /** Hearts for each new species-and-colour discovery. */
+  heartsPerDiscovery: number;
 }
 
 /** A collection of residents shown as one Nookbook tab. */
@@ -329,19 +355,34 @@ export interface ActiveBake {
   endAt: number;
 }
 
+/** A ripening seed pod on a pollinated plant; its seeds are chosen when it is collected. */
+export interface SeedPod {
+  fatherSpecies: string;
+  fatherColour: string;
+  readyAt: number;
+}
+
 /** A succulent growing in a pot. */
 export interface PottedSucculent {
   speciesId: string;
+  colour: string;
   plantedAt: number;
+  pod: SeedPod | null;
+  /** When the last offset was taken (null = never; the first comes offsetMs after it is grown). */
+  offsetTakenAt: number | null;
 }
 
 export interface GardenState {
   /** One entry per owned pot; null = empty. */
   pots: Array<PottedSucculent | null>;
-  /** Species grown to full size and sold at least once (Nookbook). */
+  /** Species grown to full size and sold at least once. */
   grown: string[];
   /** Grown plants sold, all time. */
   sold: number;
+  /** Saved seeds and offsets, by "<speciesId>:<colourId>". */
+  seeds: Record<string, number>;
+  /** Species-and-colour combinations grown to full size, as "<speciesId>:<colourId>" (the Succulent book). */
+  discovered: string[];
 }
 
 export interface Placement {

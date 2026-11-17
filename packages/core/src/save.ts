@@ -2,7 +2,7 @@ import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
 import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, GardenState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -27,6 +27,8 @@ const MIGRATIONS: Record<number, Migration> = {
   7: (raw) => ({ ...raw, parcelsByPool: { first_residents: raw.parcelsOpened }, version: 8 }),
   // v8 -> v9: the Succulent Garden (starts with empty pots).
   8: (raw) => ({ ...raw, version: 9 }),
+  // v9 -> v10: succulent colours, pods, seeds, offsets and the Succulent book (plants keep their species' own colour).
+  9: (raw) => ({ ...raw, version: 10 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
@@ -34,7 +36,7 @@ function emptyWallet(): Record<Currency, number> {
 }
 
 function emptyGarden(content: Content): GardenState {
-  return { pots: Array.from({ length: content.garden?.startPots ?? 0 }, () => null), grown: [], sold: 0 };
+  return { pots: Array.from({ length: content.garden?.startPots ?? 0 }, () => null), grown: [], sold: 0, seeds: {}, discovered: [] };
 }
 
 export function newGame(content: Content): GameState {
@@ -228,10 +230,28 @@ export function deserialize(text: string, content: Content): GameState {
     const count = Math.min(g.maxPots, Math.max(g.startPots, rawPots.length));
     garden.pots = Array.from({ length: count }, (_, i) => {
       const p = rawPots[i] as Raw | null | undefined;
-      return p && typeof p.speciesId === 'string' && g.species[p.speciesId] ? { speciesId: p.speciesId, plantedAt: num(p.plantedAt) } : null;
+      const def = p && typeof p.speciesId === 'string' ? g.species[p.speciesId] : undefined;
+      if (!p || !def) return null;
+      const pod = p.pod as Raw | null | undefined;
+      return {
+        speciesId: def.id,
+        colour: typeof p.colour === 'string' && g.colours[p.colour] ? p.colour : def.colour,
+        plantedAt: num(p.plantedAt),
+        pod:
+          pod && typeof pod.fatherSpecies === 'string' && g.species[pod.fatherSpecies] && typeof pod.fatherColour === 'string' && g.colours[pod.fatherColour]
+            ? { fatherSpecies: pod.fatherSpecies, fatherColour: pod.fatherColour, readyAt: num(pod.readyAt) }
+            : null,
+        offsetTakenAt: typeof p.offsetTakenAt === 'number' && Number.isFinite(p.offsetTakenAt) ? p.offsetTakenAt : null,
+      };
     });
     garden.grown = strings(rg.grown).filter((id, i, a) => !!g.species[id] && a.indexOf(id) === i);
     garden.sold = nonNegInt(rg.sold);
+    const known = (key: string) => {
+      const [sp, col] = key.split(':');
+      return !!sp && !!col && !!g.species[sp] && !!g.colours[col];
+    };
+    for (const [k, v] of Object.entries((rg.seeds ?? {}) as Raw)) if (known(k) && nonNegInt(v) > 0) garden.seeds[k] = nonNegInt(v);
+    garden.discovered = strings(rg.discovered).filter((k, i, a) => known(k) && a.indexOf(k) === i);
   }
 
   const usedUids = Object.values(rooms).flatMap((r) => r.placements.map((p) => Number(p.uid.slice(1)) || 0));

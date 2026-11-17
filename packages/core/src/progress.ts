@@ -12,6 +12,7 @@ import type {
   Rarity,
   TaskCondition,
   TaskDef,
+  PottedSucculent,
 } from './types';
 
 export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons', 'treats'];
@@ -468,4 +469,83 @@ export function nextPotCost(state: GameState, content: Content): Cost | null {
 /** A pot holds a fully grown plant that can be sold. */
 export function gardenReady(state: GameState, content: Content, now: number): boolean {
   return state.garden.pots.some((p) => !!p && succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage === 'grown');
+}
+
+// ---------- succulent garden, Phase 2 ----------
+
+export function seedKey(speciesId: string, colour: string): string {
+  return `${speciesId}:${colour}`;
+}
+
+export function parseSeedKey(content: Content, key: string): { speciesId: string; colour: string } | null {
+  const [speciesId, colour] = key.split(':');
+  const g = content.garden;
+  if (!g || !speciesId || !colour || !g.species[speciesId] || !g.colours[colour]) return null;
+  return { speciesId, colour };
+}
+
+/** "Strawberry Gumdrop Cluster": the colour's treat name and the species. */
+export function succulentName(content: Content, speciesId: string, colour: string): string {
+  const g = content.garden;
+  return `${g?.colours[colour]?.name ?? ''} ${g?.species[speciesId]?.name ?? speciesId}`.trim();
+}
+
+export interface PlantStatus {
+  growth: SucculentGrowth;
+  /** When it flowers (grownAt + bloomMs). */
+  bloomAt: number;
+  blooming: boolean;
+  /** A pod is on the plant and ripe. */
+  podReady: boolean;
+  /** When the next offset is ready. */
+  offsetAt: number;
+  offsetReady: boolean;
+}
+
+export function plantStatus(content: Content, plant: PottedSucculent, now: number): PlantStatus | null {
+  const g = content.garden;
+  const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, now);
+  if (!g || !growth) return null;
+  const bloomAt = growth.grownAt + g.bloomMs;
+  const offsetAt = (plant.offsetTakenAt ?? growth.grownAt) + g.offsetMs;
+  const grown = growth.stage === 'grown';
+  return {
+    growth,
+    bloomAt,
+    blooming: grown && now >= bloomAt,
+    podReady: !!plant.pod && now >= plant.pod.readyAt,
+    offsetAt,
+    offsetReady: grown && now >= offsetAt,
+  };
+}
+
+/** Price a grown plant sells for: more when it is not its species' own colour. */
+export function succulentSellPrice(content: Content, plant: Pick<PottedSucculent, 'speciesId' | 'colour'>): Cost {
+  const g = content.garden;
+  const def = g?.species[plant.speciesId];
+  if (!g || !def) return {};
+  const bonus = plant.colour !== def.colour ? g.newColourSellBonus : 1;
+  const out: Cost = {};
+  for (const [k, v] of Object.entries(def.sellPrice) as Array<[Currency, number]>) out[k] = Math.round(v * bonus);
+  return out;
+}
+
+/** Something to do in the garden: a plant to sell, a ripe pod or an offset to take. */
+export function gardenDue(state: GameState, content: Content, now: number): boolean {
+  return state.garden.pots.some((p) => {
+    if (!p) return false;
+    const st = plantStatus(content, p, now);
+    return !!st && (st.podReady || st.offsetReady || st.growth.stage === 'grown');
+  });
+}
+
+/** Grown plants whose species-and-colour is not yet in the Succulent book. */
+export function undiscovered(state: GameState, content: Content, now: number): string[] {
+  const out: string[] = [];
+  for (const p of state.garden.pots) {
+    if (!p || succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage !== 'grown') continue;
+    const key = seedKey(p.speciesId, p.colour);
+    if (!state.garden.discovered.includes(key) && !out.includes(key)) out.push(key);
+  }
+  return out;
 }
