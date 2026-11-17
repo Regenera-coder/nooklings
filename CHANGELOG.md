@@ -9,7 +9,7 @@ Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but 
 - **Garden tools,** each bought once: **Sun Shelf** (500 Buttons, 20 Wood) — plants flower twice as soon and blush deeper; **Pollen Jar** (400 Buttons, 10 Wood) — one more seed in every pod; **Loupe** (800 Buttons, 15 Wood) — see each seed's colour and pattern in the Seed bag and choose which to plant.
 - **Gifts:** give a grown plant to a resident for 2 Bond XP. It shares the once-a-day gift with Treats.
 - **Garden goals:** nine goals in a short chain of their own (first sale, first pod, 5/15/25 in the book, a tool, a gift, a pattern, all three patterns), with Buttons, Wood and Hearts. They do not change the main Tasks list or its pacing.
-- Save version 11. 167 → 177 tests. Tap-tested at 740×360: claiming a goal, giving a plant to Snug and buying a tool.
+- Save version 11. 176 tests. Tap-tested at 740×360: claiming a goal, giving a plant to Snug and buying a tool.
 
 ## 0.11.0 — Succulent Garden, Phase 2 (17 Nov 2026)
 
