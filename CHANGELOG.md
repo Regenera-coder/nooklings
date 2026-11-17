@@ -2,7 +2,7 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — Research, and a Cosy Kitchen fix (17 Nov 2026)
+## 0.13.0 — Research, and a Cosy Kitchen fix (17 Nov 2026)
 
 ### Implemented
 - **Research**, from a new Research button on the Home screen, open from the start. Study one thing at a time; each study has 3 levels (200 Buttons / 1 h, 500 Buttons + 5 Wood / 4 h, 1,000 Buttons + 10 Wood / 12 h), kept for good:
