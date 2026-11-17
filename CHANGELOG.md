@@ -2,7 +2,7 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — Succulent Garden, Phase 1 (17 Nov 2026)
+## 0.10.0 — Succulent Garden, Phase 1 (17 Nov 2026)
 
 ### Implemented
 - **Succulent Garden** in Explore > Garden, opening at Home Level 5 (shown as a preview from Level 4). Five of our own sweet-treat succulents: Meringue Rose, Gumdrop Cluster, Stitchback, Teacup Tree and Ribbon Fall.
@@ -20,7 +20,7 @@ Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but 
 ### Planned
 - Phase 2: flowers, cross-pollinating, colour traits and offsets. Phase 3: Sun Shelf (stronger blush), patterns and tools.
 
-## Unreleased — Arcade finished art (16 Nov 2026)
+## 0.9.2 — Arcade finished art (16 Nov 2026, released with 0.10.0)
 
 ### Implemented
 - **Stitch-a-Pattern: finished embroideries for the ten new patterns** (button, gem, leaf, raindrop, moon, crown, mushroom, fish, cat, cloud). Imported from Milestone F; they match the original four in style. Completed outlines now show the embroidery instead of a solid seam.
