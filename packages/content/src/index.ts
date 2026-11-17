@@ -13,6 +13,7 @@ import type {
   RecipeDef,
   ResidentDef,
   RoomDef,
+  SucculentDef,
   TaskDef,
 } from '@nooklings/core';
 
@@ -226,7 +227,7 @@ const levels: LevelDef[] = [
   { level: 2, hearts: 10, unlocks: ['crafting'], label: 'Crafting' },
   { level: 3, hearts: 25, unlocks: ['parcels', 'sunroom'], label: 'Mystery Parcels and the Sunroom' },
   { level: 4, hearts: 55, unlocks: ['gardening'], label: 'Gardening' },
-  { level: 5, hearts: 90, unlocks: ['yard_expansion'], label: 'Bigger yard' },
+  { level: 5, hearts: 90, unlocks: ['yard_expansion', 'succulents'], label: 'Bigger yard and the Succulent Garden' },
   { level: 6, hearts: 125, unlocks: ['rain_decor'], label: 'Rainy-day decor' },
   { level: 7, hearts: 160, unlocks: ['expeditions'], label: 'Expeditions' },
   { level: 8, hearts: 195, unlocks: ['tranquil_decor'], label: 'Tranquil decor' },
@@ -477,6 +478,38 @@ const parcels: ParcelPoolDef[] = [
   },
 ];
 
+// Succulent Garden, Phase 1 (grow and sell). Our own sweet-treat species; every number is PROPOSED.
+// Seedlings are green; the colour blends to each species' own colour as it grows. Plan: Succulent Garden proposal.
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const succulents: SucculentDef[] = [
+  {
+    id: 'meringue_rose', name: 'Meringue Rose', description: 'A swirl of plump leaves that curl up into soft peaks.',
+    seedCost: { buttons: 40 }, sproutMs: 30 * MINUTE, growMs: 4 * HOUR, sellPrice: { buttons: 70 },
+    colour: { mature: '#b3cced', blush: '#f26b8c' }, anchor: 'centre',
+  },
+  {
+    id: 'gumdrop_cluster', name: 'Gumdrop Cluster', description: 'A low mound of round, bead-like leaves.',
+    seedCost: { buttons: 50 }, sproutMs: 30 * MINUTE, growMs: 5 * HOUR, sellPrice: { buttons: 90 },
+    colour: { mature: '#ccbaed', blush: '#eb6b9e' }, anchor: 'base',
+  },
+  {
+    id: 'stitchback', name: 'Stitchback', description: 'Tall pointed leaves with a neat stitched seam down each one.',
+    seedCost: { buttons: 60 }, sproutMs: 30 * MINUTE, growMs: 6 * HOUR, sellPrice: { buttons: 110 },
+    colour: { mature: '#facca3', blush: '#ed6b40' }, anchor: 'base',
+  },
+  {
+    id: 'teacup_tree', name: 'Teacup Tree', description: 'A tiny tree whose leaves are little cupped saucers.',
+    seedCost: { buttons: 80 }, sproutMs: 30 * MINUTE, growMs: 7 * HOUR, sellPrice: { buttons: 140 },
+    colour: { mature: '#f5b8c7', blush: '#e04761' }, anchor: 'base',
+  },
+  {
+    id: 'ribbon_fall', name: 'Ribbon Fall', description: 'Long braided strands that tumble over the side of the pot.',
+    seedCost: { buttons: 100 }, sproutMs: 30 * MINUTE, growMs: 8 * HOUR, sellPrice: { buttons: 180 },
+    colour: { mature: '#b88abd', blush: '#ed668c' }, anchor: 'top',
+  },
+];
+
 function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
   const out: Record<string, T> = {};
   for (const item of list) {
@@ -506,6 +539,16 @@ export const content: Content = {
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
   baking: null,
+  garden: {
+    unlock: 'succulents',
+    species: byId(succulents, (x) => x.id),
+    order: succulents.map((x) => x.id),
+    startPots: 3,
+    maxPots: 6,
+    potCost: { buttons: 150, wood: 5 },
+    heartsPerNewSpecies: 3,
+    seedlingColour: '#8fc780',
+  },
   series: [{ id: SERIES_1, name: 'First Residents' }],
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],
   rules: { heartsPerNewResident: 5, heartsPerFirstCraft: 2, maxCopiesCounted: 2, maxActiveResidents: 4, maxResidentsPerRoom: 4, threadPerStamp: 10, dayOffsetMs: 0 },

@@ -33,6 +33,9 @@ import {
   bakeYield,
   bakingOpen,
   canBake,
+  gardenOpen,
+  nextPotCost,
+  succulentGrowth,
   seriesProgress,
   treatGivenToday,
 } from './progress';
@@ -69,7 +72,10 @@ export type Command =
   | { id: string; type: 'start_baking'; recipeId: string; bakerId: string | null; at: number }
   | { id: string; type: 'collect_baking'; at: number }
   | { id: string; type: 'give_treat'; residentId: string; at: number }
-  | { id: string; type: 'claim_series'; seriesId: string };
+  | { id: string; type: 'claim_series'; seriesId: string }
+  | { id: string; type: 'plant_succulent'; pot: number; speciesId: string; at: number }
+  | { id: string; type: 'sell_succulent'; pot: number; at: number }
+  | { id: string; type: 'buy_pot' };
 
 export type CommandError =
   | PlacementError
@@ -99,6 +105,8 @@ export type CommandError =
   | 'unknown_companion'
   | 'unknown_bake'
   | 'unknown_series'
+  | 'unknown_species'
+  | 'unknown_pot'
   | 'nothing_new';
 
 export type GameEvent =
@@ -128,6 +136,9 @@ export type GameEvent =
   | { type: 'series_claimed'; seriesId: string; reward: Cost; furnitureId: string | null }
   | { type: 'played'; residentId: string; bondUp: boolean; newBondLevel: number }
   | { type: 'form_upgraded'; residentId: string; form: string }
+  | { type: 'succulent_planted'; pot: number; speciesId: string; grownAt: number }
+  | { type: 'succulent_sold'; pot: number; speciesId: string; reward: Cost; firstTime: boolean }
+  | { type: 'pot_bought'; pots: number }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -593,6 +604,55 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
         seriesClaimed: [...state.seriesClaimed, series.id],
       };
       d.events.push({ type: 'series_claimed', seriesId: series.id, reward: series.reward.cost, furnitureId });
+      return done();
+    }
+
+    case 'plant_succulent': {
+      const g = content.garden;
+      const def = g?.species[cmd.speciesId];
+      if (!g || !def) return fail('unknown_species');
+      if (!gardenOpen(state, content)) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      if (state.garden.pots[cmd.pot]) return fail('busy');
+      if (!Number.isFinite(cmd.at)) return fail('not_ready');
+      if (!canAfford(state, def.seedCost)) return fail('cannot_afford');
+      const pots = [...state.garden.pots];
+      pots[cmd.pot] = { speciesId: def.id, plantedAt: cmd.at };
+      d.state = { ...state, wallet: addCost(state.wallet, def.seedCost, -1), garden: { ...state.garden, pots } };
+      d.events.push({ type: 'succulent_planted', pot: cmd.pot, speciesId: def.id, grownAt: cmd.at + def.sproutMs + def.growMs });
+      return done();
+    }
+
+    case 'sell_succulent': {
+      const g = content.garden;
+      if (!g) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      const plant = state.garden.pots[cmd.pot];
+      if (!plant) return fail('not_ready');
+      const def = g.species[plant.speciesId];
+      const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at);
+      if (!def || !growth || !Number.isFinite(cmd.at) || growth.stage !== 'grown') return fail('not_ready');
+      const firstTime = !state.garden.grown.includes(def.id);
+      const pots = [...state.garden.pots];
+      pots[cmd.pot] = null;
+      d.state = {
+        ...state,
+        wallet: addCost(state.wallet, def.sellPrice, 1),
+        garden: { pots, grown: firstTime ? [...state.garden.grown, def.id] : state.garden.grown, sold: state.garden.sold + 1 },
+      };
+      d.events.push({ type: 'succulent_sold', pot: cmd.pot, speciesId: def.id, reward: def.sellPrice, firstTime });
+      if (firstTime && g.heartsPerNewSpecies > 0) addHearts(d, g.heartsPerNewSpecies, content);
+      return done();
+    }
+
+    case 'buy_pot': {
+      if (!gardenOpen(state, content)) return fail('locked');
+      const cost = nextPotCost(state, content);
+      if (!cost) return fail('already_done');
+      if (!canAfford(state, cost)) return fail('cannot_afford');
+      const pots = [...state.garden.pots, null];
+      d.state = { ...state, wallet: addCost(state.wallet, cost, -1), garden: { ...state.garden, pots } };
+      d.events.push({ type: 'pot_bought', pots: pots.length });
       return done();
     }
 

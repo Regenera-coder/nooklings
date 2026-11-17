@@ -26,6 +26,10 @@ import {
   parcelCost,
   parcelGuaranteed,
   treatGivenToday,
+  gardenOpen,
+  gardenReady,
+  nextPotCost,
+  succulentGrowth,
   type Content,
   type Cost,
   type Currency,
@@ -37,13 +41,14 @@ import {
 } from '@nooklings/core';
 import { Arcade } from '../arcade/arcade';
 import { artUrl, costumeArtName } from '../assets';
+import { succulentArtUrl, succulentImage } from '../garden/succulentArt';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
 
 type Tab = 'home' | 'nookbook' | 'explore' | 'tasks';
 type Filter = 'all' | 'owned' | 'missing';
-type ExploreView = 'arcade' | 'outdoors' | 'kitchen' | 'parcels';
+type ExploreView = 'arcade' | 'outdoors' | 'garden' | 'kitchen' | 'parcels';
 type TasksView = 'tasks' | 'invitations';
 
 const CURRENCY: Record<Currency | 'hearts', { name: string; icon: string; glyph: string }> = {
@@ -64,7 +69,7 @@ const UNLOCK_NAMES: Record<string, string> = {
   tranquil_decor: 'Tranquil decor', heirloom: 'Heirloom restoring', exterior: 'Wishing Lantern',
   kitchen: 'The Kitchen', baking: 'Baking', teatime_parcels: 'Teatime Parcels', tea_service: 'Tea service', berry_patch: 'Berry Patch',
   tea_garden: 'The Tea Garden', party_decor: 'Party decor', moonlit_market: 'The Moonlit Market', old_oven: 'Old Oven restoring',
-  tea_party: 'Tea Party Table', grand_tea_party: 'The Grand Tea Party',
+  tea_party: 'Tea Party Table', grand_tea_party: 'The Grand Tea Party', succulents: 'The Succulent Garden',
 };
 
 const GROUPS: Array<{ label: string; layer: 'floor' | 'rug' | 'wall' | 'ceiling' }> = [
@@ -397,6 +402,17 @@ export class GameUI {
       case 'thread_traded':
         this.toast(`Stitched ${e.thread} Mending Thread into a Wish Stamp`, 2400);
         break;
+      case 'succulent_planted':
+        this.toast(`Planted ${this.content.garden?.species[e.speciesId]?.name ?? 'a seed'}`);
+        break;
+      case 'succulent_sold': {
+        const name = this.content.garden?.species[e.speciesId]?.name ?? 'Succulent';
+        this.toast(e.firstTime ? `${name} grown for the first time! Added to your Succulent book.` : `Sold ${name} for ${e.reward.buttons ?? 0} Buttons`, e.firstTime ? 2800 : 2000);
+        break;
+      }
+      case 'pot_bought':
+        this.toast(`A new pot! You have ${e.pots} now.`);
+        break;
       case 'series_claimed': {
         const gift = e.furnitureId ? this.content.furniture[e.furnitureId]?.name : null;
         this.toast(`Series complete!${gift ? ` ${gift} is in your storage.` : ''}`, 3200);
@@ -420,7 +436,7 @@ export class GameUI {
     const hasCountdown =
       (this.tab === 'home' && this.selection.kind === 'resident') ||
       (this.tab === 'nookbook' && this.detailId !== null) ||
-      (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen'));
+      (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen' || this.exploreView === 'garden'));
     if (hasCountdown && !this.revealing && !this.arcade.isOpen) this.render();
     else this.renderBadges();
   }
@@ -1226,6 +1242,101 @@ export class GameUI {
     this.page.append(card);
   }
 
+  // ---------- Explore: Succulent Garden ----------
+
+  private renderGarden(): void {
+    const g = this.content.garden;
+    if (!g) return;
+    const s = this.getState();
+    const now = Date.now();
+    const at = this.content.levels.find((l) => l.unlocks.includes(g.unlock))?.level ?? 99;
+    const palette = { seedling: g.seedlingColour };
+    const card = el('div', 'card');
+    card.append(el('h3', '', 'Succulent Garden'));
+    if (!gardenOpen(s, this.content)) {
+      card.append(el('p', '', `Grow little succulents that change colour as they grow. Unlocks at Home Level ${at}.`));
+      this.page.append(card);
+      return;
+    }
+    card.append(el('p', 'muted', 'Seedlings start green and slowly take on their own colour. Sell a grown plant, or keep it on show.'));
+    const pots = el('div', 'pots');
+    s.garden.pots.forEach((plant, i) => {
+      const tile = el('div', 'pot-tile');
+      const def = plant ? g.species[plant.speciesId] : undefined;
+      if (!plant || !def) {
+        tile.classList.add('empty');
+        const pot = el('div', 'pot-stage');
+        pot.append(el('span', 'felt-pot'));
+        tile.append(pot, el('b', '', 'Empty pot'), el('span', 'muted', 'Pick a seed below'));
+        pots.append(tile);
+        return;
+      }
+      const grow = succulentGrowth(this.content, def.id, plant.plantedAt, now)!;
+      const stage = el('div', `pot-stage${def.anchor === 'top' ? ' hang' : ''}`);
+      const img = el('img', 'plant');
+      img.alt = def.name;
+      img.src = succulentImage(def, palette, grow.colour, () => this.render()) ?? succulentArtUrl(def) ?? '';
+      // Seedlings are small and fill out as they grow.
+      const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
+      img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
+      stage.append(img, el('span', 'felt-pot'));
+      tile.append(stage, el('b', '', def.name));
+      if (grow.stage === 'grown') {
+        tile.append(button(`Sell · ${def.sellPrice.buttons ?? 0}`, 'btn primary small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() })));
+      } else {
+        tile.append(el('span', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ${clock(grow.grownAt - now)}`));
+        const bar = el('div', 'trip-bar');
+        const fill = el('span');
+        fill.style.width = `${Math.round(grow.progress * 100)}%`;
+        bar.append(fill);
+        tile.append(bar);
+      }
+      pots.append(tile);
+    });
+    const potCost = nextPotCost(s, this.content);
+    if (potCost) {
+      const tile = el('div', 'pot-tile buy');
+      tile.append(el('b', '', 'Another pot'));
+      const price = el('span', canAfford(s, potCost) ? 'muted' : 'no');
+      price.append(...costChips(potCost, ''));
+      tile.append(price, button('Buy', 'btn small', () => this.run({ type: 'buy_pot' }), !canAfford(s, potCost)));
+      pots.append(tile);
+    }
+    card.append(pots);
+    this.page.append(card);
+
+    const seeds = el('div', 'card');
+    seeds.append(el('h3', '', `Seed packets · grown ${s.garden.grown.length} of ${g.order.length}`));
+    const freePot = s.garden.pots.findIndex((p) => p === null);
+    for (const id of g.order) {
+      const def = g.species[id]!;
+      const row = el('div', 'spot-row');
+      const thumb = el('img', 'seed-thumb');
+      thumb.alt = '';
+      const grown = s.garden.grown.includes(id);
+      // A species you have grown shows its full colour; a new one shows as a green seedling.
+      thumb.src = succulentImage(def, palette, grown ? 1 : 0, () => this.render()) ?? succulentArtUrl(def) ?? '';
+      const body = el('div', 'grow');
+      const hours = (def.sproutMs + def.growMs) / 3_600_000;
+      body.append(el('b', '', `${def.name}${grown ? ' ✓' : ''}`), el('p', '', def.description));
+      const info = el('div', 'rewards');
+      info.append(el('span', 'reward', `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h to grow`));
+      const sells = el('span', 'reward');
+      sells.append(document.createTextNode('Sells for '), ...costChips(def.sellPrice, ''));
+      info.append(sells);
+      body.append(info);
+      const cost = el('span', canAfford(s, def.seedCost) ? 'muted' : 'no');
+      cost.append(...costChips(def.seedCost, ''));
+      const plant = button('Plant', 'btn primary', () => this.run({ type: 'plant_succulent', pot: freePot, speciesId: id, at: Date.now() }), freePot < 0 || !canAfford(s, def.seedCost));
+      const side = el('div', 'seed-side');
+      side.append(cost, plant);
+      row.append(thumb, body, side);
+      seeds.append(row);
+    }
+    if (freePot < 0) seeds.append(el('p', 'muted', 'Every pot is in use. Sell a grown plant or buy another pot.'));
+    this.page.append(seeds);
+  }
+
   // ---------- Explore: Mystery Parcels ----------
 
   private renderExplore(): void {
@@ -1240,6 +1351,8 @@ export class GameUI {
       ['arcade', 'Arcade', false],
       ['outdoors', 'Outdoors', this.outdoorsDue(now)],
     ];
+    const gardenAt = this.content.garden ? this.content.levels.find((l) => l.unlocks.includes(this.content.garden!.unlock))?.level ?? 99 : 99;
+    if (this.content.garden && level >= gardenAt - 1) views.push(['garden', 'Garden', gardenReady(s, this.content, now)]);
     if (this.content.baking && level >= bakingAt - 1) views.push(['kitchen', 'Kitchen', !!s.baking && s.baking.endAt <= now]);
     views.push(['parcels', 'Parcels', this.parcelsDue()]);
     if (!views.some(([v]) => v === this.exploreView)) this.exploreView = 'outdoors';
@@ -1258,6 +1371,7 @@ export class GameUI {
     this.page.append(head);
     if (this.exploreView === 'arcade') return this.arcade.renderHub(this.page);
     if (this.exploreView === 'kitchen') return this.renderBaking();
+    if (this.exploreView === 'garden') return this.renderGarden();
     if (this.exploreView === 'parcels') return this.renderParcels();
     this.renderGathering();
     this.renderExpeditions();

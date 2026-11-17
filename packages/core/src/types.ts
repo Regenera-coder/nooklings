@@ -278,6 +278,42 @@ export interface BakingRules {
   giftBondXp: number;
 }
 
+/** One of the Succulent Garden's own species. Every number is a PROPOSED value. */
+export interface SucculentDef {
+  id: string;
+  name: string;
+  description: string;
+  /** Price of one seed packet. */
+  seedCost: Cost;
+  /** Time as a green seedling before it starts to colour. */
+  sproutMs: number;
+  /** Time from sprout to fully grown; the colour blends smoothly across it. */
+  growMs: number;
+  /** Paid when a grown plant is sold. */
+  sellPrice: Cost;
+  /** Mature body colour and sun-blush colour, as #rrggbb. Seedlings are always green. */
+  colour: { mature: string; blush: string };
+  /** Where the plant grows from, so blush sits on the far leaf tips: rosettes from the centre, trailing plants from the top. */
+  anchor: 'centre' | 'base' | 'top';
+}
+
+/** Succulent Garden (Phase 1: grow and sell). */
+export interface GardenRules {
+  /** Level unlock that opens the garden. */
+  unlock: string;
+  species: Record<string, SucculentDef>;
+  /** Display order. */
+  order: string[];
+  startPots: number;
+  maxPots: number;
+  /** Price of each extra pot. */
+  potCost: Cost;
+  /** Hearts the first time each species is grown and sold. */
+  heartsPerNewSpecies: number;
+  /** Colour of every seedling. It blends by hue toward each species' own colour as the plant grows. */
+  seedlingColour: string;
+}
+
 /** A collection of residents shown as one Nookbook tab. */
 export interface SeriesDef {
   id: string;
@@ -291,6 +327,21 @@ export interface ActiveBake {
   bakerId: string | null;
   startAt: number;
   endAt: number;
+}
+
+/** A succulent growing in a pot. */
+export interface PottedSucculent {
+  speciesId: string;
+  plantedAt: number;
+}
+
+export interface GardenState {
+  /** One entry per owned pot; null = empty. */
+  pots: Array<PottedSucculent | null>;
+  /** Species grown to full size and sold at least once (Nookbook). */
+  grown: string[];
+  /** Grown plants sold, all time. */
+  sold: number;
 }
 
 export interface Placement {
@@ -377,6 +428,7 @@ export interface GameState {
   /** The batch in the oven, if any. */
   baking: ActiveBake | null;
   bakesDone: number;
+  garden: GardenState;
   /** Series whose completion reward has been claimed. */
   seriesClaimed: string[];
   costumesOwned: string[];
@@ -412,6 +464,8 @@ export interface Content {
   expeditions: Record<string, ExpeditionDef>;
   /** null until the Kitchen exists (Series 2). */
   baking: BakingRules | null;
+  /** null when the build has no Succulent Garden. */
+  garden: GardenRules | null;
   /** Nookbook tabs, in order. */
   series: SeriesDef[];
   /** Order in which new residents are housed, and the room shown first. */

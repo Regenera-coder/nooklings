@@ -1,8 +1,8 @@
 import { validatePlacement } from './grid';
 import { CURRENCIES } from './progress';
-import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, OwnedResident, ParcelRecord, Placement } from './types';
+import type { ArcadeGameId, ArcadeState, Content, Currency, GameState, GardenState, OwnedResident, ParcelRecord, Placement } from './types';
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 
 type Raw = Record<string, unknown>;
 type Migration = (raw: Raw) => Raw;
@@ -25,10 +25,16 @@ const MIGRATIONS: Record<number, Migration> = {
   6: (raw) => ({ ...raw, version: 7 }),
   // v7 -> v8 (Series 2): Treats, baking, series rewards. Every parcel so far came from the first pool.
   7: (raw) => ({ ...raw, parcelsByPool: { first_residents: raw.parcelsOpened }, version: 8 }),
+  // v8 -> v9: the Succulent Garden (starts with empty pots).
+  8: (raw) => ({ ...raw, version: 9 }),
 };
 
 function emptyWallet(): Record<Currency, number> {
   return { buttons: 0, wood: 0, fabric: 0, wishStamps: 0, mendingThread: 0, keepsakes: 0, ribbons: 0, treats: 0 };
+}
+
+function emptyGarden(content: Content): GardenState {
+  return { pots: Array.from({ length: content.garden?.startPots ?? 0 }, () => null), grown: [], sold: 0 };
 }
 
 export function newGame(content: Content): GameState {
@@ -65,6 +71,7 @@ export function newGame(content: Content): GameState {
     expeditionsDone: {},
     baking: null,
     bakesDone: 0,
+    garden: emptyGarden(content),
     seriesClaimed: [],
     costumesOwned: [],
     ribbonDay: { day: 0, fromPlay: 0, games: 0 },
@@ -212,6 +219,21 @@ export function deserialize(text: string, content: Content): GameState {
     companions[id] = { residentId };
   }
 
+  // Garden: at least the starting pots, at most the maximum; plants of unknown species are dropped.
+  const rg = (data.garden ?? {}) as Raw;
+  const garden = emptyGarden(content);
+  const g = content.garden;
+  if (g) {
+    const rawPots = Array.isArray(rg.pots) ? (rg.pots as unknown[]) : [];
+    const count = Math.min(g.maxPots, Math.max(g.startPots, rawPots.length));
+    garden.pots = Array.from({ length: count }, (_, i) => {
+      const p = rawPots[i] as Raw | null | undefined;
+      return p && typeof p.speciesId === 'string' && g.species[p.speciesId] ? { speciesId: p.speciesId, plantedAt: num(p.plantedAt) } : null;
+    });
+    garden.grown = strings(rg.grown).filter((id, i, a) => !!g.species[id] && a.indexOf(id) === i);
+    garden.sold = nonNegInt(rg.sold);
+  }
+
   const usedUids = Object.values(rooms).flatMap((r) => r.placements.map((p) => Number(p.uid.slice(1)) || 0));
   const nextUid = Math.max(num(data.nextUid, 1), ...usedUids.map((n) => n + 1), 1);
   const taskIds = new Set(content.tasks.map((t) => t.id));
@@ -238,6 +260,7 @@ export function deserialize(text: string, content: Content): GameState {
     expeditionsDone,
     baking,
     bakesDone: nonNegInt(data.bakesDone),
+    garden,
     seriesClaimed: strings(data.seriesClaimed).filter((id, i, a) => content.series.some((x) => x.id === id && x.reward) && a.indexOf(id) === i),
     costumesOwned,
     ribbonDay,

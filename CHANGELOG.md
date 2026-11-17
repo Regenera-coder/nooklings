@@ -2,6 +2,23 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Succulent Garden, Phase 1 (17 Nov 2026)
+
+### Implemented
+- **Succulent Garden** in Explore > Garden, opening at Home Level 5 (shown as a preview from Level 4). Five of our own sweet-treat succulents: Meringue Rose, Gumdrop Cluster, Stitchback, Teacup Tree and Ribbon Fall.
+- **Grow and sell.** Buy a seed packet to plant it in an empty pot. It is a green seedling for 30 minutes, then grows for 4 to 8 hours. A grown plant can be sold for more than the seed cost, or left in its pot on show. Growing a species for the first time gives 3 Home Hearts and ticks it off in the seed list.
+- **Colour that develops with growth.** Seedlings are green; the colour blends smoothly, by hue, to each species' own colour (silver-blue, lavender, peach, rose, plum), so it never passes through grey. A light blush appears on the far leaf tips as the plant finishes growing. The Teacup Tree trunk stays brown. Tinting runs in the browser from neutral felt art.
+- **Pots:** three to start; three more can be bought (150 Buttons and 5 Wood each).
+- Save version 9. Older saves open with three empty pots. Tests cover growth timing, the smooth colour blend, planting, selling, pots and saves.
+- Checked in the browser at 740×360 and 640×320: planting, selling and buying a pot work by tapping; no page errors.
+
+### Placeholder
+- The pot is drawn in CSS until pot art exists. Ribbon Fall hangs from its pot.
+- Every number (seed prices, grow times, sell prices, pot price) is a PROPOSED value.
+
+### Planned
+- Phase 2: flowers, cross-pollinating, colour traits and offsets. Phase 3: Sun Shelf (stronger blush), patterns and tools.
+
 ## Unreleased — Arcade finished art (16 Nov 2026)
 
 ### Implemented

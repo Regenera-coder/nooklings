@@ -429,3 +429,43 @@ export function seriesProgress(state: GameState, content: Content, seriesId: str
   const owned = all.filter((r) => r.id in state.residents).length;
   return { owned, total: all.length, complete: all.length > 0 && owned === all.length, claimed: state.seriesClaimed.includes(seriesId) };
 }
+
+// ---------- succulent garden ----------
+
+export type SucculentStage = 'seedling' | 'young' | 'grown';
+
+export interface SucculentGrowth {
+  stage: SucculentStage;
+  /** 0 at planting, 1 when grown. */
+  progress: number;
+  /** Where the colour is: 0 = seedling green, 1 = the mature colour. Stays 0 while it is a seedling, then blends smoothly to 1. */
+  colour: number;
+  grownAt: number;
+}
+
+export function gardenOpen(state: GameState, content: Content): boolean {
+  return !!content.garden && isUnlocked(state, content, content.garden.unlock);
+}
+
+export function succulentGrowth(content: Content, speciesId: string, plantedAt: number, now: number): SucculentGrowth | null {
+  const def = content.garden?.species[speciesId];
+  if (!def) return null;
+  const total = def.sproutMs + def.growMs;
+  const elapsed = Math.max(0, now - plantedAt);
+  const grownAt = plantedAt + total;
+  if (elapsed >= total) return { stage: 'grown', progress: 1, colour: 1, grownAt };
+  const colour = elapsed < def.sproutMs ? 0 : (elapsed - def.sproutMs) / def.growMs;
+  return { stage: elapsed < def.sproutMs ? 'seedling' : 'young', progress: elapsed / total, colour, grownAt };
+}
+
+/** Price of the next pot, or null when the garden has every pot it can hold. */
+export function nextPotCost(state: GameState, content: Content): Cost | null {
+  const g = content.garden;
+  if (!g || state.garden.pots.length >= g.maxPots) return null;
+  return g.potCost;
+}
+
+/** A pot holds a fully grown plant that can be sold. */
+export function gardenReady(state: GameState, content: Content, now: number): boolean {
+  return state.garden.pots.some((p) => !!p && succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage === 'grown');
+}
