@@ -203,6 +203,10 @@ export class GameUI {
     this.researchBtn.addEventListener('click', () => this.setTab(this.tab === 'research' ? 'home' : 'research'));
     document.getElementById('fs-btn')!.addEventListener('click', () => void this.toggleFullscreen());
     document.getElementById('res-stamps-btn')!.addEventListener('click', () => this.setTab('explore'));
+    // Ribbons buy costumes, which are chosen in the Book.
+    document.getElementById('res-ribbons-btn')!.addEventListener('click', () => {
+      this.toast('Ribbons buy costumes for your residents. Open a resident in the Book to see the Wardrobe.', 3000);
+    });
     document.getElementById('res-buttons-btn')!.addEventListener('click', () => {
       const w = this.getState().wallet;
       this.toast((Object.keys(w) as Currency[]).map((c) => `${CURRENCY[c].name} ${w[c]}`).join(' · '), 3200);
@@ -570,6 +574,7 @@ export class GameUI {
     (document.getElementById('hearts-fill') as HTMLElement).style.width = `${Math.max(0, Math.min(100, pct))}%`;
     document.getElementById('res-buttons')!.textContent = String(s.wallet.buttons);
     document.getElementById('res-stamps')!.textContent = String(s.wallet.wishStamps);
+    document.getElementById('res-ribbons')!.textContent = String(s.wallet.ribbons);
   }
 
   private renderBadges(): void {
