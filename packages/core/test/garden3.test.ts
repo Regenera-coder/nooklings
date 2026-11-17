@@ -141,3 +141,25 @@ describe('gifts and goals', () => {
     expect(deserialize(serialize(s), c).garden).toEqual(s.garden);
   });
 });
+
+describe('on show at home (Phase 4)', () => {
+  it('every shape, colour and pattern has a furniture definition; Ribbon Fall hangs', () => {
+    const defs = Object.values(c.furniture).filter((f) => f.succulent);
+    expect(defs).toHaveLength(g.order.length * g.colourOrder.length * g.patternOrder.length);
+    expect(c.furniture.succ_ribbon_fall_plum!.layer).toBe('ceiling');
+    expect(c.furniture.succ_stitchback_plum_zebra).toMatchObject({ name: 'Zebra Plum Stitchback', layer: 'floor', succulent: { speciesId: 'stitchback', colour: 'plum', pattern: 'zebra' } });
+  });
+
+  it('moves a grown plant from its pot into storage, ready to place', () => {
+    let s = home();
+    s = { ...s, garden: { ...s.garden, pots: [plant('teacup_tree', 'plum', T - full('teacup_tree'), 'tipped'), plant('stitchback', 'plum', T), null] } };
+    expect(err(s, { type: 'display_succulent', pot: 1, at: T })).toBe('not_ready');
+    const r = ok(s, { type: 'display_succulent', pot: 0, at: T });
+    expect(r.state.garden.pots[0]).toBeNull();
+    expect(r.state.inventory.succ_teacup_tree_plum_tipped).toBe(1);
+    expect(r.state.garden.discovered).toContain('teacup_tree:plum');
+    const placed = ok(r.state, { type: 'place', roomId: 'living_room', defId: 'succ_teacup_tree_plum_tipped', col: 6, row: 2 }).state;
+    expect(placed.rooms.living_room!.placements.some((p) => p.defId === 'succ_teacup_tree_plum_tipped')).toBe(true);
+    expect(deserialize(serialize(placed), c).rooms.living_room).toEqual(placed.rooms.living_room);
+  });
+});

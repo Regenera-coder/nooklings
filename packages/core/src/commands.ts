@@ -40,6 +40,7 @@ import {
   plantStatus,
   seedKey,
   succulentName,
+  succulentFurnitureId,
   succulentSellPrice,
   undiscovered,
   unseenPatterns,
@@ -92,7 +93,8 @@ export type Command =
   | { id: string; type: 'tend_garden'; at: number }
   | { id: string; type: 'buy_garden_tool'; toolId: GardenToolId }
   | { id: string; type: 'give_succulent'; pot: number; residentId: string; at: number }
-  | { id: string; type: 'claim_garden_goal'; goalId: string };
+  | { id: string; type: 'claim_garden_goal'; goalId: string }
+  | { id: string; type: 'display_succulent'; pot: number; at: number };
 
 export type CommandError =
   | PlacementError
@@ -164,6 +166,7 @@ export type GameEvent =
   | { type: 'garden_tool_bought'; toolId: GardenToolId }
   | { type: 'succulent_given'; pot: number; residentId: string; name: string; bondUp: boolean; newBondLevel: number }
   | { type: 'garden_goal_claimed'; goalId: string; reward: Cost & { hearts?: number } }
+  | { type: 'succulent_displayed'; pot: number; furnitureId: string }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -834,6 +837,26 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       d.events.push({ type: 'succulent_given', pot: cmd.pot, residentId: cmd.residentId, name: succulentName(content, plant.speciesId, plant.colour, plant.pattern), bondUp: after > before, newBondLevel: after });
       if (after > before) addHearts(d, content.bond.heartsPerBondLevel * (after - before), content);
+      return done();
+    }
+
+    case 'display_succulent': {
+      if (!content.garden) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      const plant = state.garden.pots[cmd.pot];
+      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at)?.stage !== 'grown') return fail('not_ready');
+      if (plant.pod) return fail('busy');
+      const furnitureId = succulentFurnitureId(plant.speciesId, plant.colour, plant.pattern);
+      if (!content.furniture[furnitureId]) return fail('unknown_species');
+      discover(d, content, cmd.at);
+      const pots = [...d.state.garden.pots];
+      pots[cmd.pot] = null;
+      d.state = {
+        ...d.state,
+        inventory: { ...d.state.inventory, [furnitureId]: (d.state.inventory[furnitureId] ?? 0) + 1 },
+        garden: { ...d.state.garden, pots },
+      };
+      d.events.push({ type: 'succulent_displayed', pot: cmd.pot, furnitureId });
       return done();
     }
 

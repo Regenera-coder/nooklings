@@ -550,6 +550,30 @@ const gardenGoals: GardenGoalDef[] = [
   { id: 'g_book_25', title: 'Complete Succulent book', description: 'Fill all 25 spaces in the Succulent book.', check: { kind: 'discovered', count: 25 }, reward: { buttons: 400, hearts: 10 } },
 ];
 
+/**
+ * Every grown succulent can be put on show in a room (Phase 4). One furniture definition per
+ * shape, colour and pattern; the game draws it from the plant art in its pot. Ribbon Fall hangs.
+ */
+function succulentFurniture(): FurnitureDef[] {
+  const out: FurnitureDef[] = [];
+  for (const sp of succulents)
+    for (const col of succulentColours)
+      for (const pat of succulentPatterns) {
+        const name = `${pat.name} ${col.name} ${sp.name}`.trim();
+        out.push({
+          id: pat.id === 'plain' ? `succ_${sp.id}_${col.id}` : `succ_${sp.id}_${col.id}_${pat.id}`,
+          name,
+          layer: sp.anchor === 'top' ? 'ceiling' : 'floor',
+          w: 1,
+          h: 1,
+          tags: pat.id === 'plain' ? { Natural: 1, Calm: 1 } : { Natural: 2, Calm: 1 },
+          canFlip: true,
+          succulent: { speciesId: sp.id, colour: col.id, pattern: pat.id },
+        });
+      }
+  return out;
+}
+
 function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
   const out: Record<string, T> = {};
   for (const item of list) {
@@ -562,7 +586,7 @@ function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
 
 export const content: Content = {
   rooms: byId(rooms, (r) => r.id),
-  furniture: byId(furniture, (f) => f.id),
+  furniture: byId([...furniture, ...succulentFurniture()], (f) => f.id),
   residents: byId(residents, (r) => r.id),
   levels,
   recipes: byId(recipes, (r) => r.id),

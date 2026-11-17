@@ -2,6 +2,13 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Succulent Garden, Phase 4: succulents on show at home (17 Nov 2026)
+
+### Implemented
+- **Put on show:** a grown plant can leave its pot and go into storage as furniture, then be placed from Build like any other item. It keeps its colour and leaf pattern, standing in the felt pot; Ribbon Fall hangs from the ceiling in its hanging pot (indoors only). Each counts as Natural and Calm decor (patterned ones are extra Natural).
+- One furniture definition per shape, colour and pattern (100 in all), drawn in the game from the plant art, so no new art was needed.
+- Tests cover the definitions, putting a plant on show, placing it and saving. Checked in the browser at 740×360: a Teacup Tree, a hanging Ribbon Fall and a Meringue Rose placed in the Living Room.
+
 ## Unreleased — Succulent Garden, Phase 3 (17 Nov 2026)
 
 ### Implemented

@@ -557,6 +557,11 @@ export function undiscovered(state: GameState, content: Content, now: number): s
   return out;
 }
 
+/** Furniture id of a grown succulent put on show in a room. */
+export function succulentFurnitureId(speciesId: string, colour: string, pattern: string = PLAIN): string {
+  return pattern === PLAIN ? `succ_${speciesId}_${colour}` : `succ_${speciesId}_${colour}_${pattern}`;
+}
+
 /** Patterns on grown plants that have not been seen before. */
 export function unseenPatterns(state: GameState, content: Content, now: number): string[] {
   const out: string[] = [];

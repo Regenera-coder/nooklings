@@ -447,6 +447,9 @@ export class GameUI {
       case 'succulent_given':
         this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved the ${e.name} and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the ${e.name}`, 2600);
         break;
+      case 'succulent_displayed':
+        this.toast(`${this.content.furniture[e.furnitureId]?.name ?? 'Your succulent'} is in storage. Place it from Build!`, 2800);
+        break;
       case 'garden_goal_claimed':
         this.toast('Garden goal complete!', 2000);
         break;
@@ -1419,6 +1422,7 @@ export class GameUI {
       }
       if (st.offsetReady) acts.append(button('Take offset', 'btn small', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
       if (!plant.pod && s.residentOrder.length) acts.append(button('Give', 'btn small', () => { this.giftFrom = i; this.pollenFrom = null; this.page.scrollTop = 0; this.render(); }));
+      if (!plant.pod) acts.append(button('Put on show', 'btn small', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
       const price = succulentSellPrice(this.content, plant).buttons ?? 0;
       acts.append(button(`Sell · ${price}`, 'btn small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
       tile.append(acts);

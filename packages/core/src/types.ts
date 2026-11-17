@@ -26,6 +26,8 @@ export interface FurnitureDef {
   rest?: 'sleep' | 'sit';
   /** Wall items only: can hang over another wall item (curtains over a window). */
   overlay?: boolean;
+  /** A grown succulent put on show: drawn from the plant art, tinted, in its pot (no furn_ image). */
+  succulent?: { speciesId: string; colour: string; pattern: string };
 }
 
 export interface RoomDef {

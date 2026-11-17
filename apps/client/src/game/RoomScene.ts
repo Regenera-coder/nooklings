@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { blockedGrid, companionOf, effectiveRoom, isRoomOpen, residentsAtHome, validatePlacement, type Cell, type FurnitureDef, type GameEvent, type PlacementError, type Placement } from '@nooklings/core';
 import type { GameStore } from '../store';
 import { allArt } from '../assets';
+import { succulentInPot } from '../garden/succulentArt';
 import { drawFurniture, type DrawnItem } from './art';
 import { computeLayout, floorCellAt, wallSlotAt, type RoomLayout } from './layout';
 import { Companion } from './companion';
@@ -121,6 +122,7 @@ export class RoomScene extends Phaser.Scene {
 
     this.syncResidents(null);
     this.redrawAll();
+    this.ensureSucculentTextures();
 
     this.scale.on('resize', this.onResize, this);
     this.input.on('pointerdown', this.onPointerDown, this);
@@ -303,6 +305,7 @@ export class RoomScene extends Phaser.Scene {
   private onStateChanged(events: GameEvent[]): void {
     this.blocked = blockedGrid(this.room, this.placements, this.store.content);
     this.redrawFurniture();
+    this.ensureSucculentTextures();
     const now = this.time.now;
     const entering = events.find((e) => e.type === 'resident_joined' || e.type === 'resident_moved' || e.type === 'expedition_done');
     this.syncResidents(entering && 'residentId' in entering ? entering.residentId : null);
@@ -363,6 +366,33 @@ export class RoomScene extends Phaser.Scene {
       const y = l.floorTop + e.row * l.ch;
       g.fillRect(x, y, def.w * l.cw, def.h * l.ch);
       g.strokeRect(x, y, def.w * l.cw, def.h * l.ch);
+    }
+  }
+
+  /** Succulents put on show have no furniture image: draw each one (tinted plant in its pot) the first time it is needed. */
+  private succulentPending = new Set<string>();
+
+  private ensureSucculentTextures(): void {
+    const content = this.store.content;
+    const g = content.garden;
+    if (!g) return;
+    const s = this.store.state;
+    const ids = new Set<string>(Object.keys(s.inventory));
+    for (const room of Object.values(s.rooms)) for (const p of room.placements) ids.add(p.defId);
+    for (const id of ids) {
+      const def = content.furniture[id];
+      const info = def?.succulent;
+      const key = `furn_${id}`;
+      if (!info || this.textures.exists(key) || this.succulentPending.has(id)) continue;
+      const species = g.species[info.speciesId];
+      const colour = g.colours[info.colour];
+      if (!species || !colour) continue;
+      this.succulentPending.add(id);
+      void succulentInPot(species, { seedling: g.seedlingColour }, colour, info.pattern).then((canvas) => {
+        if (!canvas || this.textures.exists(key) || !this.sys.isActive()) return;
+        this.textures.addCanvas(key, canvas);
+        this.redrawAll();
+      });
     }
   }
 

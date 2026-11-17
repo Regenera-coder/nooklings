@@ -303,3 +303,77 @@ export function succulentImage(
 export function succulentArtUrl(def: SucculentDef): string | null {
   return artUrl(`succ_${def.id}`);
 }
+
+/** The tinted picture as a promise (full colour unless `colour` says otherwise). */
+export function succulentImageAsync(
+  def: SucculentDef,
+  palette: Palette,
+  tint: { mature: string; blush: string },
+  colour: number,
+  opts: { pattern?: string; sun?: boolean } = {},
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      const url = succulentImage(def, palette, tint, colour, () => undefined, opts);
+      if (url) {
+        done = true;
+        resolve(url);
+      }
+    };
+    const first = succulentImage(def, palette, tint, colour, finish, opts);
+    if (first) {
+      done = true;
+      resolve(first);
+    }
+    // No art: give up after a moment instead of waiting forever.
+    window.setTimeout(() => { if (!done) { done = true; resolve(null); } }, 8000);
+  });
+}
+
+/**
+ * A grown succulent in its pot, as one picture for a room: the standing pot with the plant
+ * sitting in the soil, or for a trailing plant the hanging pot with its strands spilling over.
+ */
+export async function succulentInPot(
+  def: SucculentDef,
+  palette: Palette,
+  tint: { mature: string; blush: string },
+  pattern: string,
+): Promise<HTMLCanvasElement | null> {
+  const hanging = def.anchor === 'top';
+  const potUrl = artUrl(hanging ? 'garden_pot_hanging' : 'garden_pot');
+  const plantUrl = await succulentImageAsync(def, palette, tint, 1, { pattern });
+  if (!potUrl || !plantUrl) return null;
+  const [pot, plant] = await Promise.all([loadImage(potUrl), loadImage(plantUrl)]);
+  const W = 256;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  if (hanging) {
+    // Hanging pot on top; the plant's crown sits in the soil and its strands hang below.
+    const pw = W * 0.62;
+    const ph = (pot.height / pot.width) * pw;
+    const lw = W * 0.66;
+    const lh = (plant.height / plant.width) * lw;
+    const plantTop = ph * 0.52;
+    canvas.width = W;
+    canvas.height = Math.ceil(Math.max(ph, plantTop + lh));
+    ctx.drawImage(pot, (W - pw) / 2, 0, pw, ph);
+    ctx.drawImage(plant, (W - lw) / 2, plantTop, lw, lh);
+  } else {
+    // Plant standing in the pot, its base hidden behind the rim.
+    const pw = W * 0.86;
+    const ph = (pot.height / pot.width) * pw;
+    let lw = W * 0.9;
+    let lh = (plant.height / plant.width) * lw;
+    const maxH = W * 1.1;
+    if (lh > maxH) { lw *= maxH / lh; lh = maxH; }
+    const sink = ph * 0.32;
+    canvas.width = W;
+    canvas.height = Math.ceil(lh - sink + ph);
+    ctx.drawImage(plant, (W - lw) / 2, 0, lw, lh);
+    ctx.drawImage(pot, (W - pw) / 2, lh - sink, pw, ph);
+  }
+  return canvas;
+}
