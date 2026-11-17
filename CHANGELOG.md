@@ -2,7 +2,7 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — Garden map (17 Nov 2026)
+## 0.15.0 — Garden map (17 Nov 2026)
 
 ### Changed
 - **The Succulent Garden is now a place:** a felt garden patio where each pot sits on its own spot — three stepping stones in front, three more on the potting bench as pots are bought (the next one to buy shows as a "+"). Each pot shows its plant growing, a seed pod when there is one, and a small label (time left, "In flower", "Seeds!", "Offset!").
