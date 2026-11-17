@@ -319,5 +319,32 @@ GRAPTO = ("A mature ghost plant (Graptopetalum) rosette seen from above: a loose
           "Smooth leaves only, no spines, no fluff. Looks like a real ghost plant.")
 jobs.append({"stage": "succulent_test3", "out": f"{F}/succ3_graptopetalum_mature.png", "size": "1024x1024", "refs": [], "prompt": GRAPTO + SUC_RULES})
 
+# Succulent Garden, our own species (owner, 17 Nov): five original sweet-treat succulents replace the real species.
+# Each has one unmistakable shape so they read apart at phone size. Neutral felt; colour is added in code.
+OWN = [
+    ("meringue_rose",
+     "An original, made-up succulent called Meringue Rose, seen from slightly above: a tight, round rosette whose plump leaves "
+     "curl upward and twist into soft pointed peaks, like a swirl of piped meringue. The leaves spiral inward to a peaked centre. "
+     "Smooth leaves, no spines."),
+    ("gumdrop_cluster",
+     "An original, made-up succulent called Gumdrop Cluster, seen from the side: a low, rounded mound made of about thirty small, "
+     "round, bead-like fleshy leaves, each shaped like a gumdrop with a slightly domed top, packed closely together on very short stems. "
+     "Smooth leaves, no spines."),
+    ("stitchback",
+     "An original, made-up succulent called Stitchback, seen from the side: an upright fan of about nine tall, narrow, pointed, "
+     "fleshy leaves, each leaf with three raised, chunky stitched ridges running from base to tip like a sewn seam. "
+     "Firm and upright, soft tips, no spines."),
+    ("teacup_tree",
+     "An original, made-up succulent called Teacup Tree, seen from the side: a tiny, plump bonsai-like tree with a short thick trunk "
+     "and three short branches, each branch ending in round, cupped leaves shaped like little saucers and teacups facing upward. "
+     "Smooth leaves, no spines. Compact, not tall."),
+    ("ribbon_fall",
+     "An original, made-up succulent called Ribbon Fall, seen from the side: a small round crown of leaves at the top, with five "
+     "long trailing strands hanging down from it, each strand made of small overlapping, teardrop-shaped fleshy leaves like a "
+     "braided ribbon. The strands hang at slightly different lengths and curl gently at the ends. Smooth leaves, no spines."),
+]
+for name, prompt in OWN:
+    jobs.append({"stage": "succulent_own", "out": f"{F}/own_{name}.png", "size": "1024x1024", "refs": [], "prompt": prompt + SUC_RULES})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
