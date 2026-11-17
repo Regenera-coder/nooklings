@@ -178,7 +178,8 @@ describe('saves', () => {
     expect(s.baking).toBeNull();
     expect(Object.keys(s.residents)).toHaveLength(10);
     expect(Object.values(s.residents).every((r) => r.treatDay === 0)).toBe(true);
-    expect(levelFor(s.hearts, c2)).toBe(10);
+    // Hearts are kept; with the lower Heart targets (17 Nov) a Level 10 save can already be past it.
+    expect(levelFor(s.hearts, c2)).toBeGreaterThanOrEqual(10);
     // The next chapter is waiting: the first Series 2 task is the one to do.
     expect(taskStates(s, c2).find((t) => t.status !== 'claimed')?.def.id).toBe('open_kitchen');
   });
@@ -215,7 +216,7 @@ describe('whole game with Series 2', () => {
     expect(Object.keys(casual.s.residents)).toHaveLength(20);
     for (let lv = 11; lv <= 20; lv++) expect(casual.levelAt[lv]).toBeGreaterThanOrEqual(casual.levelAt[lv - 1]!);
     const added = day(20) - day(10);
-    expect(added).toBeGreaterThanOrEqual(7);
-    expect(added).toBeLessThanOrEqual(14);
+    expect(added).toBeGreaterThanOrEqual(4);
+    expect(added).toBeLessThanOrEqual(10);
   });
 });

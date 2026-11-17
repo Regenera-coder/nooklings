@@ -49,6 +49,7 @@ import {
   researchSpeed,
   nextStudyLevel,
   dailyGiftAmount,
+  homeHasSpace,
   dailyGiftReady,
   arcadeButtonsLeft,
   seriesProgress,
@@ -134,7 +135,8 @@ export type CommandError =
   | 'unknown_series'
   | 'unknown_species'
   | 'unknown_pot'
-  | 'nothing_new';
+  | 'nothing_new'
+  | 'home_full';
 
 export type GameEvent =
   | { type: 'placed'; roomId: string; placement: Placement }
@@ -177,7 +179,7 @@ export type GameEvent =
   | { type: 'succulent_displayed'; pot: number; furnitureId: string }
   | { type: 'research_started'; studyId: string; level: number; endAt: number }
   | { type: 'research_finished'; studyId: string; level: number }
-  | { type: 'daily_gift'; buttons: number }
+  | { type: 'daily_gift'; buttons: number; hearts: number }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -344,6 +346,8 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!status.levelOk) return fail('locked');
       if (!status.giftOk) return fail('cannot_afford');
       if (!status.ready) return fail('not_ready');
+      // A new friend needs a room with space; open or buy a room first.
+      if (!homeHasSpace(state, content)) return fail('home_full');
       d.state = { ...state, wallet: addCost(state.wallet, status.def.welcomeGift, -1) };
       grantResident(d, content, cmd.residentId, 'invitation', status.def.roomId);
       return done();
@@ -358,6 +362,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!canAfford(state, price)) return fail('cannot_afford');
       // A Friend Parcel that could only hold duplicates is not sold.
       if (kind === 'friend' && !friendParcelHasNew(state, content, cmd.poolId)) return fail('nothing_new');
+      if (kind === 'friend' && !homeHasSpace(state, content)) return fail('home_full');
       const odds = parcelOdds(state, content, cmd.poolId, kind);
       const openedHere = state.parcelsByPool[pool.id] ?? 0;
       const guaranteed = kind === 'friend' && parcelGuaranteed(state, content, cmd.poolId);
@@ -861,7 +866,8 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!dailyGiftReady(state, content, cmd.at)) return fail('daily_limit');
       const buttons = dailyGiftAmount(state, content);
       d.state = { ...state, wallet: addCost(state.wallet, { buttons }, 1), dailyGiftDay: dayOf(cmd.at, content) };
-      d.events.push({ type: 'daily_gift', buttons });
+      d.events.push({ type: 'daily_gift', buttons, hearts: content.dailyGift.hearts });
+      if (content.dailyGift.hearts > 0) addHearts(d, content.dailyGift.hearts, content);
       return done();
     }
 

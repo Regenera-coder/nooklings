@@ -333,6 +333,7 @@ export interface ResearchStudyDef {
 export interface DailyGiftRules {
   buttons: number;
   buttonsPerLevel: number;
+  hearts: number;
 }
 
 export interface ResearchRules {

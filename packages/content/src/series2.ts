@@ -151,16 +151,16 @@ const residents: ResidentDef[] = [
 ];
 
 const levels: LevelDef[] = [
-  { level: 11, hearts: 310, unlocks: ['kitchen', 'baking'], label: 'The Kitchen and Baking' },
-  { level: 12, hearts: 350, unlocks: ['teatime_parcels'], label: 'Teatime Parcels' },
-  { level: 13, hearts: 390, unlocks: ['tea_service'], label: 'Tea service and Jam Tarts' },
-  { level: 14, hearts: 430, unlocks: ['berry_patch'], label: 'Berry Patch' },
-  { level: 15, hearts: 470, unlocks: ['tea_garden'], label: 'The Tea Garden' },
-  { level: 16, hearts: 510, unlocks: ['party_decor'], label: 'Party decor and Honey Cake' },
-  { level: 17, hearts: 550, unlocks: ['moonlit_market'], label: 'The Moonlit Market' },
-  { level: 18, hearts: 590, unlocks: ['old_oven'], label: 'Old Oven restoring' },
-  { level: 19, hearts: 630, unlocks: ['tea_party'], label: 'Tea Party Table' },
-  { level: 20, hearts: 670, unlocks: ['grand_tea_party'], label: 'The Grand Tea Party' },
+  { level: 11, hearts: 232, unlocks: ['kitchen', 'baking'], label: 'The Kitchen and Baking' },
+  { level: 12, hearts: 262, unlocks: ['teatime_parcels'], label: 'Teatime Parcels' },
+  { level: 13, hearts: 292, unlocks: ['tea_service'], label: 'Tea service and Jam Tarts' },
+  { level: 14, hearts: 322, unlocks: ['berry_patch'], label: 'Berry Patch' },
+  { level: 15, hearts: 352, unlocks: ['tea_garden'], label: 'The Tea Garden' },
+  { level: 16, hearts: 382, unlocks: ['party_decor'], label: 'Party decor and Honey Cake' },
+  { level: 17, hearts: 412, unlocks: ['moonlit_market'], label: 'The Moonlit Market' },
+  { level: 18, hearts: 442, unlocks: ['old_oven'], label: 'Old Oven restoring' },
+  { level: 19, hearts: 472, unlocks: ['tea_party'], label: 'Tea Party Table' },
+  { level: 20, hearts: 502, unlocks: ['grand_tea_party'], label: 'The Grand Tea Party' },
 ];
 
 const recipes: RecipeDef[] = [

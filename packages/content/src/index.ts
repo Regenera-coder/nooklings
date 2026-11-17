@@ -230,15 +230,15 @@ const residents: ResidentDef[] = [
 
 const levels: LevelDef[] = [
   { level: 1, hearts: 0, unlocks: [], label: 'Living Room and a tiny yard' },
-  { level: 2, hearts: 10, unlocks: ['crafting'], label: 'Crafting' },
-  { level: 3, hearts: 25, unlocks: ['parcels', 'sunroom'], label: 'Mystery Parcels and the Sunroom' },
-  { level: 4, hearts: 55, unlocks: ['gardening'], label: 'Gardening' },
-  { level: 5, hearts: 90, unlocks: ['yard_expansion', 'succulents'], label: 'Bigger yard and the Succulent Garden' },
-  { level: 6, hearts: 125, unlocks: ['rain_decor'], label: 'Rainy-day decor' },
-  { level: 7, hearts: 160, unlocks: ['expeditions'], label: 'Expeditions' },
-  { level: 8, hearts: 195, unlocks: ['tranquil_decor'], label: 'Tranquil decor' },
-  { level: 9, hearts: 230, unlocks: ['heirloom'], label: 'Heirloom restoring' },
-  { level: 10, hearts: 270, unlocks: ['exterior'], label: 'Wishing Lantern' },
+  { level: 2, hearts: 8, unlocks: ['crafting'], label: 'Crafting' },
+  { level: 3, hearts: 19, unlocks: ['parcels', 'sunroom'], label: 'Mystery Parcels and the Sunroom' },
+  { level: 4, hearts: 41, unlocks: ['gardening'], label: 'Gardening' },
+  { level: 5, hearts: 68, unlocks: ['yard_expansion', 'succulents'], label: 'Bigger yard and the Succulent Garden' },
+  { level: 6, hearts: 94, unlocks: ['rain_decor'], label: 'Rainy-day decor' },
+  { level: 7, hearts: 120, unlocks: ['expeditions'], label: 'Expeditions' },
+  { level: 8, hearts: 146, unlocks: ['tranquil_decor'], label: 'Tranquil decor' },
+  { level: 9, hearts: 172, unlocks: ['heirloom'], label: 'Heirloom restoring' },
+  { level: 10, hearts: 202, unlocks: ['exterior'], label: 'Wishing Lantern' },
 ];
 
 const recipes: RecipeDef[] = [
@@ -620,7 +620,7 @@ export const content: Content = {
   companions: byId(companions, (c) => c.id),
   expeditions: byId(expeditions, (e) => e.id),
   baking: null,
-  dailyGift: { buttons: 50, buttonsPerLevel: 5 },
+  dailyGift: { buttons: 50, buttonsPerLevel: 5, hearts: 2 },
   research: { studies: byId(studies, (x) => x.id), order: studies.map((x) => x.id) },
   garden: {
     unlock: 'succulents',

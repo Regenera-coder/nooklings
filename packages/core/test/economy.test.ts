@@ -19,7 +19,7 @@ describe('daily gift', () => {
     expect(again.ok ? null : again.error).toBe('daily_limit');
     expect(run(s, { type: 'claim_daily_gift', at: T + DAY }).ok).toBe(true);
     expect(dailyGiftAmount({ ...s, hearts: 90 }, c)).toBe(c.dailyGift!.buttons + 5 * c.dailyGift!.buttonsPerLevel);
-    expect(s.hearts).toBe(newGame(c).hearts);
+    expect(s.hearts).toBe(newGame(c).hearts + c.dailyGift!.hearts);
     expect(deserialize(serialize(s), c).dailyGiftDay).toBe(s.dailyGiftDay);
   });
 });

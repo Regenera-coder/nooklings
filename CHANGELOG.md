@@ -2,7 +2,14 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — More Buttons (17 Nov 2026)
+## 0.14.0 — Faster Home Levels and more Buttons (17 Nov 2026)
+
+### Changed: faster Home Levels
+- **Every Home Level needs 25% fewer Hearts** (Level 10 at 202 instead of 270; Level 20 at 502 instead of 670). The scripted player now reaches Level 10 on day 3 instead of day 7, and Level 20 on about day 9. Saved Hearts are kept, so existing homes may jump up a level or two.
+- **The daily gift also gives 2 Hearts.**
+- **New friends wait for space:** when every open room already has 4 residents, invitations and Friend Parcels say so instead of squeezing a fifth resident into the Living Room. Faster levels made this possible before the next room could be afforded.
+
+### Changed: more Buttons
 
 ### Changed
 - **The Arcade pays Buttons:** half a Button for every point scored, up to 150 Buttons a day across all games, on top of Ribbons and prizes. The result screen shows the Buttons won.

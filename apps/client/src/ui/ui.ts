@@ -458,7 +458,7 @@ export class GameUI {
         this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved the ${e.name} and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the ${e.name}`, 2600);
         break;
       case 'daily_gift':
-        this.toast(`Daily gift: +${e.buttons} Buttons. See you tomorrow!`, 3000);
+        this.toast(`Daily gift: +${e.buttons} Buttons${e.hearts ? ` and ${e.hearts} Hearts` : ''}. See you tomorrow!`, 3000);
         break;
       case 'research_started':
         this.toast(`Started studying ${this.content.research?.studies[e.studyId]?.name ?? ''}`, 2000);
@@ -1953,6 +1953,8 @@ function errorText(error: string): string {
       return 'That’s all for today. Come back tomorrow!';
     case 'room_full':
       return 'That room is full (4 residents)';
+    case 'home_full':
+      return 'Every room is full. Open a new room to make space for a new friend';
     case 'busy':
       return 'Someone is already exploring';
     case 'away':

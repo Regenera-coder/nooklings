@@ -71,6 +71,11 @@ export function residentsInRoom(state: GameState, roomId: string): string[] {
   return state.residentOrder.filter((id) => state.residents[id]?.room === roomId);
 }
 
+/** Some open room still has space for another resident. */
+export function homeHasSpace(state: GameState, content: Content): boolean {
+  return content.roomOrder.some((id) => isRoomOpen(state, content, id) && residentsInRoom(state, id).length < content.rules.maxResidentsPerRoom);
+}
+
 /** First open room with space, in the content's room order. */
 export function homeForNewResident(state: GameState, content: Content): string {
   for (const id of content.roomOrder) {
