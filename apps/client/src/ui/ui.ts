@@ -180,6 +180,9 @@ export class GameUI {
   /** Pot shown in the garden map's side panel. */
   private gardenPot: number | null = null;
   private tending = false;
+  /** A dropdown on the page is being used: hold off redrawing until it is done (a redraw would close it). */
+  private pickingUntil = 0;
+  private renderWaiting = false;
   private readonly arcade: Arcade;
   /** Where to return after Hide and Seek. */
   private beforeHide: { tab: Tab; roomId: string } | null = null;
@@ -235,6 +238,7 @@ export class GameUI {
     });
     this.applyInterfaceArt();
     this.renderRoomTabs();
+    this.watchPickers();
     window.setInterval(() => this.tick(), 1000);
     window.setTimeout(() => this.claimDailyGift(), 1500);
     this.renderTop();
@@ -367,7 +371,42 @@ export class GameUI {
 
   onStateChanged(events: GameEvent[]): void {
     for (const e of events) this.announce(e);
+    // Something changed by itself (the daily gift, a cloud save) while a dropdown is open: redraw once it closes.
+    if (this.picking()) {
+      this.renderWaiting = true;
+      this.renderBadges();
+      return;
+    }
     this.render();
+  }
+
+  private picking(): boolean {
+    const active = document.activeElement;
+    return Date.now() < this.pickingUntil || (active instanceof HTMLSelectElement && this.page.contains(active));
+  }
+
+  /** Watch the page's dropdowns from the first touch, before the browser has even opened them. */
+  private watchPickers(): void {
+    const isSelect = (t: EventTarget | null) => t instanceof HTMLSelectElement;
+    const start = (e: Event) => {
+      if (isSelect(e.target)) this.pickingUntil = Date.now() + 20_000;
+    };
+    const finish = (e: Event) => {
+      if (!isSelect(e.target)) return;
+      this.pickingUntil = 0;
+      // Let the change go through first, then catch up on anything that was held back.
+      window.setTimeout(() => {
+        if (this.renderWaiting && !this.picking()) {
+          this.renderWaiting = false;
+          this.render();
+        }
+      }, 0);
+    };
+    this.page.addEventListener('pointerdown', start, true);
+    this.page.addEventListener('touchstart', start, { capture: true, passive: true });
+    this.page.addEventListener('focusin', start, true);
+    this.page.addEventListener('change', finish, true);
+    this.page.addEventListener('focusout', finish, true);
   }
 
   toast(text: string, ms = 1900): void {
@@ -526,7 +565,8 @@ export class GameUI {
       (this.tab === 'nookbook' && this.detailId !== null) ||
       (this.tab === 'explore' && (this.exploreView === 'outdoors' || this.exploreView === 'kitchen' || this.exploreView === 'garden')) ||
       (this.tab === 'research' && !!this.getState().research.active);
-    if (hasCountdown && !this.revealing && !this.arcade.isOpen) this.render();
+    // Don't redraw under an open dropdown (Lives in, Companion, who goes exploring or bakes): it would close it.
+    if (hasCountdown && !this.revealing && !this.arcade.isOpen && !this.picking()) this.render();
     else this.renderBadges();
   }
 

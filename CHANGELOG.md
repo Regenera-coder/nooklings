@@ -2,10 +2,15 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
-## Unreleased — Ribbons in the top bar (17 Nov 2026)
+## Unreleased — Ribbons in the top bar and two fixes (17 Nov 2026)
 
 ### Changed
 - **Ribbons show in the top bar** next to Buttons and Wish Stamps. Tapping them explains that Ribbons buy costumes in the Wardrobe.
+- On narrow screens the home name shortens first, so the level and Hearts stay visible in the top bar.
+
+### Fixed
+- **Dropdowns no longer close by themselves** (Lives in, Companion, and who goes exploring or bakes). The page redraws every second for its timers, and a redraw landing just as a dropdown opened, or a change such as the daily gift arriving, closed it. Redraws now wait from the moment a dropdown is touched until it is closed.
+- **Messages are no longer hidden behind the room buttons** on the Home screen: they sit above them and wrap onto two lines when long.
 
 ## 0.15.0 — Garden map (17 Nov 2026)
 

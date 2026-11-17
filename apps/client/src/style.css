@@ -32,14 +32,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tab.active { background: var(--accent); color: var(--accent-ink); }
 .tab:focus-visible, .pill:focus-visible, .chip:focus-visible, .act:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 #main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
-#topbar { flex: 0 0 34px; display: flex; align-items: center; gap: 10px; padding: 0 8px; font-size: 13px; }
+#topbar { flex: 0 0 34px; display: flex; align-items: center; gap: 8px; padding: 0 8px; font-size: 13px; }
 #home-title { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-#home-name { font-weight: 700; }
+#home-name { font-weight: 700; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
+/* When space is tight the home name shortens first; level and Hearts stay visible. */
+#home-title .lvl, #home-title .hearts { flex: none; }
 .lvl { color: var(--ink-soft); font-size: 12px; }
-#resources { display: flex; gap: 10px; margin-left: auto; white-space: nowrap; }
+#resources { display: flex; gap: 6px; margin-left: auto; white-space: nowrap; }
 .res { color: var(--ink-soft); } .res b { color: var(--ink); }
 #top-actions { display: flex; gap: 6px; }
-.pill { height: 30px; min-width: 44px; padding: 0 12px; border-radius: 15px; border: 1px solid #ffffff40; background: #ffffff14; }
+.pill { height: 30px; min-width: 44px; padding: 0 10px; border-radius: 15px; border: 1px solid #ffffff40; background: #ffffff14; }
 .pill.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
 .pill.icon { padding: 0; width: 44px; }
 #stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; }
@@ -53,6 +55,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #toast { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: #000000b0; color: #fff;
   padding: 6px 12px; border-radius: 12px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; }
 #toast.show { opacity: 1; }
+/* Messages sit above everything, and above the room buttons on the Home screen so they are never hidden. */
+#toast { z-index: 30; max-width: 80%; white-space: normal; text-align: center; }
+#room-tabs:not([hidden]) ~ #toast { bottom: 52px; }
 #panel { flex: 0 0 auto; width: calc(204px + var(--sar)); padding: 10px calc(10px + var(--sar)) calc(10px + var(--sab)) 10px;
   background: var(--panel); color: var(--panel-ink); overflow-y: auto; touch-action: pan-y; }
 #panel[hidden] { display: none; }
