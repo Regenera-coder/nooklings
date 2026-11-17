@@ -457,5 +457,24 @@ UI_ICONS2 = [
 for name, prompt in UI_ICONS2:
     jobs.append({"stage": "ui_icons2", "out": f"{F}/{name}.png", "size": "1024x1024", "refs": ICON_REFS, "prompt": prompt + ICON_RULES})
 
+# New name (owner, 17 Nov): the game is "Momolumi: Little Worlds". Its home-screen and browser-tab icon was a shape
+# drawn in code; this is the real one. Momo = peach, lumi = light: a little peach-shaped felt cottage with a glowing window.
+jobs.append({
+    "stage": "app_icon",
+    "out": f"{F}/app_icon.png",
+    "size": "1024x1024",
+    "refs": ICON_REFS,
+    "prompt": (
+        "A square app icon for a cosy mobile game called Momolumi, in exactly the same handmade felt-and-stitch style, colours, outline softness"
+        " and lighting as the reference images (icons from the same game). Use them only for the style; do not copy their objects."
+        " The icon: a small round cottage shaped like a soft peach, made of peach-pink and cream felt with fine visible stitching, a little green felt"
+        " leaf on top like a peach stem, a rounded wooden door, and one round window glowing with warm golden light, with a few tiny stitched sparkles"
+        " around it. The cottage sits in the centre on a little mound of moss-green felt and fills about 70 percent of the frame."
+        " Background: a smooth, plain deep plum colour (#3b2a40) filling the whole square edge to edge, with a very soft warm glow behind the cottage."
+        " Simple, chunky shapes that read clearly when shown very small. Nothing touches the edges; keep a margin all round because the corners will be rounded."
+        " No text, no letters, no numbers, no logo, no watermark, no characters."
+    ),
+})
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})
