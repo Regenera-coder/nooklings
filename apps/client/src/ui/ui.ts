@@ -1384,10 +1384,6 @@ export class GameUI {
       const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
       img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
       stage.append(img, pot(def.anchor === 'top'));
-      if (st.blooming && !plant.pod) {
-        const flower = overlay('succ_flower_spike', 'flower');
-        if (flower) stage.append(flower);
-      }
       if (plant.pod) {
         const pod = overlay('garden_pod', `pod${st.podReady ? ' ripe' : ''}`);
         if (pod) stage.append(pod);

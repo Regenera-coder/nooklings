@@ -2,6 +2,11 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## Unreleased — Garden tidy-up (17 Nov 2026)
+
+### Changed
+- **No flower spike on plants.** The cream spike beside every flowering plant looked like a stray stem, so it is gone; the Pollinate button shows when a plant is in flower. The seed pod picture still shows while a pod ripens.
+
 ## Unreleased — Succulent Garden, Phase 4: succulents on show at home (17 Nov 2026)
 
 ### Implemented
