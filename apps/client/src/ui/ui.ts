@@ -41,6 +41,8 @@ import {
   nextStudyLevel,
   nextGardenGoal,
   succulentGrowth,
+  readySummary,
+  type ReadyItem,
   type Content,
   type Currency,
   type GameEvent,
@@ -116,6 +118,8 @@ export class GameUI {
   /** Pot shown in the garden map's side panel. */
   private gardenPot: number | null = null;
   private tending = false;
+  private gardenTab: 'plants' | 'bag' | 'goals' = 'plants';
+  private gardenView: 'map' | 'book' = 'map';
   /** A dropdown on the page is being used: hold off redrawing until it is done (a redraw would close it). */
   private pickingUntil = 0;
   private renderWaiting = false;
@@ -123,7 +127,7 @@ export class GameUI {
   /** Where to return after Hide and Seek. */
   private beforeHide: { tab: Tab; roomId: string } | null = null;
   private readonly panel = document.getElementById('panel')!;
-  private readonly page = document.getElementById('page')!;
+  private page = document.getElementById('page')!;
   private readonly reveal = document.getElementById('reveal')!;
   private readonly buildBtn = document.getElementById('build-btn') as HTMLButtonElement;
   private readonly researchBtn = document.getElementById('research-btn') as HTMLButtonElement;
@@ -136,6 +140,8 @@ export class GameUI {
   private undo: CommandInput[] = [];
   private undoAt = 0;
   private undoing = false;
+  private readonly readyBox = document.getElementById('ready')!;
+  private readyKey = '';
 
   constructor(
     private readonly content: Content,
@@ -308,12 +314,12 @@ export class GameUI {
     for (const id of this.content.roomOrder) {
       const room = this.content.rooms[id]!;
       const open = isRoomOpen(s, this.content, id);
-      // Hide rooms that aren't even unlockable yet, so the bar stays short early on.
+      // Every room shows, so players can see what is coming; locked ones say what they need when tapped.
       const unlockLevel = room.access ? this.content.levels.find((l) => l.unlocks.includes(room.access!.unlock))?.level ?? 99 : 1;
-      if (!open && level < unlockLevel) continue;
-      const b = el('button', id === this.roomId ? 'on' : '');
+      const b = el('button', `${id === this.roomId ? 'on' : ''}${open ? '' : ' locked'}`);
       b.append(document.createTextNode(open ? room.name : `🔒 ${room.name}`));
-      if (!open && canAfford(s, room.access!.cost)) b.append(el('span', 'dot'));
+      if (!open) b.title = level < unlockLevel ? `Opens at Home Level ${unlockLevel}` : 'Ready to open';
+      if (!open && level >= unlockLevel && canAfford(s, room.access!.cost)) b.append(el('span', 'dot'));
       b.addEventListener('click', () => this.showRoom(id));
       bar.append(b);
     }
@@ -395,6 +401,100 @@ export class GameUI {
     t.classList.add('show');
     window.clearTimeout(this.toastTimer);
     this.toastTimer = window.setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  // ---------- Ready list (Home) ----------
+
+  private static readonly READY: Record<ReadyItem['kind'], { icon: string; glyph: string; label: (n: number) => string; act: string; collect?: boolean }> = {
+    gather: { icon: 'icon_wood', glyph: '▤', label: (n) => `${n} gathering spot${n > 1 ? 's' : ''} ready`, act: 'Gather all', collect: true },
+    trip: { icon: 'icon_keepsake', glyph: '❖', label: () => 'Back from a trip', act: 'Welcome', collect: true },
+    garden: { icon: 'garden_pot', glyph: '✿', label: (n) => `${n} plant${n > 1 ? 's' : ''} ready`, act: 'Garden' },
+    garden_goal: { icon: 'icon_home_heart', glyph: '♥', label: () => 'Garden goal done', act: 'Claim', collect: true },
+    research: { icon: 'icon_research', glyph: '✎', label: () => 'Study finished', act: 'Learn', collect: true },
+    baking: { icon: 'icon_treats', glyph: '🍪', label: () => 'Treats are baked', act: 'Collect', collect: true },
+    tasks: { icon: 'icon_tab_tasks', glyph: '✓', label: (n) => `${n} task reward${n > 1 ? 's' : ''}`, act: 'Claim', collect: true },
+    invitations: { icon: 'icon_tab_nookbook', glyph: '✉', label: (n) => `${n} friend${n > 1 ? 's' : ''} can be invited`, act: 'Invite' },
+    series: { icon: 'icon_tab_nookbook', glyph: '★', label: () => 'Series reward', act: 'Collect', collect: true },
+    parcels: { icon: 'icon_wish_stamp', glyph: '✉', label: () => 'A Friend Parcel to open', act: 'Open' },
+  };
+
+  /** What is waiting right now, over the room on the Home screen. Folds down to a small button. */
+  private renderReady(): void {
+    const box = this.readyBox;
+    const items = this.tab === 'home' && !this.build && !this.revealing && this.selection.kind === 'none' && isRoomOpen(this.getState(), this.content, this.roomId) ? readySummary(this.getState(), this.content, Date.now()) : [];
+    const open = prefs().readyOpen ?? true;
+    const key = `${open}|${items.map((i) => `${i.kind}:${i.count}`).join(',')}`;
+    if (key === this.readyKey) return;
+    this.readyKey = key;
+    box.replaceChildren();
+    box.hidden = items.length === 0;
+    if (!items.length) return;
+    const total = items.reduce((a, i) => a + i.count, 0);
+    box.classList.toggle('folded', !open);
+    const head = el('button', 'ready-h');
+    head.setAttribute('aria-expanded', String(open));
+    head.append(el('b', '', 'Ready'), el('span', 'ready-n', String(total)), el('span', 'ready-caret', open ? '▾' : '▸'));
+    head.addEventListener('click', () => {
+      setPrefs({ readyOpen: !open });
+      this.renderReady();
+    });
+    const bar = el('div', 'ready-bar');
+    bar.append(head);
+    const collectable = items.filter((i) => GameUI.READY[i.kind].collect);
+    if (open && collectable.length > 1) bar.append(button('Collect all', 'btn small primary', () => { for (const i of collectable) this.actReady(i.kind, true); }));
+    box.append(bar);
+    if (!open) return;
+    const list = el('div', 'ready-list');
+    for (const item of items) {
+      const meta = GameUI.READY[item.kind];
+      const row = el('div', 'ready-row');
+      const url = artUrl(meta.icon);
+      if (url) {
+        const img = el('img', 'ready-ico');
+        img.src = url;
+        img.alt = '';
+        row.append(img);
+      } else row.append(el('span', 'ready-ico glyph', meta.glyph));
+      row.append(el('span', 'grow', meta.label(item.count)));
+      row.append(button(meta.act, 'btn small primary', () => this.actReady(item.kind)));
+      list.append(row);
+    }
+    box.append(list);
+  }
+
+  private actReady(kind: ReadyItem['kind'], quiet = false): void {
+    const s = this.getState();
+    const now = Date.now();
+    const go = (view: ExploreView) => { this.exploreView = view; this.setTab('explore'); };
+    switch (kind) {
+      case 'gather': {
+        const spots = Object.keys(this.content.gatherSpots).filter((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0);
+        const got: Partial<Record<Currency, number>> = {};
+        for (const id of spots) {
+          const res = this.dispatch({ type: 'gather', spotId: id, at: Date.now() });
+          if (res.ok) for (const e of res.events) if (e.type === 'gathered') for (const [k, v] of Object.entries(e.yield)) got[k as Currency] = (got[k as Currency] ?? 0) + (v ?? 0);
+        }
+        const text = Object.entries(got).map(([k, v]) => `${v} ${CURRENCY[k as Currency].name}`).join(', ');
+        if (text) this.toast(`Gathered ${text}`);
+        break;
+      }
+      case 'trip': this.run({ type: 'collect_expedition', at: now }); break;
+      case 'garden': go('garden'); break;
+      case 'garden_goal': { const g = nextGardenGoal(s, this.content); if (g?.done) this.run({ type: 'claim_garden_goal', goalId: g.def.id }); break; }
+      case 'research': this.run({ type: 'finish_research', at: now }); break;
+      case 'baking': this.run({ type: 'collect_baking', at: now }); break;
+      case 'tasks':
+        for (const t of taskStates(this.getState(), this.content).filter((x) => x.status === 'claimable')) this.dispatch({ type: 'claim_task', taskId: t.def.id });
+        if (!quiet) this.toast('Rewards collected');
+        break;
+      case 'invitations': this.tasksView = 'invitations'; this.setTab('tasks'); break;
+      case 'series':
+        for (const x of this.content.series) if (x.reward && seriesProgress(this.getState(), this.content, x.id).complete && !this.getState().seriesClaimed.includes(x.id)) this.run({ type: 'claim_series', seriesId: x.id });
+        break;
+      case 'parcels': go('parcels'); break;
+    }
+    this.readyKey = '';
+    this.render();
   }
 
   // ---------- materials ----------
@@ -679,6 +779,7 @@ export class GameUI {
   }
 
   private renderBadges(): void {
+    this.renderReady();
     const s = this.getState();
     const tasksDue =
       taskStates(s, this.content).some((t) => t.status === 'claimable') ||
@@ -829,7 +930,7 @@ export class GameUI {
     img.src = portraitUrl(def, { decorated: owned.form === 'decorated', costume: owned.costume });
     img.alt = '';
     const names = el('div');
-    names.append(el('h2', '', def.name), el('p', 'sub', `${def.rarity} · ${status} · ${this.content.rooms[owned.room]?.name ?? ''}`));
+    names.append(el('h2', '', def.name), el('p', 'sub', `${def.mood} · ${status}`));
     mini.append(img, names);
     panel.append(mini);
     const bond = bondProgress(owned.bondXp, this.content);
@@ -945,14 +1046,66 @@ export class GameUI {
   }
 
 
+  /** A "place these items" task as a checklist: each item with what it needs next. */
+  private taskChecklist(def: TaskDef, status: string): HTMLElement | null {
+    const c = def.condition;
+    if (c.kind !== 'placed' || (status !== 'active' && status !== 'claimable')) return null;
+    const s = this.getState();
+    const room = this.content.rooms[c.roomId];
+    const placedHere = (fid: string) => (s.rooms[c.roomId]?.placements ?? []).some((p) => p.defId === fid);
+    const done = c.furnitureIds.filter(placedHere).length;
+    const card = el('div', `card task task-list ${status}`);
+    const head = el('div', 'task-head');
+    const titles = el('div', 'grow');
+    titles.append(el('h3', '', def.title), el('p', '', def.description));
+    head.append(titles, el('span', 'task-where', `📍 ${room?.name ?? ''} · ${done}/${c.furnitureIds.length} placed`));
+    card.append(head);
+    for (const fid of c.furnitureIds) {
+      const f = this.content.furniture[fid];
+      const row = el('div', 'task-item');
+      const pic = cardArt(`furn_${fid}`);
+      if (pic) { pic.className = 'task-art'; row.append(pic); }
+      const body = el('div', 'grow');
+      body.append(el('b', '', f?.name ?? fid));
+      const stored = s.inventory[fid] ?? 0;
+      const here = placedHere(fid);
+      body.append(el('span', `task-state ${here ? 'done' : stored ? 'owned' : 'needed'}`, here ? '✓ Placed' : stored ? '✓ Owned' : '◌ Needed'));
+      row.append(body);
+      if (here) row.append(el('span', 'muted', 'Done'));
+      else if (stored) row.append(button('Place', 'btn primary', () => {
+        this.showRoom(c.roomId);
+        if (!isRoomOpen(this.getState(), this.content, c.roomId)) return;
+        this.setBuild(true);
+        this.getScene()?.beginPlace(fid);
+      }));
+      else {
+        const recipe = Object.values(this.content.recipes).find((r) => r.furnitureId === fid);
+        row.append(button('Get', 'btn', () => {
+          if (recipe) { this.shop.open('furniture', { furnitureId: fid }); this.setTab('shop'); }
+          else this.toast(`${f?.name ?? 'This'} isn't sold in the Shop: look for it in Furniture Parcels and Arcade prizes.`, 3200);
+        }));
+      }
+      card.append(row);
+    }
+    const foot = el('div', 'task-foot');
+    const rewards = el('div', 'rewards');
+    rewards.append(el('b', '', 'Rewards:'), ...costChips(def.reward));
+    foot.append(rewards);
+    if (status === 'claimable') foot.append(button('Claim', 'btn primary', () => this.run({ type: 'claim_task', taskId: def.id })));
+    card.append(foot);
+    return card;
+  }
+
   private taskCard(def: TaskDef, status: string): HTMLElement {
+    const list = this.taskChecklist(def, status);
+    if (list) return list;
     const card = el('div', `card task ${status}`);
     const row = el('div', 'row');
     const body = el('div', 'grow');
     // A task from a later chapter waits for its Home Level, not for another task.
     const waitsForLevel = status === 'locked' && levelFor(this.getState().hearts, this.content) < (def.fromLevel ?? 1);
-    body.append(el('h3', '', waitsForLevel ? 'A new chapter' : status === 'locked' ? '???' : def.title));
-    body.append(el('p', '', waitsForLevel ? `Opens at Home Level ${def.fromLevel}. Play with your friends, upgrade their looks and craft new things to earn Home Hearts.` : status === 'locked' ? 'Finish the task above to reveal this one.' : def.description));
+    body.append(el('h3', '', waitsForLevel ? 'A new chapter' : status === 'locked' ? '🔒 Next task' : def.title));
+    body.append(el('p', '', waitsForLevel ? `Opens at Home Level ${def.fromLevel}. Play with your friends, upgrade their looks and craft new things to earn Home Hearts.` : status === 'locked' ? 'Finish the task above to reveal it.' : def.description));
     if (status !== 'locked' && status !== 'claimed') {
       const rewards = el('div', 'rewards');
       rewards.append(...costChips(def.reward));
@@ -1065,73 +1218,94 @@ export class GameUI {
     this.render();
   }
 
+  private aboutOpen = false;
+
   private renderDetail(id: string): void {
     const s = this.getState();
     const def = this.content.residents[id]!;
     const owned = s.residents[id];
-    const head = el('div', 'page-h');
-    head.append(button('‹ Back', 'btn light', () => { this.detailId = null; this.render(); }), el('span', 'grow'));
-    this.page.append(head);
-    const wrap = el('div', 'detail');
-    const art = el('div', 'art');
+    const wrap = el('div', 'profile');
+    // Left: the portrait, with the story folded away under it.
+    const left = el('div', 'profile-art card');
+    left.append(button('‹ Back', 'btn small back-btn', () => { this.detailId = null; this.aboutOpen = false; this.render(); }));
     const img = el('img');
     img.src = portraitUrl(def, { silhouette: !owned, decorated: owned?.form === 'decorated', costume: owned?.costume });
     img.alt = owned ? def.name : 'Not yet found';
-    art.append(img);
-    const info = el('div', 'info');
-    const title = el('div', 'row');
-    title.append(el('h2', '', owned ? def.name : '???'), el('span', `rar ${def.rarity}`, def.rarity));
-    info.append(title);
-    if (!owned) {
-      info.append(el('p', 'tagline', 'Not found yet.'), el('p', 'story', def.hint));
-    } else {
-      info.append(el('p', 'tagline', def.tagline));
-      const bond = bondProgress(owned.bondXp, this.content);
-      const kv = el('dl', 'kv');
-      const add = (k: string, v: string | HTMLElement) => {
-        kv.append(el('dt', '', k));
-        const dd = el('dd');
-        dd.append(v);
-        kv.append(dd);
-      };
-      add('Mood', def.mood);
-      add('Favourite decor', def.favouriteTags.join(', '));
-      const bondCell = el('span');
-      bondCell.append(bondHearts(bond.level), document.createTextNode(bond.span ? `  ${bond.into}/${bond.span} to next` : '  Max'));
-      add('Bond', bondCell);
-      add('Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
-      add('Lives in', this.homePicker(id, owned.room));
-      const pets = this.companionPicker(id);
-      if (pets) add('Companion', pets);
-      info.append(kv, el('p', 'story', def.story));
-      const actions = el('div', 'actions');
-      actions.append(this.playButton(id, 'btn primary'));
-      if (this.content.baking && levelFor(s.hearts, this.content) >= (this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99)) {
-        const away = s.expedition?.residentId === id;
-        const given = treatGivenToday(s, this.content, id, Date.now());
-        const afford = canAfford(s, this.content.baking.giftCost);
-        actions.append(button(given ? 'Treat given today' : `Give a Treat (${s.wallet.treats})`, 'btn', () => this.run({ type: 'give_treat', residentId: id, at: Date.now() }), away || given || !afford));
-      }
-      const upgrade = this.content.formUpgrades.find((u) => u.form === 'decorated');
-      if (upgrade && owned.form === 'original') {
-        const bondOk = bond.level >= upgrade.requiresBond;
-        const afford = canAfford(s, upgrade.cost);
-        const b = button('Upgrade to Decorated', 'btn', () => this.run({ type: 'upgrade_form', residentId: id }), !(bondOk && afford));
-        actions.append(b);
-        const req = el('div', 'req');
-        req.append(el('span', bondOk ? 'ok' : 'no', `Bond ${upgrade.requiresBond}`));
-        const cost = el('span', afford ? 'ok' : 'no');
-        cost.append(...costChips(upgrade.cost, ''));
-        req.append(cost);
-        info.append(actions, req);
-      } else {
-        info.append(actions);
-      }
-      if (visibleCostumes(this.content, id).length) {
-        info.append(button('Costumes ›', 'btn costumes-btn', () => { this.shop.open('costumes', { resident: id }); this.setTab('shop'); }));
-      }
+    left.append(img);
+    if (owned) {
+      const about = button(`About ${def.name} ${this.aboutOpen ? '▴' : '▾'}`, 'btn small about-btn', () => { this.aboutOpen = !this.aboutOpen; this.render(); });
+      about.setAttribute('aria-expanded', String(this.aboutOpen));
+      left.append(about);
     }
-    wrap.append(art, info);
+    const right = el('div', 'profile-info card');
+    const title = el('div', 'profile-title');
+    title.append(el('h2', '', owned ? def.name : '???'), el('span', `rar ${def.rarity}`, def.rarity));
+    right.append(title);
+    if (!owned) {
+      right.append(el('p', 'tagline', 'Not found yet.'), el('p', 'story', def.hint));
+      wrap.append(left, right);
+      this.page.append(wrap);
+      return;
+    }
+    if (this.aboutOpen) {
+      right.append(el('p', 'tagline', def.tagline), el('p', 'story', def.story));
+      wrap.append(left, right);
+      this.page.append(wrap);
+      return;
+    }
+    const cols = el('div', 'profile-cols');
+    const facts = el('div', 'facts');
+    const bond = bondProgress(owned.bondXp, this.content);
+    const fact = (ico: string, k: string, v: string | HTMLElement) => {
+      const row = el('div', 'fact');
+      row.append(el('span', 'fact-ico', ico), el('span', 'fact-k', k));
+      const val = el('span', 'fact-v');
+      val.append(v);
+      row.append(val);
+      facts.append(row);
+    };
+    fact('☺', 'Mood', def.mood);
+    fact('✿', 'Favourite decor', def.favouriteTags.join(', '));
+    const bondCell = el('span');
+    bondCell.append(bondHearts(bond.level), document.createTextNode(bond.span ? ` ${bond.into}/${bond.span} to next` : ' Max'));
+    fact('♥', 'Bond', bondCell);
+    fact('✦', 'Form', owned.form === 'decorated' ? 'Decorated' : 'Original');
+    fact('⌂', 'Lives in', this.homePicker(id, owned.room));
+    const pets = this.companionPicker(id);
+    if (pets) fact('🐾', 'Companion', pets);
+    cols.append(facts);
+
+    const acts = el('div', 'profile-acts');
+    acts.append(this.playButton(id, 'btn primary big'));
+    if (this.content.baking && levelFor(s.hearts, this.content) >= (this.content.levels.find((l) => l.unlocks.includes('baking'))?.level ?? 99)) {
+      const away = s.expedition?.residentId === id;
+      const given = treatGivenToday(s, this.content, id, Date.now());
+      const afford = canAfford(s, this.content.baking.giftCost);
+      acts.append(button(given ? 'Treat given today' : `Give a Treat (${s.wallet.treats})`, 'btn', () => this.run({ type: 'give_treat', residentId: id, at: Date.now() }), away || given || !afford));
+    }
+    const upgrade = this.content.formUpgrades.find((u) => u.form === 'decorated');
+    if (upgrade && owned.form === 'original') {
+      const bondOk = bond.level >= upgrade.requiresBond;
+      const afford = canAfford(s, upgrade.cost);
+      const box = el('div', 'upgrade-box');
+      box.append(el('b', '', 'Upgrade to Decorated'));
+      const req = el('div', 'req');
+      req.append(el('span', bondOk ? 'ok' : 'no', `${bondOk ? '✓' : '✗'} Bond ${upgrade.requiresBond}`));
+      for (const [k, v] of Object.entries(upgrade.cost) as Array<[Currency, number]>) {
+        const have = s.wallet[k] ?? 0;
+        const chip = el('span', have >= v ? 'ok' : 'no');
+        chip.append(icon(k), document.createTextNode(` ${v} ${CURRENCY[k].name}${have < v ? ` (have ${have})` : ''}`));
+        req.append(chip);
+      }
+      box.append(req, button('Upgrade', 'btn primary', () => this.run({ type: 'upgrade_form', residentId: id }), !(bondOk && afford)));
+      acts.append(box);
+    }
+    if (visibleCostumes(this.content, id).length) {
+      acts.append(button('👚 Costumes ›', 'btn costumes-btn', () => { this.shop.open('costumes', { resident: id }); this.setTab('shop'); }));
+    }
+    cols.append(acts);
+    right.append(cols);
+    wrap.append(left, right);
     this.page.append(wrap);
   }
 
@@ -1221,7 +1395,11 @@ export class GameUI {
     const s = this.getState();
     const now = Date.now();
     const card = el('div', 'card');
-    card.append(el('h3', '', 'Gathering in the Yard'));
+    const head = el('div', 'section-h');
+    head.append(el('h3', '', 'Gathering in the Yard'), el('span', 'grow'));
+    const readySpots = Object.keys(this.content.gatherSpots).filter((id) => spotUnlocked(s, this.content, id) && gatherReadyIn(s, this.content, id, now) === 0);
+    if (readySpots.length > 1) head.append(button('Gather all', 'btn small primary', () => this.actReady('gather')));
+    card.append(head);
     for (const spot of Object.values(this.content.gatherSpots)) {
       const row = el('div', 'spot-row');
       const thumb = cardArt(`spot_${spot.id}`);
@@ -1484,13 +1662,13 @@ export class GameUI {
       img.alt = '';
       return img;
     };
-    const card = el('div', 'card');
-    card.append(el('h3', '', 'Succulent Garden'));
     if (!gardenOpen(s, this.content)) {
-      card.append(el('p', '', `Grow little succulents that change colour as they grow. Unlocks at Home Level ${at}.`));
+      const card = el('div', 'card');
+      card.append(el('h3', '', 'Succulent Garden'), el('p', '', `Grow little succulents that change colour as they grow. Opens at Home Level ${at}.`));
       this.page.append(card);
       return;
     }
+    if (this.gardenView === 'book') return this.renderSucculentBook(plantPic);
     // Grown plants go into the Succulent book as soon as they are seen.
     if ((undiscovered(s, this.content, now).length || unseenPatterns(s, this.content, now).length) && !this.tending) {
       this.tending = true;
@@ -1504,64 +1682,42 @@ export class GameUI {
     if (from !== null && (!fromPlant || !plantStatus(this.content, fromPlant, now, tools, speed)?.blooming)) this.pollenFrom = null;
     const giftPlant = this.giftFrom !== null ? s.garden.pots[this.giftFrom] : null;
     if (this.giftFrom !== null && (!giftPlant || giftPlant.pod || succulentGrowth(this.content, giftPlant.speciesId, giftPlant.plantedAt, now, speed.grow)?.stage !== 'grown')) this.giftFrom = null;
-    if (this.giftFrom !== null && giftPlant) {
-      const pot = this.giftFrom;
-      const bar = el('div', 'pollen-bar gift-bar');
-      bar.append(el('span', 'grow', `Give ${succulentName(this.content, giftPlant.speciesId, giftPlant.colour, giftPlant.pattern)} to:`));
-      const who = s.residentOrder.filter((id) => s.expedition?.residentId !== id);
-      for (const id of who) {
-        const given = treatGivenToday(s, this.content, id, now);
-        const b = button(this.content.residents[id]?.name ?? id, 'btn small', () => { this.giftFrom = null; this.run({ type: 'give_succulent', pot, residentId: id, at: Date.now() }); }, given);
-        if (given) b.title = 'Already had a gift today';
-        bar.append(b);
-      }
-      bar.append(button('Cancel', 'btn small', () => { this.giftFrom = null; this.render(); }));
-      card.append(bar);
-    } else if (this.pollenFrom !== null && fromPlant) {
-      const bar = el('div', 'pollen-bar');
-      const brush = overlay('garden_brush', 'pollen-icon');
-      if (brush) bar.append(brush);
-      bar.append(el('span', 'grow', `Pollen from ${succulentName(this.content, fromPlant.speciesId, fromPlant.colour, fromPlant.pattern)}. Brush it onto another flower.`));
-      bar.append(button('Cancel', 'btn small', () => { this.pollenFrom = null; this.render(); }));
-      card.append(bar);
-    } else {
-      card.append(el('p', 'muted', 'Seedlings start green and take on their colour as they grow. Grown plants flower: brush pollen from one flower onto another for seeds that mix both.'));
-    }
-    // The garden map: each pot sits on its spot in the scene; tap one to see it and act on it.
-    const sceneUrl = artUrl('garden_scene_background');
-    const wrap = el('div', sceneUrl ? 'garden-wrap' : 'garden-wrap no-scene');
-    const scene = el('div', 'garden-scene');
-    if (sceneUrl) scene.style.backgroundImage = `url("${sceneUrl}")`;
-    const side = el('div', 'garden-side');
+
     const potCost = nextPotCost(s, this.content);
     const owned = s.garden.pots.length;
     const maxPots = g.maxPots;
-    // Pick something sensible to show: the chosen pot, else one needing attention, else the first.
-    const needs = (i: number): boolean => {
-      const p = s.garden.pots[i];
-      if (!p) return false;
-      const st = plantStatus(this.content, p, now, tools, speed);
-      return !!st && (st.growth.stage === 'grown' || st.podReady || st.offsetReady);
-    };
-    if (this.gardenPot === null || this.gardenPot >= Math.min(maxPots, owned + (potCost ? 1 : 0))) {
-      const first = s.garden.pots.findIndex((_, i) => needs(i));
-      this.gardenPot = first >= 0 ? first : 0;
-    }
-    const selected = this.gardenPot;
-
     const plantInfo = (i: number) => {
       const plant = s.garden.pots[i];
       const def = plant ? g.species[plant.speciesId] : undefined;
       if (!plant || !def) return null;
       return { plant, def, st: plantStatus(this.content, plant, now, tools, speed)! };
     };
+    const needs = (i: number): boolean => {
+      const info = plantInfo(i);
+      return !!info && (info.st.growth.stage === 'grown' || info.st.podReady || info.st.offsetReady);
+    };
+    if (this.gardenPot === null || this.gardenPot >= Math.min(maxPots, owned + (potCost ? 1 : 0))) {
+      const first = s.garden.pots.findIndex((_, i) => needs(i));
+      this.gardenPot = first >= 0 ? first : 0;
+    }
+    const selected = this.gardenPot;
+    // While pollen is on the brush, the flowers it can go onto glow.
+    const canTake = (i: number): boolean => {
+      const info = plantInfo(i);
+      return this.pollenFrom !== null && this.pollenFrom !== i && !!info?.st.blooming && !info.plant.pod;
+    };
 
+    // ----- The map: stays on screen while you work the side panel. -----
+    const sceneUrl = artUrl('garden_scene_background');
+    const wrap = el('div', sceneUrl ? 'garden-wrap v2' : 'garden-wrap v2 no-scene');
+    const scene = el('div', 'garden-scene');
+    if (sceneUrl) scene.style.backgroundImage = `url("${sceneUrl}")`;
     for (let i = 0; i < maxPots; i++) {
       const spot = GARDEN_SPOTS[i]!;
       const isOwned = i < owned;
       const isBuy = !isOwned && i === owned && !!potCost;
       if (!isOwned && !isBuy) continue;
-      const slot = el('button', `garden-slot${spot.back ? ' back' : ''}${i === selected ? ' selected' : ''}`);
+      const slot = el('button', `garden-slot${spot.back ? ' back' : ''}${i === selected ? ' selected' : ''}${canTake(i) ? ' target' : ''}`);
       slot.style.left = `${spot.x * 100}%`;
       slot.style.top = `${spot.y * 100}%`;
       slot.style.width = `${spot.w * 100}%`;
@@ -1569,7 +1725,7 @@ export class GameUI {
       if (isBuy) {
         slot.classList.add('buy');
         slot.append(el('span', 'slot-plus', '+'));
-        slot.setAttribute('aria-label', 'Buy another pot');
+        slot.setAttribute('aria-label', 'Another pot');
       } else {
         const stack = el('div', `slot-stack${info?.def.anchor === 'top' ? ' trail' : ''}`);
         if (info) {
@@ -1590,39 +1746,36 @@ export class GameUI {
           if (pod) stack.append(pod);
         }
         slot.append(stack);
-        // A little tag under each pot: what it needs, or how long until it is ready.
         let tag = '';
         if (!info) tag = 'Empty';
         else if (info.st.podReady) tag = 'Seeds!';
         else if (info.plant.pod) tag = clock(info.plant.pod.readyAt - now);
         else if (info.st.growth.stage !== 'grown') tag = clock(info.st.growth.grownAt - now);
         else if (info.st.offsetReady) tag = 'Offset!';
-        else if (info.st.blooming) tag = 'In flower';
+        else if (info.st.blooming) tag = '✿ In flower';
         else tag = 'Grown';
         slot.append(el('span', `slot-tag${needs(i) ? ' ready' : ''}`, tag));
         slot.setAttribute('aria-label', info ? `${info.def.name}, ${tag}` : 'Empty pot');
         if (this.pollenFrom === i) slot.classList.add('picked');
       }
       slot.addEventListener('click', () => {
-        // With pollen on the brush, tapping another flower brushes it straight away.
-        const from = this.pollenFrom;
-        if (from !== null && from !== i && info?.st.blooming && !info.plant.pod) {
+        const fromPot = this.pollenFrom;
+        if (fromPot !== null && canTake(i)) {
           this.pollenFrom = null;
           this.gardenPot = i;
-          this.run({ type: 'pollinate', pot: i, fromPot: from, at: Date.now() });
+          this.run({ type: 'pollinate', pot: i, fromPot, at: Date.now() });
           return;
         }
         this.gardenPot = i;
+        this.gardenTab = 'plants';
         this.render();
       });
       scene.append(slot);
     }
-
-    // Tools you own sit on the little side table.
-    const owned_tools = g.toolOrder.filter((t) => tools.includes(t));
-    if (owned_tools.length) {
+    const ownedTools = g.toolOrder.filter((t) => tools.includes(t));
+    if (ownedTools.length) {
       const table = el('div', 'garden-table');
-      for (const t of owned_tools) {
+      for (const t of ownedTools) {
         const im = overlay(`garden_${t}`, 'table-tool');
         if (im) {
           im.title = g.tools[t].name;
@@ -1632,77 +1785,153 @@ export class GameUI {
       scene.append(table);
     }
 
-    // The side panel: the selected pot.
-    const sel = selected;
-    if (sel >= owned && potCost) {
-      side.append(el('b', '', 'Another pot'));
-      side.append(el('p', 'muted', `Room for ${maxPots} pots in all.`));
-      const price = el('span', canAfford(s, potCost) ? 'muted' : 'no');
-      price.append(...costChips(potCost, ''));
-      side.append(price, button('Buy', 'btn primary small', () => this.run({ type: 'buy_pot' }), !canAfford(s, potCost)));
-    } else {
-      const info = plantInfo(sel);
-      if (!info) {
-        side.append(el('b', '', 'Empty pot'), el('p', 'muted', 'Plant a seed from the packets below.'));
+    // ----- The side panel: Plants, Seed Bag, Goals. -----
+    const side = el('div', 'garden-side card');
+    const goal = nextGardenGoal(s, this.content);
+    const bagCount = Object.values(s.garden.seeds).reduce((a, b) => a + b, 0);
+    const tabs = el('div', 'gtabs');
+    for (const [t, label, dot] of [['plants', 'Plants', false], ['bag', `Seed Bag${bagCount ? ` ${bagCount}` : ''}`, false], ['goals', 'Goals', !!goal?.done]] as Array<[typeof this.gardenTab, string, boolean]>) {
+      const b = button(label, `gtab${this.gardenTab === t ? ' on' : ''}`, () => { this.gardenTab = t; this.render(); });
+      if (dot && this.gardenTab !== t) b.append(el('span', 'dot'));
+      tabs.append(b);
+    }
+    side.append(tabs);
+    const body = el('div', 'gbody');
+    const freePot = (): number => {
+      // Plant into the selected pot if it is empty, else the first empty one.
+      if (selected < owned && !s.garden.pots[selected]) return selected;
+      return s.garden.pots.findIndex((p) => p === null);
+    };
+
+    if (this.giftFrom !== null && giftPlant) {
+      const pot = this.giftFrom;
+      body.append(el('b', '', `Give ${succulentName(this.content, giftPlant.speciesId, giftPlant.colour, giftPlant.pattern)} to:`));
+      const who = el('div', 'gift-who');
+      for (const id of s.residentOrder.filter((r) => s.expedition?.residentId !== r)) {
+        const given = treatGivenToday(s, this.content, id, now);
+        const b = button(this.content.residents[id]?.name ?? id, 'btn small', () => { this.giftFrom = null; this.run({ type: 'give_succulent', pot, residentId: id, at: Date.now() }); }, given);
+        if (given) b.title = 'Already had a gift today';
+        who.append(b);
+      }
+      body.append(who, button('Cancel', 'btn small', () => { this.giftFrom = null; this.render(); }));
+    } else if (this.gardenTab === 'plants') {
+      if (this.pollenFrom !== null && fromPlant) {
+        const bar = el('div', 'pollen-bar');
+        const brush = overlay('garden_brush', 'pollen-icon');
+        if (brush) bar.append(brush);
+        bar.append(el('span', 'grow', 'Pollen on the brush: tap a glowing flower.'));
+        bar.append(button('Cancel', 'btn small', () => { this.pollenFrom = null; this.render(); }));
+        body.append(bar);
+      }
+      if (selected >= owned && potCost) {
+        body.append(el('b', 'gname', 'Another pot'), el('p', 'muted', `Room for ${maxPots} pots in all.`));
+        const price = el('div', 'rewards');
+        price.append(...costChips(potCost, ''));
+        body.append(price, button('Buy a pot', 'btn primary', () => this.run({ type: 'buy_pot' }), !canAfford(s, potCost)));
       } else {
-        const { plant, def, st } = info;
-        const grow = st.growth;
-        side.append(el('b', '', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour, plant.pattern) : def.name));
-        if (grow.stage !== 'grown') {
-          side.append(el('p', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ${clock(grow.grownAt - now)}`));
-          const bar = el('div', 'trip-bar');
-          const fill = el('span');
-          fill.style.width = `${Math.round(grow.progress * 100)}%`;
-          bar.append(fill);
-          side.append(bar);
-        } else {
-          const acts = el('div', 'pot-acts');
-          const i = sel;
-          if (plant.pod) {
-            if (st.podReady) acts.append(button('Collect seeds', 'btn primary small', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
-            else acts.append(el('span', 'muted', `Seed pod · ${clock(plant.pod.readyAt - now)}`));
-          } else if (st.blooming) {
-            if (this.pollenFrom === null) acts.append(button('Pollinate', 'btn small', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
-            else if (this.pollenFrom === i) acts.append(el('span', 'muted', 'Pollen picked: tap another flower'));
-            else acts.append(button('Brush here', 'btn primary small', () => {
-              const fromPot = this.pollenFrom;
-              this.pollenFrom = null;
-              if (fromPot !== null) this.run({ type: 'pollinate', pot: i, fromPot, at: Date.now() });
-              else this.render();
-            }));
+        const info = plantInfo(selected);
+        if (!info) {
+          body.append(el('b', 'gname', 'Empty pot'));
+          if (bagCount) {
+            body.append(el('p', 'muted', 'Plant a seed from your seed bag:'));
+            body.append(this.seedBagList(plantPic, selected, true));
           } else {
-            acts.append(el('span', 'muted', `Flowers in ${clock(st.bloomAt - now)}`));
+            body.append(el('p', 'muted', 'Your seed bag is empty. Buy seed packets in the Shop.'));
           }
-          if (st.offsetReady) acts.append(button('Take offset', 'btn small', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
-          if (!plant.pod && s.residentOrder.length) acts.append(button('Give', 'btn small', () => { this.giftFrom = i; this.pollenFrom = null; this.page.scrollTop = 0; this.render(); }));
-          if (!plant.pod) acts.append(button('Put on show', 'btn small', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
-          const price = succulentSellPrice(this.content, plant).buttons ?? 0;
-          acts.append(button(`Sell · ${price}`, 'btn small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
-          side.append(acts);
+        } else {
+          const { plant, def, st } = info;
+          const grow = st.growth;
+          const head = el('div', 'ghead');
+          const thumb = el('img', 'gthumb');
+          thumb.src = plantPic(def.id, plant.colour, grow.colour, plant.pattern);
+          thumb.alt = '';
+          head.append(thumb, el('b', 'gname', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour, plant.pattern) : def.name));
+          body.append(head);
+          if (grow.stage !== 'grown') {
+            body.append(el('p', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ready in ${clock(grow.grownAt - now)}`));
+            const bar = el('div', 'trip-bar');
+            const fill = el('span');
+            fill.style.width = `${Math.round(grow.progress * 100)}%`;
+            bar.append(fill);
+            body.append(bar);
+          } else {
+            const acts = el('div', 'gacts');
+            const i = selected;
+            if (plant.pod) {
+              if (st.podReady) acts.append(button('Collect seeds', 'btn primary wide', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
+              else acts.append(el('span', 'muted wide', `Seed pod ripens in ${clock(plant.pod.readyAt - now)}`));
+            } else if (st.blooming) {
+              if (this.pollenFrom === null) acts.append(button('🐝 Pollinate', 'btn primary', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
+              else if (this.pollenFrom === i) acts.append(el('span', 'muted wide', 'Now tap another flower'));
+              else acts.append(button('Brush here', 'btn primary', () => {
+                const fromPot = this.pollenFrom;
+                this.pollenFrom = null;
+                if (fromPot !== null) this.run({ type: 'pollinate', pot: i, fromPot, at: Date.now() });
+                else this.render();
+              }));
+            } else {
+              acts.append(el('span', 'muted wide', `Flowers in ${clock(st.bloomAt - now)}`));
+            }
+            if (st.offsetReady) acts.append(button('Take offset', 'btn', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
+            if (!plant.pod && s.residentOrder.length) acts.append(button('🎁 Give', 'btn', () => { this.giftFrom = i; this.pollenFrom = null; this.render(); }));
+            if (!plant.pod) acts.append(button('Put on show', 'btn', () => this.run({ type: 'display_succulent', pot: i, at: Date.now() })));
+            const price = succulentSellPrice(this.content, plant).buttons ?? 0;
+            acts.append(button(`Sell · ${price}`, 'btn', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
+            body.append(acts);
+          }
         }
       }
+    } else if (this.gardenTab === 'bag') {
+      if (!bagCount) body.append(el('p', 'muted', 'No seeds yet. Buy seed packets in the Shop, or collect seeds from pollinated flowers.'));
+      else {
+        const target = freePot();
+        body.append(el('p', 'muted', target < 0 ? 'Every pot is in use. Sell a grown plant or buy another pot.' : `Plants into pot ${target + 1}.`));
+        body.append(this.seedBagList(plantPic, target, false));
+      }
+    } else {
+      if (!goal) body.append(el('p', 'muted', 'Every garden goal is done!'));
+      else {
+        body.append(el('b', 'gname', goal.def.title), el('p', 'muted', `${goal.def.description} (${goal.progress}/${goal.def.check.count})`));
+        const rw = el('div', 'rewards');
+        rw.append(...costChips(goal.def.reward));
+        body.append(rw, button(goal.done ? 'Claim' : 'Not yet', goal.done ? 'btn primary' : 'btn', () => this.run({ type: 'claim_garden_goal', goalId: goal.def.id }), !goal.done));
+      }
     }
+    side.append(body);
+    const links = el('div', 'glinks');
+    const total = g.order.length * g.colourOrder.length;
+    links.append(
+      button(`Succulent Book ${s.garden.discovered.length}/${total}`, 'btn small', () => { this.gardenView = 'book'; this.page.scrollTop = 0; this.render(); }),
+      button('Shop · Gardening', 'btn small', () => { this.shop.open('gardening'); this.setTab('shop'); }),
+    );
+    side.append(links);
     wrap.append(scene, side);
-    card.append(wrap);
-    this.page.append(card);
+    this.page.append(wrap);
+  }
 
-    const goal = nextGardenGoal(s, this.content);
-    if (goal) {
-      const gc = el('div', 'card');
-      const row = el('div', 'spot-row');
-      const body = el('div', 'grow');
-      body.append(el('b', '', `Garden goal: ${goal.def.title}`), el('p', '', `${goal.def.description} (${goal.progress}/${goal.def.check.count})`));
-      const rw = el('div', 'rewards');
-      rw.append(...costChips(goal.def.reward));
-      body.append(rw);
-      row.append(body, button(goal.done ? 'Claim' : 'Not yet', goal.done ? 'btn primary' : 'btn', () => this.run({ type: 'claim_garden_goal', goalId: goal.def.id }), !goal.done));
-      gc.append(row);
-      this.page.append(gc);
+  /** Seeds in the bag, ready to plant into pot `pot` (-1 when every pot is full). */
+  private seedBagList(plantPic: (speciesId: string, colour: string, t: number, pattern?: string) => string, pot: number, compact: boolean): HTMLElement {
+    const g = this.content.garden!;
+    const s = this.getState();
+    const list = el('div', `bag-list${compact ? ' compact' : ''}`);
+    const plant = (key: string) => this.run({ type: 'plant_seed', pot, seed: key, at: Date.now() });
+    if (s.garden.tools.includes('loupe')) {
+      // With the Loupe every seed shows what it will grow into.
+      for (const [key, count] of Object.entries(s.garden.seeds)) {
+        const seed = parseSeedKey(this.content, key);
+        if (!seed || count <= 0) continue;
+        const row = el('div', 'bag-row');
+        const thumb = el('img', 'bag-thumb');
+        thumb.src = plantPic(seed.speciesId, seed.colour, 1, seed.pattern);
+        thumb.alt = '';
+        const isNew = !s.garden.discovered.includes(`${seed.speciesId}:${seed.colour}`);
+        row.append(thumb, el('span', 'grow', `${succulentName(this.content, seed.speciesId, seed.colour, seed.pattern)} ×${count}${isNew ? ' ★' : ''}`));
+        row.append(button('Plant', 'btn small primary', () => plant(key), pot < 0));
+        list.append(row);
+      }
+      return list;
     }
-
-    const freePot = s.garden.pots.findIndex((p) => p === null);
-
-    // Seed bag: seeds from pods and offsets, planted for free. Grouped by shape only: the colour is a surprise until it grows.
+    // Without it, seeds are grouped by shape: the colour is a surprise until it grows.
     const bySpecies = new Map<string, string[]>();
     for (const [key, count] of Object.entries(s.garden.seeds)) {
       const seed = parseSeedKey(this.content, key);
@@ -1711,103 +1940,31 @@ export class GameUI {
       for (let k = 0; k < count; k++) keys.push(key);
       bySpecies.set(seed.speciesId, keys);
     }
-    const loupe = tools.includes('loupe');
-    if (bySpecies.size && loupe) {
-      // With the Loupe every seed shows what it will grow into, and you choose which to plant.
-      const bag = el('div', 'card');
-      bag.append(el('h3', '', 'Seed bag · seen through the Loupe'));
-      for (const [key, count] of Object.entries(s.garden.seeds)) {
-        const seed = parseSeedKey(this.content, key);
-        if (!seed || count <= 0) continue;
-        const row = el('div', 'spot-row');
-        const thumb = el('img', 'seed-thumb');
-        thumb.alt = '';
-        thumb.src = plantPic(seed.speciesId, seed.colour, 1, seed.pattern);
-        const body = el('div', 'grow');
-        body.append(el('b', '', `${succulentName(this.content, seed.speciesId, seed.colour, seed.pattern)} × ${count}`));
-        body.append(el('p', '', s.garden.discovered.includes(`${seed.speciesId}:${seed.colour}`) ? 'Already in your Succulent book.' : 'New for your Succulent book!'));
-        row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: key, at: Date.now() }), freePot < 0));
-        bag.append(row);
-      }
-      if (freePot < 0) bag.append(el('p', 'muted', 'Every pot is in use. Sell a grown plant or buy another pot.'));
-      this.page.append(bag);
-    } else if (bySpecies.size) {
-      const bag = el('div', 'card');
-      bag.append(el('h3', '', 'Seed bag'));
-      for (const id of g.order) {
-        const keys = bySpecies.get(id);
-        if (!keys) continue;
-        const row = el('div', 'spot-row');
-        const thumb = el('img', 'seed-thumb');
-        thumb.alt = '';
-        thumb.src = plantPic(id, g.species[id]!.colour, 0);
-        const body = el('div', 'grow');
-        body.append(el('b', '', `${g.species[id]!.name} seed${keys.length > 1 ? 's' : ''} × ${keys.length}`));
-        body.append(el('p', '', 'What colour will it grow into? Plant it to find out (or look closely with a Loupe).'));
-        // Plant whichever is first in the bag; which colour it is stays hidden.
-        row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: keys[0]!, at: Date.now() }), freePot < 0));
-        bag.append(row);
-      }
-      if (freePot < 0) bag.append(el('p', 'muted', 'Every pot is in use. Sell a grown plant or buy another pot.'));
-      this.page.append(bag);
-    }
-
-    const seeds = el('div', 'card');
-    seeds.append(el('h3', '', 'Seed packets'));
     for (const id of g.order) {
-      const def = g.species[id]!;
-      const row = el('div', 'spot-row');
-      const thumb = el('img', 'seed-thumb');
+      const keys = bySpecies.get(id);
+      if (!keys) continue;
+      const row = el('div', 'bag-row');
+      const thumb = el('img', 'bag-thumb');
+      thumb.src = artUrl(`garden_seed_${id}`) ?? plantPic(id, g.species[id]!.colour, 0);
       thumb.alt = '';
-      thumb.src = artUrl(`garden_seed_${id}`) ?? plantPic(id, def.colour, 1);
-      const body = el('div', 'grow');
-      const hours = Math.round(((def.sproutMs + def.growMs) * speed.grow) / 360_000) / 10;
-      body.append(el('b', '', def.name), el('p', '', def.description));
-      const info = el('div', 'rewards');
-      info.append(el('span', 'reward', `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h to grow`));
-      const sells = el('span', 'reward');
-      sells.append(document.createTextNode('Sells for '), ...costChips(def.sellPrice, ''));
-      info.append(sells);
-      body.append(info);
-      const cost = el('span', canAfford(s, def.seedCost) ? 'muted' : 'no');
-      cost.append(...costChips(def.seedCost, ''));
-      const plantBtn = button('Plant', 'btn primary', () => this.run({ type: 'plant_succulent', pot: freePot, speciesId: id, at: Date.now() }), freePot < 0 || !canAfford(s, def.seedCost));
-      const side = el('div', 'seed-side');
-      side.append(cost, plantBtn);
-      row.append(thumb, body, side);
-      seeds.append(row);
+      row.append(thumb, el('span', 'grow', `${g.species[id]!.name} ×${keys.length}`));
+      row.append(button('Plant', 'btn small primary', () => plant(keys[0]!), pot < 0));
+      list.append(row);
     }
-    this.page.append(seeds);
+    return list;
+  }
 
-    // Garden tools, bought once.
-    const tc = el('div', 'card');
-    tc.append(el('h3', '', 'Garden tools'));
-    for (const id of g.toolOrder) {
-      const t = g.tools[id];
-      const row = el('div', 'spot-row');
-      const pic = el('img', 'seed-thumb');
-      pic.alt = '';
-      pic.src = artUrl(`garden_${id}`) ?? '';
-      const body = el('div', 'grow');
-      body.append(el('b', '', t.name), el('p', '', t.description));
-      row.append(pic, body);
-      if (tools.includes(id)) row.append(el('span', 'reward', 'Owned ✓'));
-      else {
-        const side = el('div', 'seed-side');
-        const cost = el('span', canAfford(s, t.cost) ? 'muted' : 'no');
-        cost.append(...costChips(t.cost, ''));
-        side.append(cost, button('Buy', 'btn primary', () => this.run({ type: 'buy_garden_tool', toolId: id }), !canAfford(s, t.cost)));
-        row.append(side);
-      }
-      tc.append(row);
-    }
-    this.page.append(tc);
-
-    // Succulent book: every shape in every colour.
-    const book = el('div', 'card');
+  /** Succulent book: every shape in every colour, and the leaf patterns. */
+  private renderSucculentBook(plantPic: (speciesId: string, colour: string, t: number, pattern?: string) => string): void {
+    const g = this.content.garden!;
+    const s = this.getState();
+    const head = el('div', 'page-h');
+    head.append(button('‹ Garden', 'btn light', () => { this.gardenView = 'map'; this.page.scrollTop = 0; this.render(); }));
     const total = g.order.length * g.colourOrder.length;
-    book.append(el('h3', '', `Succulent book · ${s.garden.discovered.length} of ${total}`));
-    book.append(el('p', 'muted', 'Each shape can grow in every colour. Seeds take their shape from one parent and their colour from one parent, and now and then come out in a colour neither parent had. New colours sell for more.'));
+    head.append(el('h2', '', `Succulent Book · ${s.garden.discovered.length} of ${total}`));
+    this.page.append(head);
+    const book = el('div', 'card');
+    book.append(el('p', 'muted', 'Seeds take their shape from one parent and their colour from one parent, and now and then come out in a colour neither had. New colours sell for more.'));
     const grid = el('div', 'succ-book');
     grid.append(el('span', ''));
     for (const c of g.colourOrder) grid.append(el('span', 'book-col', g.colours[c]!.name));
@@ -1831,7 +1988,6 @@ export class GameUI {
       pats.append(el('span', `reward${found ? '' : ' muted'}`, found ? `${g.patterns[id]!.name} ✓` : '???'));
     }
     book.append(pats);
-    book.append(el('p', 'muted', 'Patterns are rare: a seed can come out with one neither parent had, and patterned plants pass it on.'));
     this.page.append(book);
   }
 
@@ -1871,8 +2027,17 @@ export class GameUI {
     if (this.exploreView === 'kitchen') return this.renderBaking();
     if (this.exploreView === 'garden') return this.renderGarden();
     if (this.exploreView === 'parcels') return this.renderParcels();
-    this.renderGathering();
-    this.renderExpeditions();
+    // Gathering and trips side by side, so both are visible without scrolling.
+    const split = el('div', 'outdoors');
+    const page = this.page;
+    this.page = split as unknown as typeof this.page;
+    try {
+      this.renderGathering();
+      this.renderExpeditions();
+    } finally {
+      this.page = page;
+    }
+    page.append(split);
   }
 
   /** Something outdoors is ready: a gathering spot, or a friend back from a trip. */

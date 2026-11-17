@@ -668,3 +668,42 @@ export function arcadeButtonsLeft(state: GameState, content: Content, at: number
   const earned = state.arcade.day === dayOf(at, content) ? state.arcade.buttons : 0;
   return Math.max(0, content.arcade.maxButtonsPerDay - earned);
 }
+
+// ---------- Ready summary (Home screen) ----------
+
+export type ReadyKind = 'gather' | 'trip' | 'garden' | 'garden_goal' | 'research' | 'baking' | 'tasks' | 'invitations' | 'series' | 'parcels';
+
+export interface ReadyItem {
+  kind: ReadyKind;
+  /** How many things of this kind are waiting (always at least 1). */
+  count: number;
+}
+
+/**
+ * Everything waiting for the player right now, in the order the Home screen lists it: things to collect first,
+ * then things to claim. Only actionable items: nothing here is a timer still running.
+ */
+export function readySummary(state: GameState, content: Content, now: number): ReadyItem[] {
+  const out: ReadyItem[] = [];
+  const add = (kind: ReadyKind, count: number) => {
+    if (count > 0) out.push({ kind, count });
+  };
+  add('gather', Object.keys(content.gatherSpots).filter((id) => spotUnlocked(state, content, id) && gatherReadyIn(state, content, id, now) === 0).length);
+  add('trip', state.expedition && state.expedition.endAt <= now ? 1 : 0);
+  if (content.garden && gardenOpen(state, content)) {
+    const speed = researchSpeed(state, content);
+    add('garden', state.garden.pots.filter((p) => {
+      if (!p) return false;
+      const st = plantStatus(content, p, now, state.garden.tools, speed);
+      return !!st && (st.podReady || st.offsetReady || st.growth.stage === 'grown');
+    }).length);
+    add('garden_goal', nextGardenGoal(state, content)?.done ? 1 : 0);
+  }
+  add('research', state.research.active && state.research.active.endAt <= now ? 1 : 0);
+  add('baking', state.baking && state.baking.endAt <= now ? 1 : 0);
+  add('tasks', taskStates(state, content).filter((t) => t.status === 'claimable').length);
+  add('invitations', Object.keys(content.invitations).filter((id) => invitationStatus(state, content, id)?.ready).length);
+  add('series', content.series.filter((x) => x.reward && seriesProgress(state, content, x.id).complete && !state.seriesClaimed.includes(x.id)).length);
+  add('parcels', Object.values(content.parcels).some((p) => poolCanOpen(state, content, p, 'friend')) ? 1 : 0);
+  return out;
+}
