@@ -826,3 +826,49 @@ body.has-rooms #stage { bottom: 48px; }
 .outdoors .card { margin: 0; }
 .outdoors .spot-row .btn { min-height: 44px; }
 .outdoors .spot-row p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Arcade cards: whole titles and plays left */
+.ar-name { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 12.5px; min-height: 2.3em; }
+.ar-left { font-weight: 800; color: var(--plum-2); }
+.ar-worth { font-size: 11.5px !important; color: #8a4a6a !important; font-weight: 700; }
+/* Research: the running study stays pinned; studies in two columns */
+.research-active { position: sticky; top: -8px; z-index: 2; }
+.study-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.study { display: flex; align-items: flex-start; gap: 8px; margin: 0; }
+.study .grow { flex: 1; min-width: 0; }
+.study p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.study .seed-side { align-self: center; }
+.study .btn { min-height: 44px; }
+.parcel-wrap { grid-template-columns: minmax(84px, 18%) 1fr; }
+.badge.num { width: auto; min-width: 18px; height: 18px; border-radius: 9px; top: 0; right: 0; padding: 0 5px; font-size: 11px; font-weight: 800; font-style: normal; color: #3b2a40; display: grid; place-items: center; line-height: 1; }
+
+/* Confirm before scarce spending */
+.confirm { position: absolute; inset: 0; z-index: 40; background: #1a1220b0; display: grid; place-items: center; padding: 12px; }
+.confirm-card { background: var(--cream); color: var(--panel-ink); border-radius: 18px; border: 3px dashed #e6c49a; padding: 12px 16px; width: min(360px, 92%); display: flex; flex-direction: column; gap: 6px; }
+.confirm-card h3 { margin: 0; color: var(--plum); }
+.confirm-card p { margin: 0; font-size: 12.5px; color: var(--panel-soft); }
+.confirm-card .actions { justify-content: flex-end; }
+.confirm-card .btn { min-height: 44px; }
+/* Reward pop-ups from the top bar */
+.gain-pop { position: fixed; z-index: 60; transform: translate(-50%, 0); font-weight: 900; font-size: 15px; color: #fff4c4; -webkit-text-stroke: 3px #4a1532; paint-order: stroke fill; pointer-events: none; animation: gain-rise 1.2s ease-out forwards; }
+@keyframes gain-rise { from { opacity: 0; transform: translate(-50%, -4px); } 20% { opacity: 1; } to { opacity: 0; transform: translate(-50%, 26px); } }
+.why { color: #9a2236 !important; font-weight: 700; margin-top: 2px !important; }
+/* Gentle motion: the player's own setting, as well as the system one */
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+/* Thumb-sized targets everywhere (44 px), larger for main actions */
+.btn { min-height: 44px; }
+.btn.small { min-height: 40px; }
+.filter { min-height: 40px; padding: 0 12px; }
+.btn.primary:not(.small) { min-height: 44px; }
+select.pick { min-height: 40px; }
+.ar-card.has-frame .ar-card-art { aspect-ratio: 16 / 8.5; }
+.ar-card.has-frame .ar-name { font-size: 11.5px; min-height: 0; line-height: 1.1; }
+.ar-card.has-frame .ar-meta { font-size: 10px; }
+.ar-card.has-frame .ar-name { white-space: nowrap; display: block; letter-spacing: -0.2px; font-size: 11px; }
+.ar-card .ar-pips { display: none; }
+.study { flex-wrap: wrap; }
+.study .seed-side { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.study .rewards { margin-top: 3px; }
+.ar-card.has-frame { padding: 7% 8.5% 11%; }
+.ar-card.has-frame .ar-meta { line-height: 1.3; }
+.ar-card.has-frame .ar-name, .ar-card.has-frame .ar-meta { padding: 0 5%; overflow: hidden; text-overflow: ellipsis; }
+.ar-card.has-frame .ar-name.long { font-size: 9.8px; letter-spacing: -0.3px; }

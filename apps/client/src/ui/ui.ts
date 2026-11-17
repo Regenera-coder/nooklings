@@ -190,6 +190,7 @@ export class GameUI {
         this.setTab('explore');
       },
       scrollTop: () => { this.page.scrollTop = 0; },
+      confirmSpend: (cost, what, then) => this.confirmSpend(cost as Partial<Record<Currency, number>>, what, then),
     });
     this.arcade = new Arcade({
       content,
@@ -203,6 +204,7 @@ export class GameUI {
       onClosed: () => this.render(),
       errorText,
     });
+    document.body.classList.toggle('reduce-motion', !!prefs().reducedMotion);
     this.applyInterfaceArt();
     this.renderRoomTabs();
     this.watchPickers();
@@ -497,6 +499,50 @@ export class GameUI {
     this.render();
   }
 
+  // ---------- confirmations and reward pop-ups ----------
+
+  /** Wish Stamps and Keepsakes are scarce: ask once before spending them. Anything else goes straight through. */
+  confirmSpend(cost: Partial<Record<Currency, number>>, what: string, then: () => void): void {
+    const scarce = (['wishStamps', 'keepsakes'] as Currency[]).filter((c) => (cost[c] ?? 0) > 0);
+    if (!scarce.length) return then();
+    const box = el('div', 'confirm');
+    const card = el('div', 'confirm-card');
+    card.append(el('h3', '', what));
+    const price = el('div', 'rewards');
+    price.append(...costChips(cost));
+    card.append(el('p', '', `This uses ${scarce.map((c) => CURRENCY[c].name).join(' and ')}, which are hard to come by.`), price);
+    const acts = el('div', 'actions');
+    const close = () => box.remove();
+    acts.append(button('Not now', 'btn', close), button('Yes, go ahead', 'btn primary', () => { close(); then(); }));
+    card.append(acts);
+    box.append(card);
+    box.addEventListener('click', (e) => { if (e.target === box) close(); });
+    document.getElementById('stage-wrap')!.append(box);
+  }
+
+  private lastWallet: Partial<Record<Currency, number>> | null = null;
+
+  /** A little "+40" rises from the top bar when Buttons, Wish Stamps or Ribbons go up. */
+  private floatGains(): void {
+    const w = this.getState().wallet;
+    const before = this.lastWallet;
+    this.lastWallet = { ...w };
+    if (!before || prefs().reducedMotion) return;
+    const spots: Array<[Currency, string]> = [['buttons', 'res-buttons'], ['wishStamps', 'res-stamps'], ['ribbons', 'res-ribbons']];
+    for (const [c, id] of spots) {
+      const gain = (w[c] ?? 0) - (before[c] ?? 0);
+      if (gain <= 0) continue;
+      const anchorEl = document.getElementById(id);
+      if (!anchorEl) continue;
+      const r = anchorEl.getBoundingClientRect();
+      const pop = el('span', 'gain-pop', `+${gain}`);
+      pop.style.left = `${r.left + r.width / 2}px`;
+      pop.style.top = `${r.bottom}px`;
+      document.body.append(pop);
+      window.setTimeout(() => pop.remove(), 1200);
+    }
+  }
+
   // ---------- materials ----------
 
   /** Every material the home has, opened from the money in the top bar. */
@@ -776,6 +822,7 @@ export class GameUI {
     document.getElementById('res-buttons')!.textContent = String(s.wallet.buttons);
     document.getElementById('res-stamps')!.textContent = String(s.wallet.wishStamps);
     document.getElementById('res-ribbons')!.textContent = String(s.wallet.ribbons);
+    this.floatGains();
   }
 
   private renderBadges(): void {
@@ -789,9 +836,21 @@ export class GameUI {
     const bookDue =
       s.residentOrder.some((id) => !s.flags.includes(`viewed:${id}`) && id !== 'snug') ||
       this.content.series.some((x) => x.reward && seriesProgress(s, this.content, x.id).complete && !s.seriesClaimed.includes(x.id));
+    // Numbers for things waiting to be collected; a plain dot for something new to look at.
+    const ready = readySummary(s, this.content, now);
+    const count = (kinds: ReadyItem['kind'][]) => ready.filter((r) => kinds.includes(r.kind)).reduce((a, r) => a + r.count, 0);
+    const counts: Partial<Record<Tab, number>> = {
+      explore: count(['gather', 'trip', 'garden', 'garden_goal', 'baking', 'parcels']),
+      tasks: count(['tasks', 'invitations']),
+      nookbook: count(['series']),
+    };
     const set = (tab: Tab, on: boolean) => {
       const b = document.querySelector<HTMLElement>(`#rail .tab[data-tab="${tab}"] .badge`);
-      if (b) b.hidden = !on;
+      if (!b) return;
+      b.hidden = !on;
+      const n = counts[tab] ?? 0;
+      b.textContent = on && n > 0 ? String(Math.min(n, 9)) : '';
+      b.classList.toggle('num', on && n > 0);
     };
     const active = s.research.active;
     const dot = this.researchBtn.querySelector('.pill-dot') as HTMLElement | null;
@@ -997,6 +1056,21 @@ export class GameUI {
     if (doneCount === all.length) this.page.prepend(el('p', 'muted', 'Every task is done. Your home is complete!'));
     const extra = this.tasksExtra?.();
     if (extra) this.page.append(extra);
+    // Settings that belong to this device, not the save.
+    const set = el('div', 'card settings');
+    const row = el('div', 'spot-row');
+    const body = el('div', 'grow');
+    body.append(el('b', '', 'Gentle motion'), el('p', '', 'Calmer animations: no bouncing, shaking or floating numbers.'));
+    const on = !!prefs().reducedMotion;
+    const t = button(on ? 'On' : 'Off', `btn${on ? ' primary' : ''}`, () => {
+      setPrefs({ reducedMotion: !on });
+      document.body.classList.toggle('reduce-motion', !on);
+      this.render();
+    });
+    t.setAttribute('aria-pressed', String(on));
+    row.append(body, t);
+    set.append(el('h3', '', 'Settings'), row);
+    this.page.append(set);
   }
 
   /** Friends who can be invited now, and a peek at the next one. */
@@ -1161,9 +1235,12 @@ export class GameUI {
       }
       this.page.append(tabs);
     }
-    const head = el('div', 'page-h');
-    head.append(el('h2', '', allSeries.length > 1 ? `Series ${seriesNo} · ${seriesDef?.name ?? ''}` : 'Series 1 · The First Residents'), el('span', 'grow'), el('span', 'muted', `${ownedCount}/${series.length}`));
-    this.page.append(head);
+    if (allSeries.length <= 1) {
+      // With several series the tabs already name each one and its count.
+      const head = el('div', 'page-h');
+      head.append(el('h2', '', `Series ${seriesNo} · ${seriesDef?.name ?? 'The First Residents'}`), el('span', 'grow'), el('span', 'muted', `${ownedCount}/${series.length}`));
+      this.page.append(head);
+    }
     const bar = el('div', 'progress');
     const fill = el('span');
     fill.style.width = `${(ownedCount / series.length) * 100}%`;
@@ -1578,8 +1655,8 @@ export class GameUI {
     const head = el('div', 'page-h');
     head.append(button('‹ Home', 'btn light', () => this.setTab('home')), el('h2', '', 'Research'));
     this.page.append(head);
-    const intro = el('div', 'card');
-    intro.append(el('p', 'muted', 'Study one thing at a time. Each level is yours for good and makes things in your home go faster.'));
+    const intro = el('div', 'card research-active');
+    if (!s.research.active) intro.append(el('p', 'muted', 'Study one thing at a time. Each level is yours for good and makes things in your home go faster.'));
     const a = s.research.active;
     if (a) {
       const def = r.studies[a.studyId]!;
@@ -1605,17 +1682,17 @@ export class GameUI {
     }
     this.page.append(intro);
 
-    const list = el('div', 'card');
+    const list = el('div', 'study-grid');
     for (const id of r.order) {
       const def = r.studies[id]!;
       const lvl = researchLevel(s, id);
       const next = nextStudyLevel(s, this.content, id);
-      const row = el('div', 'spot-row');
+      const row = el('div', 'card study');
       const pic = el('img', 'seed-thumb');
       pic.src = artUrl(def.icon) ?? '';
       pic.alt = '';
       const body = el('div', 'grow');
-      body.append(el('b', '', `${def.name} · Level ${lvl}/${def.levels.length}`), el('p', '', def.description));
+      body.append(el('b', '', `${def.name} · Lv ${lvl}/${def.levels.length}`), el('p', '', def.description));
       const info = el('div', 'rewards');
       const amount = (n: number) => (def.effect === 'mutation' ? `+${Math.round(n * 100)}% chance` : `${Math.round(n * 100)}% faster`);
       if (lvl > 0) info.append(el('span', 'reward', `Now ${amount(def.perLevel * lvl)}`));
@@ -2103,9 +2180,10 @@ export class GameUI {
         const acts = el('div', 'actions');
         acts.style.flexDirection = 'column';
         acts.append(
-          button('Open', 'btn primary', () => this.openParcel(pool.id, kind), !poolCanOpen(s, this.content, pool, kind)),
+          button('Open', 'btn primary', () => this.confirmSpend(price, `Open a ${kind === 'friend' ? 'Friend' : 'Furniture'} Parcel?`, () => this.openParcel(pool.id, kind)), !poolCanOpen(s, this.content, pool, kind)),
           button(this.oddsOpen === key ? 'Hide odds' : 'Odds', 'btn', () => { this.oddsOpen = this.oddsOpen === key ? '' : key; this.render(); }),
         );
+        if (!poolCanOpen(s, this.content, pool, kind) && hasNew && !canAfford(s, price)) body.append(el('p', 'why', `You need ${(Object.entries(price) as Array<[Currency, number]>).map(([c, v]) => `${v - (s.wallet[c] ?? 0)} more ${CURRENCY[c].name}`).filter((t) => !t.startsWith('-') && !t.startsWith('0 ')).join(' and ')}.`));
         row.append(body, acts);
         info.append(row);
         if (this.oddsOpen === key) {
@@ -2171,7 +2249,7 @@ export class GameUI {
     const opened = events?.find((e): e is Extract<GameEvent, { type: 'parcel_opened' }> => e.type === 'parcel_opened');
     if (!opened) return;
     this.revealing = true;
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const reduced = (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false) || !!prefs().reducedMotion;
     const r = this.reveal;
     r.replaceChildren();
     r.hidden = false;

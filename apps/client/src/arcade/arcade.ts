@@ -137,8 +137,8 @@ export class Arcade {
       const pips = el('span', 'ar-pips');
       pips.setAttribute('aria-label', `Plays left today ${left}/${this.content.arcade.playsPerDay}`);
       for (let i = 0; i < this.content.arcade.playsPerDay; i++) pips.append(el('i', i < left ? 'on' : ''));
-      meta.append(pips, el('span', 'ar-best', `Best ${s.arcade.best[id] ?? 0}`));
-      card.append(pic, el('span', 'ar-name', g.name), meta);
+      meta.append(pips, el('span', 'ar-left', unlocked ? (left > 0 ? `${left} left` : 'Done today') : ''), el('span', 'ar-best', `Best ${s.arcade.best[id] ?? 0}`));
+      card.append(pic, el('span', `ar-name${g.name.length > 16 ? ' long' : ''}`, g.name), meta);
       card.setAttribute('aria-label', `${g.name}. ${unlocked ? `Plays left today ${left} of ${this.content.arcade.playsPerDay}. Best ${s.arcade.best[id] ?? 0}. Prizes ${won} of 3.` : `Unlocks at Home Level ${g.unlockLevel}.`}`);
       card.addEventListener('click', () => this.openIntro(id));
       grid.append(card);
@@ -184,6 +184,12 @@ export class Arcade {
     }
     const bubble = el('div', 'ar-bubble');
     bubble.append(el('h2', '', g.name), el('p', '', g.howTo));
+    // What a score is worth, in plain numbers.
+    const perButton = this.content.arcade.buttonsPerPoint;
+    const pointsPerButton = perButton > 0 ? Math.round(1 / perButton) : 0;
+    const worth = [`1 Ribbon for every ${g.pointsPerRibbon} points`];
+    if (pointsPerButton) worth.push(`1 Button for every ${pointsPerButton === 1 ? 'point' : `${pointsPerButton} points`}`);
+    bubble.append(el('p', 'ar-worth', `Rewards: ${worth.join(' · ')}. Reach the scores below for prizes.`));
     talk.append(bubble);
 
     const prizes = el('div', 'ar-prizes');
@@ -206,7 +212,7 @@ export class Arcade {
     const win = el('span', 'ar-slot-win');
     win.append(this.prizeArt(p, 'ar-slot-art'));
     slot.append(win);
-    slot.append(el('span', 'ar-slot-score', `★ ${p.score}`));
+    slot.append(el('span', 'ar-slot-score', `Score ${p.score}`));
     slot.append(el('span', 'ar-slot-name', this.prizeName(p)));
     slot.setAttribute('aria-label', `Score ${p.score}: ${this.prizeName(p)}${won ? ', won' : ''}`);
     return slot;

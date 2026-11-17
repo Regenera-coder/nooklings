@@ -32,6 +32,8 @@ export interface ShopHost {
   /** Open Explore at the Garden (to plant bought seeds). */
   openGarden: () => void;
   scrollTop: () => void;
+  /** Ask before spending scarce Wish Stamps or Keepsakes. */
+  confirmSpend: (cost: Partial<Record<string, number>>, what: string, then: () => void) => void;
 }
 
 const FILTERS: Array<[FurnFilter, string]> = [
@@ -151,7 +153,7 @@ export class ShopView {
         const first = !s.craftedRecipes.includes(r.id) && content.rules.heartsPerFirstCraft > 0;
         if (first) card.append(el('span', 'first-chip', `♥ +${content.rules.heartsPerFirstCraft} the first time`));
         const acts = el('div', 'shop-acts');
-        acts.append(button('Buy', 'btn primary', () => this.host.run({ type: 'craft', recipeId: r.id }), !canAfford(s, r.cost)));
+        acts.append(button('Buy', 'btn primary', () => this.host.confirmSpend(r.cost, `Buy the ${def.name}?`, () => this.host.run({ type: 'craft', recipeId: r.id })), !canAfford(s, r.cost)));
         if (own.stored > 0) acts.append(button('Place', 'btn', () => this.host.placeNow(def.id)));
         card.append(acts);
       }
