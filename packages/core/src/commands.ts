@@ -39,12 +39,16 @@ import {
   parseSeedKey,
   plantStatus,
   seedKey,
+  succulentName,
   succulentSellPrice,
   undiscovered,
+  unseenPatterns,
+  nextGardenGoal,
+  PLAIN,
   seriesProgress,
   treatGivenToday,
 } from './progress';
-import type { ArcadeGameId, Content, Cost, GameState, ParcelKind, ParcelRecord, Placement } from './types';
+import type { ArcadeGameId, Content, Cost, GameState, GardenToolId, ParcelKind, ParcelRecord, Placement } from './types';
 
 /**
  * Every change to the game goes through a command with a unique id.
@@ -85,7 +89,10 @@ export type Command =
   | { id: string; type: 'pollinate'; pot: number; fromPot: number; at: number }
   | { id: string; type: 'collect_pod'; pot: number; at: number }
   | { id: string; type: 'take_offset'; pot: number; at: number }
-  | { id: string; type: 'tend_garden'; at: number };
+  | { id: string; type: 'tend_garden'; at: number }
+  | { id: string; type: 'buy_garden_tool'; toolId: GardenToolId }
+  | { id: string; type: 'give_succulent'; pot: number; residentId: string; at: number }
+  | { id: string; type: 'claim_garden_goal'; goalId: string };
 
 export type CommandError =
   | PlacementError
@@ -153,7 +160,10 @@ export type GameEvent =
   | { type: 'pollinated'; pot: number; fromPot: number; readyAt: number }
   | { type: 'pod_collected'; pot: number; seeds: string[]; mutations: number }
   | { type: 'offset_taken'; pot: number; seed: string }
-  | { type: 'discovered'; keys: string[] }
+  | { type: 'discovered'; keys: string[]; patterns: string[] }
+  | { type: 'garden_tool_bought'; toolId: GardenToolId }
+  | { type: 'succulent_given'; pot: number; residentId: string; name: string; bondUp: boolean; newBondLevel: number }
+  | { type: 'garden_goal_claimed'; goalId: string; reward: Cost & { hearts?: number } }
   | { type: 'hearts'; amount: number }
   | { type: 'level_up'; level: number };
 
@@ -180,9 +190,10 @@ function addSeeds(seeds: Record<string, number>, keys: string[], sign: 1 | -1): 
 function discover(d: Draft, content: Content, at: number): void {
   const g = content.garden;
   const keys = undiscovered(d.state, content, at);
-  if (!g || !keys.length) return;
-  d.state = { ...d.state, garden: { ...d.state.garden, discovered: [...d.state.garden.discovered, ...keys] } };
-  d.events.push({ type: 'discovered', keys });
+  const patterns = unseenPatterns(d.state, content, at);
+  if (!g || (!keys.length && !patterns.length)) return;
+  d.state = { ...d.state, garden: { ...d.state.garden, discovered: [...d.state.garden.discovered, ...keys], patternsFound: [...d.state.garden.patternsFound, ...patterns] } };
+  d.events.push({ type: 'discovered', keys, patterns });
   if (g.heartsPerDiscovery > 0) addHearts(d, g.heartsPerDiscovery * keys.length, content);
 }
 
@@ -651,7 +662,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
       if (!canAfford(state, def.seedCost)) return fail('cannot_afford');
       const pots = [...state.garden.pots];
-      pots[cmd.pot] = { speciesId: def.id, colour: def.colour, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
+      pots[cmd.pot] = { speciesId: def.id, colour: def.colour, pattern: PLAIN, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
       d.state = { ...state, wallet: addCost(state.wallet, def.seedCost, -1), garden: { ...state.garden, pots } };
       d.events.push({ type: 'succulent_planted', pot: cmd.pot, speciesId: def.id, grownAt: cmd.at + def.sproutMs + def.growMs });
       return done();
@@ -692,7 +703,7 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!Number.isFinite(cmd.at)) return fail('not_ready');
       const def = g.species[seed.speciesId]!;
       const pots = [...state.garden.pots];
-      pots[cmd.pot] = { speciesId: seed.speciesId, colour: seed.colour, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
+      pots[cmd.pot] = { speciesId: seed.speciesId, colour: seed.colour, pattern: seed.pattern, plantedAt: cmd.at, pod: null, offsetTakenAt: null };
       d.state = { ...state, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, [cmd.seed], -1) } };
       d.events.push({ type: 'seed_planted', pot: cmd.pot, seed: cmd.seed, grownAt: cmd.at + def.sproutMs + def.growMs });
       return done();
@@ -707,11 +718,12 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       const mother = pots[cmd.pot];
       const father = pots[cmd.fromPot];
       if (!mother || !father || !Number.isFinite(cmd.at)) return fail('not_ready');
-      if (!plantStatus(content, mother, cmd.at)?.blooming || !plantStatus(content, father, cmd.at)?.blooming) return fail('not_ready');
+      const tools = state.garden.tools;
+      if (!plantStatus(content, mother, cmd.at, tools)?.blooming || !plantStatus(content, father, cmd.at, tools)?.blooming) return fail('not_ready');
       if (mother.pod) return fail('busy');
       const readyAt = cmd.at + g.podMs;
       const next = [...pots];
-      next[cmd.pot] = { ...mother, pod: { fatherSpecies: father.speciesId, fatherColour: father.colour, readyAt } };
+      next[cmd.pot] = { ...mother, pod: { fatherSpecies: father.speciesId, fatherColour: father.colour, fatherPattern: father.pattern, readyAt } };
       d.state = { ...state, garden: { ...state.garden, pots: next } };
       discover(d, content, cmd.at);
       d.events.push({ type: 'pollinated', pot: cmd.pot, fromPot: cmd.fromPot, readyAt });
@@ -734,22 +746,32 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       };
       const seeds: string[] = [];
       let mutations = 0;
-      const parents = [plant.colour, plant.pod.fatherColour];
-      for (let i = 0; i < g.seedsPerPod; i++) {
-        const species = roll() < 0.5 ? plant.speciesId : plant.pod.fatherSpecies;
-        let colour = roll() < 0.5 ? plant.colour : plant.pod.fatherColour;
+      const pod = plant.pod;
+      const pick = <T,>(list: T[]): T => list[Math.min(list.length - 1, Math.floor(roll() * list.length))]!;
+      const count = g.seedsPerPod + (state.garden.tools.includes('pollen_jar') ? g.pollenJarSeeds : 0);
+      for (let i = 0; i < count; i++) {
+        const species = roll() < 0.5 ? plant.speciesId : pod.fatherSpecies;
+        let colour = roll() < 0.5 ? plant.colour : pod.fatherColour;
         if (roll() < g.mutationChance) {
-          const others = g.colourOrder.filter((c) => !parents.includes(c));
+          const others = g.colourOrder.filter((c) => c !== plant.colour && c !== pod.fatherColour);
           if (others.length) {
-            colour = others[Math.min(others.length - 1, Math.floor(roll() * others.length))]!;
+            colour = pick(others);
             mutations++;
           }
         }
-        seeds.push(seedKey(g.species[species] ? species : plant.speciesId, g.colours[colour] ? colour : plant.colour));
+        let pattern = roll() < 0.5 ? plant.pattern : pod.fatherPattern;
+        if (roll() < g.patternMutationChance) {
+          const others = g.patternOrder.filter((x) => x !== PLAIN && x !== plant.pattern && x !== pod.fatherPattern);
+          if (others.length) {
+            pattern = pick(others);
+            mutations++;
+          }
+        }
+        seeds.push(seedKey(g.species[species] ? species : plant.speciesId, g.colours[colour] ? colour : plant.colour, g.patterns[pattern] ? pattern : PLAIN));
       }
       const pots = [...state.garden.pots];
       pots[cmd.pot] = { ...plant, pod: null };
-      d.state = { ...state, rngState: rng, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, seeds, 1) } };
+      d.state = { ...state, rngState: rng, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, seeds, 1), podsCollected: state.garden.podsCollected + 1 } };
       d.events.push({ type: 'pod_collected', pot: cmd.pot, seeds, mutations });
       return done();
     }
@@ -758,8 +780,8 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
       if (!content.garden) return fail('locked');
       if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
       const plant = state.garden.pots[cmd.pot];
-      if (!plant || !Number.isFinite(cmd.at) || !plantStatus(content, plant, cmd.at)?.offsetReady) return fail('not_ready');
-      const seed = seedKey(plant.speciesId, plant.colour);
+      if (!plant || !Number.isFinite(cmd.at) || !plantStatus(content, plant, cmd.at, state.garden.tools)?.offsetReady) return fail('not_ready');
+      const seed = seedKey(plant.speciesId, plant.colour, plant.pattern);
       const pots = [...state.garden.pots];
       pots[cmd.pot] = { ...plant, offsetTakenAt: cmd.at };
       d.state = { ...state, garden: { ...state.garden, pots, seeds: addSeeds(state.garden.seeds, [seed], 1) } };
@@ -770,8 +792,59 @@ function run(state: GameState, cmd: Command, content: Content): { ok: true; stat
 
     case 'tend_garden': {
       if (!content.garden || !Number.isFinite(cmd.at)) return fail('locked');
-      if (!undiscovered(state, content, cmd.at).length) return fail('already_done');
+      if (!undiscovered(state, content, cmd.at).length && !unseenPatterns(state, content, cmd.at).length) return fail('already_done');
       discover(d, content, cmd.at);
+      return done();
+    }
+
+    case 'buy_garden_tool': {
+      const g = content.garden;
+      const tool = g?.tools[cmd.toolId];
+      if (!g || !tool) return fail('unknown_species');
+      if (!gardenOpen(state, content)) return fail('locked');
+      if (state.garden.tools.includes(tool.id)) return fail('already_done');
+      if (!canAfford(state, tool.cost)) return fail('cannot_afford');
+      d.state = { ...state, wallet: addCost(state.wallet, tool.cost, -1), garden: { ...state.garden, tools: [...state.garden.tools, tool.id] } };
+      d.events.push({ type: 'garden_tool_bought', toolId: tool.id });
+      return done();
+    }
+
+    case 'give_succulent': {
+      const g = content.garden;
+      if (!g) return fail('locked');
+      if (!Number.isInteger(cmd.pot) || cmd.pot < 0 || cmd.pot >= state.garden.pots.length) return fail('unknown_pot');
+      const plant = state.garden.pots[cmd.pot];
+      if (!plant || !Number.isFinite(cmd.at) || succulentGrowth(content, plant.speciesId, plant.plantedAt, cmd.at)?.stage !== 'grown') return fail('not_ready');
+      if (plant.pod) return fail('busy');
+      const owned = state.residents[cmd.residentId];
+      if (!content.residents[cmd.residentId]) return fail('unknown_resident');
+      if (!owned) return fail('not_owned');
+      if (state.expedition?.residentId === cmd.residentId) return fail('away');
+      if (treatGivenToday(state, content, cmd.residentId, cmd.at)) return fail('daily_limit');
+      discover(d, content, cmd.at);
+      const before = bondLevel(owned.bondXp, content);
+      const bondXp = owned.bondXp + g.giftBondXp;
+      const after = bondLevel(bondXp, content);
+      const pots = [...d.state.garden.pots];
+      pots[cmd.pot] = null;
+      d.state = {
+        ...d.state,
+        residents: { ...d.state.residents, [cmd.residentId]: { ...owned, bondXp, treatDay: dayOf(cmd.at, content) } },
+        garden: { ...d.state.garden, pots, gifts: d.state.garden.gifts + 1 },
+      };
+      d.events.push({ type: 'succulent_given', pot: cmd.pot, residentId: cmd.residentId, name: succulentName(content, plant.speciesId, plant.colour, plant.pattern), bondUp: after > before, newBondLevel: after });
+      if (after > before) addHearts(d, content.bond.heartsPerBondLevel * (after - before), content);
+      return done();
+    }
+
+    case 'claim_garden_goal': {
+      const next = nextGardenGoal(state, content);
+      if (!next || next.def.id !== cmd.goalId) return fail('unknown_task');
+      if (!next.done) return fail('not_ready');
+      const { hearts, ...cost } = next.def.reward;
+      d.state = { ...state, wallet: addCost(state.wallet, cost, 1), garden: { ...state.garden, goalsClaimed: [...state.garden.goalsClaimed, next.def.id] } };
+      d.events.push({ type: 'garden_goal_claimed', goalId: next.def.id, reward: next.def.reward });
+      if (hearts) addHearts(d, hearts, content);
       return done();
     }
 

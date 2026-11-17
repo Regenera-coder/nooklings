@@ -34,6 +34,9 @@ import {
   succulentName,
   succulentSellPrice,
   undiscovered,
+  unseenPatterns,
+  nextGardenGoal,
+  succulentGrowth,
   type Content,
   type Cost,
   type Currency,
@@ -155,6 +158,8 @@ export class GameUI {
   private exploreView: ExploreView = 'outdoors';
   /** Pot whose flower's pollen is on the brush, while choosing where to brush it. */
   private pollenFrom: number | null = null;
+  /** Pot whose grown plant is being given to a resident, while choosing who. */
+  private giftFrom: number | null = null;
   private tending = false;
   private readonly arcade: Arcade;
   /** Where to return after Hide and Seek. */
@@ -431,9 +436,20 @@ export class GameUI {
         break;
       case 'discovered': {
         const names = e.keys.map((k) => { const [sp, col] = k.split(':'); return succulentName(this.content, sp ?? '', col ?? ''); });
-        this.toast(`New in your Succulent book: ${names.join(', ')}`, 3000);
+        const pats = e.patterns.map((p) => this.content.garden?.patterns[p]?.name ?? p);
+        const parts = [names.length ? `New in your Succulent book: ${names.join(', ')}` : '', pats.length ? `New leaf pattern: ${pats.join(', ')}!` : ''].filter(Boolean);
+        this.toast(parts.join(' · '), 3200);
         break;
       }
+      case 'garden_tool_bought':
+        this.toast(`Bought the ${this.content.garden?.tools[e.toolId]?.name ?? 'tool'}!`, 2200);
+        break;
+      case 'succulent_given':
+        this.toast(e.bondUp ? `${this.content.residents[e.residentId]?.name} loved the ${e.name} and reached Bond ${e.newBondLevel}!` : `${this.content.residents[e.residentId]?.name} loved the ${e.name}`, 2600);
+        break;
+      case 'garden_goal_claimed':
+        this.toast('Garden goal complete!', 2000);
+        break;
       case 'pot_bought':
         this.toast(`A new pot! You have ${e.pots} now.`);
         break;
@@ -1277,9 +1293,11 @@ export class GameUI {
     const palette = { seedling: g.seedlingColour };
     const tintOf = (colour: string) => g.colours[colour] ?? { mature: '#cccccc', blush: '#cccccc' };
     const redraw = () => this.render();
-    const plantPic = (speciesId: string, colour: string, t: number): string => {
+    const tools = s.garden.tools;
+    const sun = tools.includes('sun_shelf');
+    const plantPic = (speciesId: string, colour: string, t: number, pattern = 'plain'): string => {
       const def = g.species[speciesId]!;
-      return succulentImage(def, palette, tintOf(colour), t, redraw) ?? succulentArtUrl(def) ?? '';
+      return succulentImage(def, palette, tintOf(colour), t, redraw, { pattern, sun }) ?? succulentArtUrl(def) ?? '';
     };
     // The pot is art when it has been imported, else a drawn stand-in.
     const pot = (hanging: boolean): HTMLElement => {
@@ -1306,7 +1324,7 @@ export class GameUI {
       return;
     }
     // Grown plants go into the Succulent book as soon as they are seen.
-    if (undiscovered(s, this.content, now).length && !this.tending) {
+    if ((undiscovered(s, this.content, now).length || unseenPatterns(s, this.content, now).length) && !this.tending) {
       this.tending = true;
       queueMicrotask(() => {
         this.run({ type: 'tend_garden', at: Date.now() });
@@ -1315,12 +1333,27 @@ export class GameUI {
     }
     const from = this.pollenFrom;
     const fromPlant = from !== null ? s.garden.pots[from] : null;
-    if (from !== null && (!fromPlant || !plantStatus(this.content, fromPlant, now)?.blooming)) this.pollenFrom = null;
-    if (this.pollenFrom !== null && fromPlant) {
+    if (from !== null && (!fromPlant || !plantStatus(this.content, fromPlant, now, tools)?.blooming)) this.pollenFrom = null;
+    const giftPlant = this.giftFrom !== null ? s.garden.pots[this.giftFrom] : null;
+    if (this.giftFrom !== null && (!giftPlant || giftPlant.pod || succulentGrowth(this.content, giftPlant.speciesId, giftPlant.plantedAt, now)?.stage !== 'grown')) this.giftFrom = null;
+    if (this.giftFrom !== null && giftPlant) {
+      const pot = this.giftFrom;
+      const bar = el('div', 'pollen-bar gift-bar');
+      bar.append(el('span', 'grow', `Give ${succulentName(this.content, giftPlant.speciesId, giftPlant.colour, giftPlant.pattern)} to:`));
+      const who = s.residentOrder.filter((id) => s.expedition?.residentId !== id);
+      for (const id of who) {
+        const given = treatGivenToday(s, this.content, id, now);
+        const b = button(this.content.residents[id]?.name ?? id, 'btn small', () => { this.giftFrom = null; this.run({ type: 'give_succulent', pot, residentId: id, at: Date.now() }); }, given);
+        if (given) b.title = 'Already had a gift today';
+        bar.append(b);
+      }
+      bar.append(button('Cancel', 'btn small', () => { this.giftFrom = null; this.render(); }));
+      card.append(bar);
+    } else if (this.pollenFrom !== null && fromPlant) {
       const bar = el('div', 'pollen-bar');
       const brush = overlay('garden_brush', 'pollen-icon');
       if (brush) bar.append(brush);
-      bar.append(el('span', 'grow', `Pollen from ${succulentName(this.content, fromPlant.speciesId, fromPlant.colour)}. Brush it onto another flower.`));
+      bar.append(el('span', 'grow', `Pollen from ${succulentName(this.content, fromPlant.speciesId, fromPlant.colour, fromPlant.pattern)}. Brush it onto another flower.`));
       bar.append(button('Cancel', 'btn small', () => { this.pollenFrom = null; this.render(); }));
       card.append(bar);
     } else {
@@ -1338,12 +1371,12 @@ export class GameUI {
         pots.append(tile);
         return;
       }
-      const st = plantStatus(this.content, plant, now)!;
+      const st = plantStatus(this.content, plant, now, tools)!;
       const grow = st.growth;
       const stage = el('div', `pot-stage${def.anchor === 'top' ? ' hang' : ''}`);
       const img = el('img', 'plant');
       img.alt = def.name;
-      img.src = plantPic(def.id, plant.colour, grow.colour);
+      img.src = plantPic(def.id, plant.colour, grow.colour, plant.pattern);
       // Seedlings are small and fill out as they grow.
       const ease = grow.progress * grow.progress * (3 - 2 * grow.progress);
       img.style.setProperty('--grow', String(0.42 + 0.58 * ease));
@@ -1357,7 +1390,7 @@ export class GameUI {
         if (pod) stage.append(pod);
       }
       if (this.pollenFrom === i) tile.classList.add('picked');
-      tile.append(stage, el('b', '', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour) : def.name));
+      tile.append(stage, el('b', '', grow.stage === 'grown' ? succulentName(this.content, def.id, plant.colour, plant.pattern) : def.name));
       if (grow.stage !== 'grown') {
         tile.append(el('span', 'muted', `${grow.stage === 'seedling' ? 'Seedling' : 'Growing'} · ${clock(grow.grownAt - now)}`));
         const bar = el('div', 'trip-bar');
@@ -1373,7 +1406,7 @@ export class GameUI {
         if (st.podReady) acts.append(button('Collect seeds', 'btn primary small', () => this.run({ type: 'collect_pod', pot: i, at: Date.now() })));
         else acts.append(el('span', 'muted', `Seed pod · ${clock(plant.pod.readyAt - now)}`));
       } else if (st.blooming) {
-        if (this.pollenFrom === null) acts.append(button('Pollinate', 'btn small', () => { this.pollenFrom = i; this.render(); }));
+        if (this.pollenFrom === null) acts.append(button('Pollinate', 'btn small', () => { this.pollenFrom = i; this.giftFrom = null; this.render(); }));
         else if (this.pollenFrom === i) acts.append(el('span', 'muted', 'Pollen picked'));
         else acts.append(button('Brush here', 'btn primary small', () => {
           const fromPot = this.pollenFrom;
@@ -1385,6 +1418,7 @@ export class GameUI {
         acts.append(el('span', 'muted', `Flowers in ${clock(st.bloomAt - now)}`));
       }
       if (st.offsetReady) acts.append(button('Take offset', 'btn small', () => this.run({ type: 'take_offset', pot: i, at: Date.now() })));
+      if (!plant.pod && s.residentOrder.length) acts.append(button('Give', 'btn small', () => { this.giftFrom = i; this.pollenFrom = null; this.page.scrollTop = 0; this.render(); }));
       const price = succulentSellPrice(this.content, plant).buttons ?? 0;
       acts.append(button(`Sell · ${price}`, 'btn small', () => this.run({ type: 'sell_succulent', pot: i, at: Date.now() }), !!plant.pod));
       tile.append(acts);
@@ -1402,6 +1436,20 @@ export class GameUI {
     card.append(pots);
     this.page.append(card);
 
+    const goal = nextGardenGoal(s, this.content);
+    if (goal) {
+      const gc = el('div', 'card');
+      const row = el('div', 'spot-row');
+      const body = el('div', 'grow');
+      body.append(el('b', '', `Garden goal: ${goal.def.title}`), el('p', '', `${goal.def.description} (${goal.progress}/${goal.def.check.count})`));
+      const rw = el('div', 'rewards');
+      rw.append(...costChips(goal.def.reward));
+      body.append(rw);
+      row.append(body, button(goal.done ? 'Claim' : 'Not yet', goal.done ? 'btn primary' : 'btn', () => this.run({ type: 'claim_garden_goal', goalId: goal.def.id }), !goal.done));
+      gc.append(row);
+      this.page.append(gc);
+    }
+
     const freePot = s.garden.pots.findIndex((p) => p === null);
 
     // Seed bag: seeds from pods and offsets, planted for free. Grouped by shape only: the colour is a surprise until it grows.
@@ -1413,7 +1461,27 @@ export class GameUI {
       for (let k = 0; k < count; k++) keys.push(key);
       bySpecies.set(seed.speciesId, keys);
     }
-    if (bySpecies.size) {
+    const loupe = tools.includes('loupe');
+    if (bySpecies.size && loupe) {
+      // With the Loupe every seed shows what it will grow into, and you choose which to plant.
+      const bag = el('div', 'card');
+      bag.append(el('h3', '', 'Seed bag · seen through the Loupe'));
+      for (const [key, count] of Object.entries(s.garden.seeds)) {
+        const seed = parseSeedKey(this.content, key);
+        if (!seed || count <= 0) continue;
+        const row = el('div', 'spot-row');
+        const thumb = el('img', 'seed-thumb');
+        thumb.alt = '';
+        thumb.src = plantPic(seed.speciesId, seed.colour, 1, seed.pattern);
+        const body = el('div', 'grow');
+        body.append(el('b', '', `${succulentName(this.content, seed.speciesId, seed.colour, seed.pattern)} × ${count}`));
+        body.append(el('p', '', s.garden.discovered.includes(`${seed.speciesId}:${seed.colour}`) ? 'Already in your Succulent book.' : 'New for your Succulent book!'));
+        row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: key, at: Date.now() }), freePot < 0));
+        bag.append(row);
+      }
+      if (freePot < 0) bag.append(el('p', 'muted', 'Every pot is in use. Sell a grown plant or buy another pot.'));
+      this.page.append(bag);
+    } else if (bySpecies.size) {
       const bag = el('div', 'card');
       bag.append(el('h3', '', 'Seed bag'));
       for (const id of g.order) {
@@ -1425,7 +1493,7 @@ export class GameUI {
         thumb.src = plantPic(id, g.species[id]!.colour, 0);
         const body = el('div', 'grow');
         body.append(el('b', '', `${g.species[id]!.name} seed${keys.length > 1 ? 's' : ''} × ${keys.length}`));
-        body.append(el('p', '', 'What colour will it grow into? Plant it to find out.'));
+        body.append(el('p', '', 'What colour will it grow into? Plant it to find out (or look closely with a Loupe).'));
         // Plant whichever is first in the bag; which colour it is stays hidden.
         row.append(thumb, body, button('Plant', 'btn primary', () => this.run({ type: 'plant_seed', pot: freePot, seed: keys[0]!, at: Date.now() }), freePot < 0));
         bag.append(row);
@@ -1461,6 +1529,30 @@ export class GameUI {
     }
     this.page.append(seeds);
 
+    // Garden tools, bought once.
+    const tc = el('div', 'card');
+    tc.append(el('h3', '', 'Garden tools'));
+    for (const id of g.toolOrder) {
+      const t = g.tools[id];
+      const row = el('div', 'spot-row');
+      const pic = el('img', 'seed-thumb');
+      pic.alt = '';
+      pic.src = artUrl(`garden_${id}`) ?? '';
+      const body = el('div', 'grow');
+      body.append(el('b', '', t.name), el('p', '', t.description));
+      row.append(pic, body);
+      if (tools.includes(id)) row.append(el('span', 'reward', 'Owned ✓'));
+      else {
+        const side = el('div', 'seed-side');
+        const cost = el('span', canAfford(s, t.cost) ? 'muted' : 'no');
+        cost.append(...costChips(t.cost, ''));
+        side.append(cost, button('Buy', 'btn primary', () => this.run({ type: 'buy_garden_tool', toolId: id }), !canAfford(s, t.cost)));
+        row.append(side);
+      }
+      tc.append(row);
+    }
+    this.page.append(tc);
+
     // Succulent book: every shape in every colour.
     const book = el('div', 'card');
     const total = g.order.length * g.colourOrder.length;
@@ -1482,6 +1574,14 @@ export class GameUI {
       }
     }
     book.append(grid);
+    const pats = el('div', 'rewards book-patterns');
+    pats.append(el('b', '', 'Leaf patterns:'));
+    for (const id of g.patternOrder.filter((x) => x !== 'plain')) {
+      const found = s.garden.patternsFound.includes(id);
+      pats.append(el('span', `reward${found ? '' : ' muted'}`, found ? `${g.patterns[id]!.name} ✓` : '???'));
+    }
+    book.append(pats);
+    book.append(el('p', 'muted', 'Patterns are rare: a seed can come out with one neither parent had, and patterned plants pass it on.'));
     this.page.append(book);
   }
 
@@ -1500,7 +1600,7 @@ export class GameUI {
       ['outdoors', 'Outdoors', this.outdoorsDue(now)],
     ];
     const gardenAt = this.content.garden ? this.content.levels.find((l) => l.unlocks.includes(this.content.garden!.unlock))?.level ?? 99 : 99;
-    if (this.content.garden && level >= gardenAt - 1) views.push(['garden', 'Garden', gardenDue(s, this.content, now)]);
+    if (this.content.garden && level >= gardenAt - 1) views.push(['garden', 'Garden', gardenDue(s, this.content, now) || !!nextGardenGoal(s, this.content)?.done]);
     if (this.content.baking && level >= bakingAt - 1) views.push(['kitchen', 'Kitchen', !!s.baking && s.baking.endAt <= now]);
     views.push(['parcels', 'Parcels', this.parcelsDue()]);
     if (!views.some(([v]) => v === this.exploreView)) this.exploreView = 'outdoors';

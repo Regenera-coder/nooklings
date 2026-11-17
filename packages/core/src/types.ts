@@ -307,7 +307,34 @@ export interface SucculentColourDef {
   blush: string;
 }
 
-/** Succulent Garden: Phase 1 grow and sell, Phase 2 flowers, pollinating, seeds, offsets and discoveries. */
+/** A leaf pattern, drawn in code over the plant's colour. "plain" is no pattern. */
+export interface SucculentPatternDef {
+  id: string;
+  /** Added in front of the plant's name ("Zebra Strawberry Meringue Rose"); empty for plain. */
+  name: string;
+  description: string;
+}
+
+export type GardenToolId = 'sun_shelf' | 'pollen_jar' | 'loupe';
+
+/** A garden tool, bought once. */
+export interface GardenToolDef {
+  id: GardenToolId;
+  name: string;
+  description: string;
+  cost: Cost;
+}
+
+/** A garden goal: the Garden's own short chain of goals, one at a time. */
+export interface GardenGoalDef {
+  id: string;
+  title: string;
+  description: string;
+  check: { kind: 'sold' | 'pods' | 'discovered' | 'patterns' | 'tools' | 'gifts'; count: number };
+  reward: Cost & { hearts?: number };
+}
+
+/** Succulent Garden: Phase 1 grow and sell, Phase 2 flowers, pollinating, seeds, offsets and discoveries, Phase 3 tools, patterns, gifts and goals. */
 export interface GardenRules {
   /** Level unlock that opens the garden. */
   unlock: string;
@@ -338,6 +365,22 @@ export interface GardenRules {
   newColourSellBonus: number;
   /** Hearts for each new species-and-colour discovery. */
   heartsPerDiscovery: number;
+  patterns: Record<string, SucculentPatternDef>;
+  /** Display order; the first is plain. */
+  patternOrder: string[];
+  /** Chance that a seed's pattern changes to one neither parent had. */
+  patternMutationChance: number;
+  /** Sell price multiplier for a plant with a pattern (on top of the new-colour bonus). */
+  patternSellBonus: number;
+  tools: Record<GardenToolId, GardenToolDef>;
+  toolOrder: GardenToolId[];
+  /** With the Sun Shelf, plants flower this much sooner (multiplier on bloomMs). */
+  sunBloomFactor: number;
+  /** With the Pollen Jar, each pod gives this many extra seeds. */
+  pollenJarSeeds: number;
+  /** Giving a grown plant to a resident: bond XP, once a day per resident (shared with Treats). */
+  giftBondXp: number;
+  goals: GardenGoalDef[];
 }
 
 /** A collection of residents shown as one Nookbook tab. */
@@ -359,6 +402,7 @@ export interface ActiveBake {
 export interface SeedPod {
   fatherSpecies: string;
   fatherColour: string;
+  fatherPattern: string;
   readyAt: number;
 }
 
@@ -366,6 +410,8 @@ export interface SeedPod {
 export interface PottedSucculent {
   speciesId: string;
   colour: string;
+  /** Leaf pattern id ("plain" = none). */
+  pattern: string;
   plantedAt: number;
   pod: SeedPod | null;
   /** When the last offset was taken (null = never; the first comes offsetMs after it is grown). */
@@ -379,10 +425,18 @@ export interface GardenState {
   grown: string[];
   /** Grown plants sold, all time. */
   sold: number;
-  /** Saved seeds and offsets, by "<speciesId>:<colourId>". */
+  /** Saved seeds and offsets, by "<speciesId>:<colourId>" or "<speciesId>:<colourId>:<patternId>" (no third part = plain). */
   seeds: Record<string, number>;
   /** Species-and-colour combinations grown to full size, as "<speciesId>:<colourId>" (the Succulent book). */
   discovered: string[];
+  /** Patterns seen on a grown plant. */
+  patternsFound: string[];
+  /** Seed pods collected, all time. */
+  podsCollected: number;
+  /** Plants given to residents, all time. */
+  gifts: number;
+  tools: GardenToolId[];
+  goalsClaimed: string[];
 }
 
 export interface Placement {

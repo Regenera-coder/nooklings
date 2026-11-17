@@ -78,7 +78,7 @@ describe('growing', () => {
     const before = s.wallet.buttons;
     s = ok(s, { type: 'plant_succulent', pot: 1, speciesId: rose.id, at: T }).state;
     expect(s.wallet.buttons).toBe(before - rose.seedCost.buttons!);
-    expect(s.garden.pots[1]).toEqual({ speciesId: rose.id, colour: rose.colour, plantedAt: T, pod: null, offsetTakenAt: null });
+    expect(s.garden.pots[1]).toEqual({ speciesId: rose.id, colour: rose.colour, pattern: 'plain', plantedAt: T, pod: null, offsetTakenAt: null });
     expect(err(s, { type: 'plant_succulent', pot: 1, speciesId: rose.id, at: T })).toBe('busy');
     expect(err(s, { type: 'sell_succulent', pot: 1, at: T + total - 1 })).toBe('not_ready');
     expect(gardenReady(s, c, T + total)).toBe(true);
@@ -133,7 +133,7 @@ describe('saves', () => {
     old.version = 8;
     const upgraded = deserialize(JSON.stringify(old), c);
     expect(upgraded.version).toBe(SAVE_VERSION);
-    expect(upgraded.garden).toEqual({ pots: [null, null, null], grown: [], sold: 0, seeds: {}, discovered: [] });
+    expect(upgraded.garden).toEqual({ pots: [null, null, null], grown: [], sold: 0, seeds: {}, discovered: [], patternsFound: [], podsCollected: 0, gifts: 0, tools: [], goalsClaimed: [] });
   });
 
   it('drops plants of unknown species and clamps the pot count', () => {

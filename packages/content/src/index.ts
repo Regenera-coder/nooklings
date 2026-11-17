@@ -15,6 +15,10 @@ import type {
   RoomDef,
   SucculentDef,
   SucculentColourDef,
+  SucculentPatternDef,
+  GardenToolDef,
+  GardenGoalDef,
+  GardenRules,
   TaskDef,
 } from '@nooklings/core';
 
@@ -520,6 +524,32 @@ const succulentColours: SucculentColourDef[] = [
   { id: 'plum', name: 'Plum', mature: '#b88abd', blush: '#ed668c' },
 ];
 
+// Leaf patterns (Phase 3), drawn in code. Shop seeds are plain; patterns appear when seeds mutate and are then inherited.
+const succulentPatterns: SucculentPatternDef[] = [
+  { id: 'plain', name: '', description: 'No pattern.' },
+  { id: 'zebra', name: 'Zebra', description: 'Fine cream stripes across the leaves.' },
+  { id: 'red_border', name: 'Ruby-edged', description: 'A thin red line around each leaf.' },
+  { id: 'tipped', name: 'Cherry-tipped', description: 'Deep cherry-red leaf tips.' },
+];
+
+const gardenTools: GardenToolDef[] = [
+  { id: 'sun_shelf', name: 'Sun Shelf', description: 'More sun: plants flower twice as soon and blush deeper.', cost: { buttons: 500, wood: 20 } },
+  { id: 'pollen_jar', name: 'Pollen Jar', description: 'Saves extra pollen: every seed pod holds one more seed.', cost: { buttons: 400, wood: 10 } },
+  { id: 'loupe', name: 'Loupe', description: 'Look closely at your seeds to see what colour and pattern they will grow into, and pick which to plant.', cost: { buttons: 800, wood: 15 } },
+];
+
+const gardenGoals: GardenGoalDef[] = [
+  { id: 'g_first_sale', title: 'First harvest', description: 'Grow a succulent and sell it.', check: { kind: 'sold', count: 1 }, reward: { buttons: 60, hearts: 2 } },
+  { id: 'g_first_pod', title: 'Busy brush', description: 'Pollinate a flower and collect its seed pod.', check: { kind: 'pods', count: 1 }, reward: { buttons: 80, hearts: 2 } },
+  { id: 'g_book_5', title: 'Little collection', description: 'Fill 5 spaces in the Succulent book.', check: { kind: 'discovered', count: 5 }, reward: { wood: 5, hearts: 3 } },
+  { id: 'g_tool', title: 'Proper gardener', description: 'Buy a garden tool.', check: { kind: 'tools', count: 1 }, reward: { wood: 10, hearts: 3 } },
+  { id: 'g_gift', title: 'A plant for a friend', description: 'Give a grown succulent to a resident.', check: { kind: 'gifts', count: 1 }, reward: { buttons: 80, hearts: 2 } },
+  { id: 'g_pattern', title: 'Something different', description: 'Grow a succulent with a leaf pattern.', check: { kind: 'patterns', count: 1 }, reward: { buttons: 150, hearts: 4 } },
+  { id: 'g_book_15', title: 'Green fingers', description: 'Fill 15 spaces in the Succulent book.', check: { kind: 'discovered', count: 15 }, reward: { buttons: 200, hearts: 5 } },
+  { id: 'g_patterns_3', title: 'Every pattern', description: 'Grow all three leaf patterns.', check: { kind: 'patterns', count: 3 }, reward: { buttons: 250, hearts: 6 } },
+  { id: 'g_book_25', title: 'Complete Succulent book', description: 'Fill all 25 spaces in the Succulent book.', check: { kind: 'discovered', count: 25 }, reward: { buttons: 400, hearts: 10 } },
+];
+
 function byId<T>(list: T[], key: (t: T) => string): Record<string, T> {
   const out: Record<string, T> = {};
   for (const item of list) {
@@ -567,6 +597,16 @@ export const content: Content = {
     offsetMs: 8 * HOUR,
     newColourSellBonus: 1.5,
     heartsPerDiscovery: 1,
+    patterns: byId(succulentPatterns, (x) => x.id),
+    patternOrder: succulentPatterns.map((x) => x.id),
+    patternMutationChance: 0.04,
+    patternSellBonus: 1.3,
+    tools: byId(gardenTools, (x) => x.id) as GardenRules['tools'],
+    toolOrder: gardenTools.map((x) => x.id),
+    sunBloomFactor: 0.5,
+    pollenJarSeeds: 1,
+    giftBondXp: 2,
+    goals: gardenGoals,
   },
   series: [{ id: SERIES_1, name: 'First Residents' }],
   roomOrder: [LIVING_ROOM_ID, SUNROOM_ID, YARD_ID],

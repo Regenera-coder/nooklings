@@ -29,7 +29,7 @@ const H = 3_600_000;
 const T = 1_800_000_000_000;
 const g = c.garden!;
 const full = (id: string) => g.species[id]!.sproutMs + g.species[id]!.growMs;
-const plant = (speciesId: string, colour: string, plantedAt: number): PottedSucculent => ({ speciesId, colour, plantedAt, pod: null, offsetTakenAt: null });
+const plant = (speciesId: string, colour: string, plantedAt: number): PottedSucculent => ({ speciesId, colour, pattern: 'plain', plantedAt, pod: null, offsetTakenAt: null });
 
 /** Level 5 garden with a blooming Meringue Rose (pot 0) and a blooming Ribbon Fall (pot 1) at time `now`. */
 function blooming(now: number, rng = 1): GameState {
@@ -57,7 +57,7 @@ describe('flowers and pollinating', () => {
     expect(err(s, { type: 'pollinate', pot: 0, fromPot: 0, at: now })).toBe('unknown_pot');
     expect(err(s, { type: 'pollinate', pot: 0, fromPot: 2, at: now })).toBe('not_ready');
     s = ok(s, { type: 'pollinate', pot: 0, fromPot: 1, at: now }).state;
-    expect(s.garden.pots[0]!.pod).toEqual({ fatherSpecies: 'ribbon_fall', fatherColour: 'plum', readyAt: now + g.podMs });
+    expect(s.garden.pots[0]!.pod).toEqual({ fatherSpecies: 'ribbon_fall', fatherColour: 'plum', fatherPattern: 'plain', readyAt: now + g.podMs });
     expect(err(s, { type: 'pollinate', pot: 0, fromPot: 1, at: now })).toBe('busy');
     expect(err(s, { type: 'sell_succulent', pot: 0, at: now })).toBe('busy');
     expect(err(s, { type: 'collect_pod', pot: 0, at: now + g.podMs - 1 })).toBe('not_ready');
@@ -91,9 +91,14 @@ describe('flowers and pollinating', () => {
     expect(share((k) => k.startsWith('meringue_rose'))).toBeGreaterThan(0.4);
     expect(share((k) => k.startsWith('meringue_rose'))).toBeLessThan(0.6);
     expect(share((k) => k.endsWith(':plum'))).toBeGreaterThan(0.4);
-    expect(mutations / seeds).toBeGreaterThan(0.02);
-    expect(mutations / seeds).toBeLessThan(0.09);
-    expect(share((k) => !k.endsWith(':plum') && !k.endsWith(':blueberry'))).toBeCloseTo(mutations / seeds, 5);
+    const colourOf = (k: string) => k.split(':')[1];
+    const newColour = share((k) => colourOf(k) !== 'plum' && colourOf(k) !== 'blueberry');
+    const newPattern = share((k) => k.split(':').length === 3);
+    expect(newColour).toBeGreaterThan(0.02);
+    expect(newColour).toBeLessThan(0.09);
+    expect(newPattern).toBeGreaterThan(0.015);
+    expect(newPattern).toBeLessThan(0.07);
+    expect(newColour + newPattern).toBeCloseTo(mutations / seeds, 2);
   });
 });
 
@@ -129,7 +134,7 @@ describe('seeds, offsets and the Succulent book', () => {
     let s = blooming(T);
     const hearts = s.hearts;
     const r = ok(s, { type: 'tend_garden', at: T });
-    expect(r.events).toContainEqual({ type: 'discovered', keys: ['meringue_rose:blueberry', 'ribbon_fall:plum'] });
+    expect(r.events).toContainEqual({ type: 'discovered', keys: ['meringue_rose:blueberry', 'ribbon_fall:plum'], patterns: [] });
     s = r.state;
     expect(s.hearts).toBe(hearts + 2 * g.heartsPerDiscovery);
     expect(err(s, { type: 'tend_garden', at: T })).toBe('already_done');
@@ -150,5 +155,6 @@ describe('seeds, offsets and the Succulent book', () => {
     expect(up.garden.pots[1]).toEqual(plant('ribbon_fall', 'plum', s.garden.pots[1]!.plantedAt));
     expect(up.garden.seeds).toEqual({});
     expect(up.garden.discovered).toEqual([]);
+    expect(up.garden.pots[0]!.pattern).toBe('plain');
   });
 });

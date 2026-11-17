@@ -13,6 +13,8 @@ import type {
   TaskCondition,
   TaskDef,
   PottedSucculent,
+  GardenGoalDef,
+  GardenToolId,
 } from './types';
 
 export const CURRENCIES: readonly Currency[] = ['buttons', 'wood', 'fabric', 'wishStamps', 'mendingThread', 'keepsakes', 'ribbons', 'treats'];
@@ -473,21 +475,26 @@ export function gardenReady(state: GameState, content: Content, now: number): bo
 
 // ---------- succulent garden, Phase 2 ----------
 
-export function seedKey(speciesId: string, colour: string): string {
-  return `${speciesId}:${colour}`;
+export const PLAIN = 'plain';
+
+/** Seed bag key. Plain seeds keep the two-part key older saves used. */
+export function seedKey(speciesId: string, colour: string, pattern: string = PLAIN): string {
+  return pattern === PLAIN ? `${speciesId}:${colour}` : `${speciesId}:${colour}:${pattern}`;
 }
 
-export function parseSeedKey(content: Content, key: string): { speciesId: string; colour: string } | null {
-  const [speciesId, colour] = key.split(':');
+export function parseSeedKey(content: Content, key: string): { speciesId: string; colour: string; pattern: string } | null {
+  const [speciesId, colour, pattern = PLAIN, extra] = key.split(':');
   const g = content.garden;
-  if (!g || !speciesId || !colour || !g.species[speciesId] || !g.colours[colour]) return null;
-  return { speciesId, colour };
+  if (!g || extra !== undefined || !speciesId || !colour || !g.species[speciesId] || !g.colours[colour] || !g.patterns[pattern]) return null;
+  if (key !== seedKey(speciesId, colour, pattern)) return null;
+  return { speciesId, colour, pattern };
 }
 
-/** "Strawberry Gumdrop Cluster": the colour's treat name and the species. */
-export function succulentName(content: Content, speciesId: string, colour: string): string {
+/** "Zebra Strawberry Gumdrop Cluster": pattern (if any), the colour's treat name and the species. */
+export function succulentName(content: Content, speciesId: string, colour: string, pattern: string = PLAIN): string {
   const g = content.garden;
-  return `${g?.colours[colour]?.name ?? ''} ${g?.species[speciesId]?.name ?? speciesId}`.trim();
+  const p = g?.patterns[pattern]?.name ?? '';
+  return `${p} ${g?.colours[colour]?.name ?? ''} ${g?.species[speciesId]?.name ?? speciesId}`.replace(/\s+/g, ' ').trim();
 }
 
 export interface PlantStatus {
@@ -502,11 +509,11 @@ export interface PlantStatus {
   offsetReady: boolean;
 }
 
-export function plantStatus(content: Content, plant: PottedSucculent, now: number): PlantStatus | null {
+export function plantStatus(content: Content, plant: PottedSucculent, now: number, tools: readonly GardenToolId[] = []): PlantStatus | null {
   const g = content.garden;
   const growth = succulentGrowth(content, plant.speciesId, plant.plantedAt, now);
   if (!g || !growth) return null;
-  const bloomAt = growth.grownAt + g.bloomMs;
+  const bloomAt = growth.grownAt + Math.round(g.bloomMs * (tools.includes('sun_shelf') ? g.sunBloomFactor : 1));
   const offsetAt = (plant.offsetTakenAt ?? growth.grownAt) + g.offsetMs;
   const grown = growth.stage === 'grown';
   return {
@@ -520,11 +527,11 @@ export function plantStatus(content: Content, plant: PottedSucculent, now: numbe
 }
 
 /** Price a grown plant sells for: more when it is not its species' own colour. */
-export function succulentSellPrice(content: Content, plant: Pick<PottedSucculent, 'speciesId' | 'colour'>): Cost {
+export function succulentSellPrice(content: Content, plant: Pick<PottedSucculent, 'speciesId' | 'colour'> & { pattern?: string }): Cost {
   const g = content.garden;
   const def = g?.species[plant.speciesId];
   if (!g || !def) return {};
-  const bonus = plant.colour !== def.colour ? g.newColourSellBonus : 1;
+  const bonus = (plant.colour !== def.colour ? g.newColourSellBonus : 1) * ((plant.pattern ?? PLAIN) !== PLAIN ? g.patternSellBonus : 1);
   const out: Cost = {};
   for (const [k, v] of Object.entries(def.sellPrice) as Array<[Currency, number]>) out[k] = Math.round(v * bonus);
   return out;
@@ -534,7 +541,7 @@ export function succulentSellPrice(content: Content, plant: Pick<PottedSucculent
 export function gardenDue(state: GameState, content: Content, now: number): boolean {
   return state.garden.pots.some((p) => {
     if (!p) return false;
-    const st = plantStatus(content, p, now);
+    const st = plantStatus(content, p, now, state.garden.tools);
     return !!st && (st.podReady || st.offsetReady || st.growth.stage === 'grown');
   });
 }
@@ -548,4 +555,34 @@ export function undiscovered(state: GameState, content: Content, now: number): s
     if (!state.garden.discovered.includes(key) && !out.includes(key)) out.push(key);
   }
   return out;
+}
+
+/** Patterns on grown plants that have not been seen before. */
+export function unseenPatterns(state: GameState, content: Content, now: number): string[] {
+  const out: string[] = [];
+  for (const p of state.garden.pots) {
+    if (!p || p.pattern === PLAIN || succulentGrowth(content, p.speciesId, p.plantedAt, now)?.stage !== 'grown') continue;
+    if (!state.garden.patternsFound.includes(p.pattern) && !out.includes(p.pattern)) out.push(p.pattern);
+  }
+  return out;
+}
+
+export function gardenGoalProgress(state: GameState, def: GardenGoalDef): number {
+  const g = state.garden;
+  switch (def.check.kind) {
+    case 'sold': return g.sold;
+    case 'pods': return g.podsCollected;
+    case 'discovered': return g.discovered.length;
+    case 'patterns': return g.patternsFound.length;
+    case 'tools': return g.tools.length;
+    case 'gifts': return g.gifts;
+  }
+}
+
+/** The next unclaimed garden goal (goals go one at a time), or null when all are done. */
+export function nextGardenGoal(state: GameState, content: Content): { def: GardenGoalDef; progress: number; done: boolean } | null {
+  const def = content.garden?.goals.find((x) => !state.garden.goalsClaimed.includes(x.id));
+  if (!def) return null;
+  const progress = gardenGoalProgress(state, def);
+  return { def, progress: Math.min(progress, def.check.count), done: progress >= def.check.count };
 }
