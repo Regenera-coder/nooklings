@@ -65,7 +65,7 @@ import { Arcade } from '../arcade/arcade';
 import { artUrl } from '../assets';
 import { succulentArtUrl, succulentImage } from '../garden/succulentArt';
 import { reasonText, type PendingEdit, type RoomScene, type Selection } from '../game/RoomScene';
-import { portraitUrl } from '../portraits';
+import { portraitUrl, setPortrait } from '../portraits';
 import { bondHearts, button, cardArt, clock, costChips, CURRENCY, el, icon, iconButton, seconds, tagChips, uiIcon } from './dom';
 import { prefs, setPrefs } from './prefs';
 import { ShopView } from './shop';
@@ -1161,7 +1161,7 @@ export class GameUI {
       const card = el('div', 'card');
       const row = el('div', 'row');
       const img = el('img');
-      img.src = portraitUrl(def, { silhouette: !st.levelOk });
+      setPortrait(img, def, { silhouette: !st.levelOk });
       img.alt = '';
       img.style.cssText = 'width:52px;height:52px;border-radius:10px;background:#f3e4ec;object-fit:contain';
       const body = el('div', 'grow');
@@ -1359,7 +1359,7 @@ export class GameUI {
       if ((this.filter === 'owned' && !owned) || (this.filter === 'missing' && owned)) continue;
       const card = el('button', `ncard${owned ? '' : ' missing'}`);
       const img = el('img');
-      img.src = portraitUrl(r, { silhouette: !owned, decorated: s.residents[r.id]?.form === 'decorated', costume: s.residents[r.id]?.costume });
+      setPortrait(img, r, { silhouette: !owned, decorated: s.residents[r.id]?.form === 'decorated', costume: s.residents[r.id]?.costume });
       img.alt = owned ? r.name : 'Not yet found';
       card.append(img, el('span', 'nm', owned ? r.name : '???'), el('span', `rar ${r.rarity}`, r.rarity));
       if (owned && happyStatus(s, this.content, r.id)?.happy) {
@@ -1409,7 +1409,7 @@ export class GameUI {
     const left = el('div', 'profile-art card');
     left.append(button('‹ Back', 'btn small back-btn', () => { this.detailId = null; this.aboutOpen = false; this.render(); }));
     const img = el('img');
-    img.src = portraitUrl(def, { silhouette: !owned, decorated: owned?.form === 'decorated', costume: owned?.costume });
+    setPortrait(img, def, { silhouette: !owned, decorated: owned?.form === 'decorated', costume: owned?.costume });
     img.alt = owned ? def.name : 'Not yet found';
     left.append(img);
     if (owned) {

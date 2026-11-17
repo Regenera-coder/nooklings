@@ -6,6 +6,8 @@ Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but 
 
 ### Changed
 - The game is now called **Momolumi: Little Worlds** (browser tab, home-screen name "Momolumi", the turn-your-phone message). The cloud save card says "friends" instead of "Nooklings".
+- **New app icon:** a little peach-shaped felt cottage with a glowing window, for the home screen and the browser tab. It replaces the plain house that was drawn in code.
+- **Friends not found yet** show as a dark shape of their own portrait in the Nookbook and on locked invitations, instead of a generic shape drawn in code.
 - Unchanged on purpose: the web address (nooklings.pages.dev), the repository, package names and the save and settings keys, so every save keeps working.
 
 ## 0.17.0 — Friends matter more (17 Nov 2026)

@@ -924,3 +924,6 @@ p.hint .happy-line, .panel .happy-line { margin: 2px 0 6px; }
 .milestone.ready { box-shadow: 0 0 0 2px var(--accent); }
 .milestone.done { opacity: 0.7; }
 .milestone .ok { color: var(--ok); font-weight: 800; }
+
+/* A friend not found yet: their own portrait as a soft dark shape. */
+img.silhouette, .ncard.missing img.silhouette { filter: brightness(0) opacity(0.5); background: none !important; }

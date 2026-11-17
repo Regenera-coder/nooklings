@@ -103,6 +103,16 @@ function draw(def: ResidentDef, silhouette: boolean, decorated: boolean): string
   return c.toDataURL();
 }
 
+/**
+ * Put a resident's picture in an <img>. A friend not found yet is their real portrait shown as a dark
+ * silhouette (class "silhouette", styled in CSS), so no shape is ever drawn in code when the art exists.
+ */
+export function setPortrait(img: HTMLImageElement, def: ResidentDef, opts: { silhouette?: boolean; decorated?: boolean; costume?: string | null } = {}): void {
+  const shadow = opts.silhouette === true ? artUrl(`char_${def.id}_portrait`) : null;
+  img.classList.toggle('silhouette', !!shadow);
+  img.src = shadow ?? portraitUrl(def, opts);
+}
+
 export function portraitUrl(def: ResidentDef, opts: { silhouette?: boolean; decorated?: boolean; costume?: string | null } = {}): string {
   const silhouette = opts.silhouette === true;
   const decorated = opts.decorated === true;
