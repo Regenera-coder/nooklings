@@ -1,6 +1,13 @@
 import { art, el, nudge, pick, shuffle, sparkle, type GameFactory } from '../engine';
 import { portraitUrl } from '../../portraits';
 
+/** Easy, Normal, Hard: how many hide, how often and how long eyes peek, and whether hiders sneak to new spots. */
+const TUNE = [
+  { hiders: 2, peekEvery: 2000, peekFor: 1100, sneakEvery: 0, wrong: 0 },
+  { hiders: 3, peekEvery: 2800, peekFor: 700, sneakEvery: 9000, wrong: 0 },
+  { hiders: 4, peekEvery: 3300, peekFor: 500, sneakEvery: 6000, wrong: 1 },
+];
+
 interface Spot {
   uid: string;
   node: HTMLButtonElement;
@@ -14,6 +21,7 @@ interface Spot {
  */
 export const hide: GameFactory = (ctx) => {
   const { field, clock, reduced, content, state, scene } = ctx;
+  const cfg = TUNE[ctx.level]!;
   field.classList.add('g-hide');
   if (!scene) {
     ctx.say('The room is not ready yet.');
@@ -51,7 +59,7 @@ export const hide: GameFactory = (ctx) => {
   }
 
   const players = state.residentOrder.filter((id) => content.residents[id]);
-  const hiders = shuffle(players).slice(0, Math.min(3, spots.length, players.length));
+  const hiders = shuffle(players).slice(0, Math.min(cfg.hiders, spots.length, players.length));
   const waiting: string[] = [];
 
   const hideIn = (who: string) => {
@@ -70,6 +78,7 @@ export const hide: GameFactory = (ctx) => {
     const at = { x: r.offsetLeft + r.offsetWidth / 2, y: r.offsetTop + r.offsetHeight / 2 };
     if (!spot.hider) {
       nudge(r, reduced);
+      if (cfg.wrong) ctx.addScore(-cfg.wrong, at);
       const dust = art('game_hide_found', 'hide-dust');
       dust.style.left = `${at.x}px`;
       dust.style.top = `${at.y}px`;
@@ -111,10 +120,22 @@ export const hide: GameFactory = (ctx) => {
     eyes.style.left = `${s.node.offsetLeft + s.node.offsetWidth * (0.25 + Math.random() * 0.5)}px`;
     eyes.style.top = `${s.node.offsetTop + s.node.offsetHeight * 0.2}px`;
     field.append(eyes);
-    clock.after(reduced ? 1500 : 1000, () => eyes.remove());
+    clock.after(reduced ? Math.max(1200, cfg.peekFor) : cfg.peekFor, () => eyes.remove());
   };
   clock.after(800, peek);
-  clock.every(2300, peek);
+  clock.every(cfg.peekEvery, peek);
+
+  // Normal and Hard: now and then a hider sneaks off to a different spot.
+  if (cfg.sneakEvery) {
+    clock.every(cfg.sneakEvery, () => {
+      const hidden = spots.filter((s) => s.hider);
+      const free = spots.filter((s) => !s.hider);
+      if (!hidden.length || !free.length) return;
+      const from = pick(hidden);
+      pick(free).hider = from.hider;
+      from.hider = null;
+    });
+  }
 
   return { destroy: () => scene.setHiding(false) };
 };

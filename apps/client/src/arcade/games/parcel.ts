@@ -1,4 +1,15 @@
+import { artUrl } from '../../assets';
 import { art, centreIn, el, hits, nudge, pick, pointIn, shuffle, type GameFactory } from '../engine';
+
+/**
+ * Easy, Normal, Hard: baskets at the start and later, belt speed, and what a wrong basket costs.
+ * On Hard the baskets also change places now and then.
+ */
+const TUNE = [
+  { baskets: 3, later: 4, laterAt: 20_000, speed: 0.08, top: 0.15, wrong: 0, shuffleEvery: 0 },
+  { baskets: 4, later: 5, laterAt: 20_000, speed: 0.1, top: 0.19, wrong: 2, shuffleEvery: 0 },
+  { baskets: 5, later: 6, laterAt: 15_000, speed: 0.12, top: 0.22, wrong: 3, shuffleEvery: 12_000 },
+];
 
 const BOXES = ['game_parcel_box_01', 'game_parcel_box_02', 'game_parcel_box_03', 'game_parcel_box_04'];
 
@@ -17,6 +28,7 @@ interface Parcel {
  */
 export const parcel: GameFactory = (ctx) => {
   const { field, clock, reduced, content, state } = ctx;
+  const cfg = TUNE[ctx.level]!;
   field.classList.add('g-parcel');
   const belt = el('div', 'parcel-belt');
   belt.append(art('game_parcel_belt', 'parcel-belt-img'));
@@ -26,11 +38,12 @@ export const parcel: GameFactory = (ctx) => {
   field.append(belt, baskets);
   ctx.say('Drag each parcel to the basket with the same face!');
 
-  // Stamps: the player's own residents first, topped up from the rest of the cast.
-  const owned = state.residentOrder.filter((id) => content.residents[id]);
-  const cast = [...shuffle(owned), ...shuffle(Object.keys(content.residents).filter((id) => !owned.includes(id)))];
-  const faces = cast.slice(0, 4);
-  let active = faces.slice(0, 3);
+  // Stamps: the player's own residents first, topped up from the rest of the cast (only friends with a drawn stamp).
+  const stamped = (id: string) => !!content.residents[id] && !!artUrl(`game_parcel_stamp_${id}`);
+  const owned = state.residentOrder.filter(stamped);
+  const cast = [...shuffle(owned), ...shuffle(Object.keys(content.residents).filter((id) => stamped(id) && !owned.includes(id)))];
+  const faces = cast.slice(0, cfg.later);
+  let active = faces.slice(0, cfg.baskets);
   const basketEls = new Map<string, HTMLElement>();
   let picked: Parcel | null = null;
 
@@ -47,7 +60,7 @@ export const parcel: GameFactory = (ctx) => {
   active.forEach(addBasket);
 
   const parcels = new Set<Parcel>();
-  let speed = 0.09; // share of the belt width per second
+  let speed = cfg.speed; // share of the belt width per second
 
   const spawn = () => {
     if (parcels.size >= 6) return;
@@ -109,6 +122,7 @@ export const parcel: GameFactory = (ctx) => {
     p.node.classList.remove('picked');
     if (p.who !== who) {
       nudge(basketEls.get(who)!, reduced);
+      if (cfg.wrong) ctx.addScore(-cfg.wrong, basketEls.get(who)!);
       bounce(p);
       return;
     }
@@ -142,16 +156,23 @@ export const parcel: GameFactory = (ctx) => {
   spawn();
   let spawnTimer = clock.every(2200, spawn);
   clock.every(5000, () => {
-    speed = Math.min(0.17, speed + 0.012);
+    speed = Math.min(cfg.top, speed + 0.012);
     clock.cancel(spawnTimer);
-    spawnTimer = clock.every(Math.max(1300, 2200 - Math.round((speed - 0.09) * 9000)), spawn);
+    spawnTimer = clock.every(Math.max(1100, 2200 - Math.round((speed - cfg.speed) * 9000) - ctx.level * 200), spawn);
   });
-  clock.after(20_000, () => {
-    if (active.length < faces.length) {
-      active = faces.slice(0, 4);
-      addBasket(faces[3]!);
-      ctx.say('A new basket!');
+  clock.after(cfg.laterAt, () => {
+    while (active.length < faces.length) {
+      const who = faces[active.length]!;
+      active = [...active, who];
+      addBasket(who);
     }
+    ctx.say('A new basket!');
   });
+  if (cfg.shuffleEvery) {
+    clock.every(cfg.shuffleEvery, () => {
+      baskets.replaceChildren(...shuffle([...basketEls.values()]));
+      ctx.say('The baskets moved!');
+    });
+  }
   return { destroy: () => stopFrames() };
 };

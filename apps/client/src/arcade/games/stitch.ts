@@ -109,12 +109,38 @@ function sample(path: Pt[], n: number): Pt[] {
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 /**
+ * Easy: big dots, the whole line shown, always the same start. Normal: the motif is turned and maybe
+ * mirrored, and starts at a random dot in a random direction. Hard: more dots, smaller targets, and
+ * only the next few dots of the line are shown.
+ */
+const TUNE = [
+  { radius: 0.06, minRadius: 26, dotsScale: 0.8, turn: 0, mirror: false, randomStart: false, ahead: 0, firstLevel: 1 },
+  { radius: 0.045, minRadius: 22, dotsScale: 1, turn: 30, mirror: true, randomStart: true, ahead: 0, firstLevel: 1 },
+  { radius: 0.036, minRadius: 20, dotsScale: 1.25, turn: 45, mirror: true, randomStart: true, ahead: 5, firstLevel: 2 },
+];
+
+export interface Turn {
+  degrees: number;
+  mirror: boolean;
+  scale: number;
+}
+
+/** Turns, mirrors and scales a point around the middle of the hoop (the same as the CSS transform on the finished picture). */
+export function turnPoint([x, y]: Pt, t: Turn): Pt {
+  const a = (t.degrees * Math.PI) / 180;
+  const dx = (x - 0.5) * t.scale * (t.mirror ? -1 : 1);
+  const dy = (y - 0.5) * t.scale;
+  return [0.5 + dx * Math.cos(a) - dy * Math.sin(a), 0.5 + dx * Math.sin(a) + dy * Math.cos(a)];
+}
+
+/**
  * Stitch-a-Pattern (Patcha): drag a finger along the dotted line, dot after dot, to stitch
  * the motif (tapping the dots in order works too). Each stitch is 1 point; finishing a
  * pattern adds 10 plus a quick-finish bonus, and shows the finished embroidery.
  */
 export const stitch: GameFactory = (ctx) => {
   const { field, clock, reduced } = ctx;
+  const cfg = TUNE[ctx.level]!;
   field.classList.add('g-stitch');
   const hoop = el('div', 'stitch-hoop');
   const fabric = art('game_stitch_fabric', 'stitch-fabric');
@@ -126,7 +152,9 @@ export const stitch: GameFactory = (ctx) => {
   hoop.append(fabric, done, svg, needle);
   field.append(hoop);
 
-  let order = roundOrder();
+  const levelOrder = () => roundOrder().filter((p) => p.level >= cfg.firstLevel);
+  let order = levelOrder();
+  let path: Pt[] = [];
   let patternIndex = 0;
   let current: Pattern = order[0]!;
   let fill: SVGPolygonElement | null = null;
@@ -140,11 +168,23 @@ export const stitch: GameFactory = (ctx) => {
   const load = () => {
     if (patternIndex >= order.length) {
       // Stitched everything: start again in a new order.
-      order = roundOrder();
+      order = levelOrder();
       patternIndex = 0;
     }
     const p = (current = order[patternIndex]!);
-    dots = sample(p.path, p.dots);
+    const turn: Turn = {
+      degrees: cfg.turn ? (Math.random() * 2 - 1) * cfg.turn : 0,
+      mirror: cfg.mirror && Math.random() < 0.5,
+      scale: cfg.turn ? 0.88 + Math.random() * 0.12 : 1,
+    };
+    path = p.path.map((pt) => turnPoint(pt, turn));
+    dots = sample(path, Math.round(p.dots * cfg.dotsScale));
+    if (cfg.randomStart) {
+      const k = Math.floor(Math.random() * dots.length);
+      dots = [...dots.slice(k), ...dots.slice(0, k)];
+      if (Math.random() < 0.5) dots = [dots[0]!, ...dots.slice(1).reverse()];
+    }
+    done.style.transform = `rotate(${turn.degrees}deg) scale(${turn.scale * (turn.mirror ? -1 : 1)}, ${turn.scale})`;
     next = 0;
     finishing = false;
     startedAt = clock.now();
@@ -155,8 +195,9 @@ export const stitch: GameFactory = (ctx) => {
     const guide = document.createElementNS(SVGNS, 'polyline');
     guide.setAttribute('points', [...dots, dots[0]!].map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
     guide.classList.add('stitch-guide');
+    if (cfg.ahead) guide.style.display = 'none';
     fill = document.createElementNS(SVGNS, 'polygon');
-    fill.setAttribute('points', p.path.map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
+    fill.setAttribute('points', path.map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
     fill.classList.add('stitch-fill');
     thread = document.createElementNS(SVGNS, 'polyline');
     thread.classList.add('stitch-thread');
@@ -171,8 +212,15 @@ export const stitch: GameFactory = (ctx) => {
       svg.append(c);
       return c;
     });
+    showAhead();
     placeNeedle(dots[0]!);
     ctx.say(`Stitch the ${p.name}! Start at the glowing dot.`);
+  };
+
+  /** Hard: only the next few dots are shown. */
+  const showAhead = () => {
+    if (!cfg.ahead) return;
+    dotEls.forEach((c, i) => c.classList.toggle('far', i > next + cfg.ahead && i < dots.length));
   };
 
   const placeNeedle = ([x, y]: Pt) => {
@@ -192,6 +240,7 @@ export const stitch: GameFactory = (ctx) => {
     placeNeedle(sewn[sewn.length - 1]!);
     if (next < dots.length) {
       dotEls[next]!.classList.add('next');
+      showAhead();
       return;
     }
     finishing = true;
@@ -203,7 +252,7 @@ export const stitch: GameFactory = (ctx) => {
       done.classList.add('show');
     } else {
       // No embroidery picture for this one: the outline becomes a solid seam and fills with thread colour.
-      thread?.setAttribute('points', [...p.path].map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
+      thread?.setAttribute('points', [...path].map(([x, y]) => `${x * 1000},${y * 1000}`).join(' '));
       thread?.classList.add('done');
       fill?.classList.add('show');
       for (const c of dotEls) c.style.opacity = '0';
@@ -222,7 +271,7 @@ export const stitch: GameFactory = (ctx) => {
     if (finishing || next >= dots.length) return;
     const r = hoop.getBoundingClientRect();
     const p = pointIn(hoop, ev);
-    const radius = Math.max(22, r.width * 0.045);
+    const radius = Math.max(cfg.minRadius, r.width * cfg.radius);
     // Allow catching up to two dots in one fast movement.
     for (let k = 0; k < 2 && next < dots.length; k++) {
       const [x, y] = dots[next]!;

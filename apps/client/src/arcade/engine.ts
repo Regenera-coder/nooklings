@@ -83,7 +83,19 @@ export class Clock {
   }
 }
 
+/** Arcade difficulty: 0 Easy, 1 Normal, 2 Hard. */
+export type Level = 0 | 1 | 2;
+export const LEVELS: ReadonlyArray<{ name: string; blurb: string; mult: number }> = [
+  { name: 'Easy', blurb: 'Gentle, with hints', mult: 1 },
+  { name: 'Normal', blurb: 'Points ×1.25', mult: 1.25 },
+  { name: 'Hard', blurb: 'Points ×1.5', mult: 1.5 },
+];
+
 export interface GameContext {
+  /** Difficulty chosen on the intro screen. Points are multiplied by LEVELS[level].mult in addScore. */
+  readonly level: Level;
+  /** The value for this round's difficulty: tune([easy, normal, hard]). */
+  tune<T>(values: readonly [T, T, T]): T;
   /** The play area. Games add their elements here; it is cleared when the round ends. */
   readonly field: HTMLElement;
   readonly clock: Clock;
@@ -156,6 +168,16 @@ export function shuffle<T>(list: T[]): T[] {
 
 export function pick<T>(list: readonly T[]): T {
   return list[Math.floor(Math.random() * list.length)]!;
+}
+
+/** A random number between a and b. */
+export function between(a: number, b: number): number {
+  return a + Math.random() * (b - a);
+}
+
+/** A random whole number from a to b (both included). */
+export function int(a: number, b: number): number {
+  return Math.floor(a + Math.random() * (b - a + 1));
 }
 
 /** A gentle "not that one" wiggle. No red, no sound. */

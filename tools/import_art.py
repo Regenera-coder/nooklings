@@ -67,7 +67,7 @@ RESIDENT_STAMPS = SERIES_1
 # Play pieces: single objects on white -> transparent, trimmed, longest side scaled to the given size.
 ARCADE_SPRITES: dict[str, int] = {
     "game_button_catch_button": 192, "game_button_catch_gold": 192, "game_button_catch_red": 192,
-    "game_memory_back": 320, **{f"game_memory_face_{i:02d}": 320 for i in range(1, 9)},
+    "game_memory_back": 320, **{f"game_memory_face_{i:02d}": 320 for i in range(1, 17)},
     "game_glyph_tile": 192, **{f"game_glyph_{i:02d}": 192 for i in range(1, 13)}, "game_glyph_scroll": 768,
     **{f"game_kitchen_{k}": 256 for k in ["pot", "pan", "board", "bowl", "berry", "flour", "egg", "carrot", "potato", "butter", "dish_tart", "dish_soup", "dish_pancakes"]},
     "game_stitch_fabric": 640, "game_stitch_needle": 192, **{f"game_stitch_done_{i:02d}": 640 for i in range(1, 15)},

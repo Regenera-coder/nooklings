@@ -15,7 +15,8 @@ import { artUrl } from '../assets';
 import type { RoomScene } from '../game/RoomScene';
 import { portraitUrl } from '../portraits';
 import type { CommandInput } from '../store';
-import { art, Clock, el, sparkle, type GameContext, type GameFactory, type RunningGame } from './engine';
+import { art, Clock, el, LEVELS, sparkle, type GameContext, type GameFactory, type Level, type RunningGame } from './engine';
+import { prefs, setPrefs } from '../ui/prefs';
 import { buttonCatch } from './games/buttonCatch';
 import { garden } from './games/garden';
 import { glyph } from './games/glyph';
@@ -189,18 +190,45 @@ export class Arcade {
     const pointsPerButton = perButton > 0 ? Math.round(1 / perButton) : 0;
     const worth = [`1 Ribbon for every ${g.pointsPerRibbon} points`];
     if (pointsPerButton) worth.push(`1 Button for every ${pointsPerButton === 1 ? 'point' : `${pointsPerButton} points`}`);
-    bubble.append(el('p', 'ar-worth', `Rewards: ${worth.join(' · ')}. Reach the scores below for prizes.`));
+    bubble.append(el('p', 'ar-worth', `Rewards: ${worth.join(' · ')}.`));
     talk.append(bubble);
 
     const prizes = el('div', 'ar-prizes');
     g.prizes.forEach((p, i) => prizes.append(this.prizeSlot(id, p, i, s)));
 
+    // Difficulty: remembered for each game; harder rounds are worth more points.
+    let level: Level = prefs().arcadeLevel?.[id] ?? 1;
+    const picker = el('div', 'ar-levels');
+    picker.setAttribute('role', 'radiogroup');
+    picker.setAttribute('aria-label', 'Difficulty');
+    const levelButtons = LEVELS.map((l, i) => {
+      const b = el('button', 'ar-level');
+      b.setAttribute('role', 'radio');
+      b.append(el('b', '', l.name), el('small', '', l.blurb));
+      b.addEventListener('click', () => {
+        level = i as Level;
+        setPrefs({ arcadeLevel: { ...(prefs().arcadeLevel ?? {}), [id]: level } });
+        mark();
+      });
+      picker.append(b);
+      return b;
+    });
+    const mark = () => {
+      levelButtons.forEach((b, i) => {
+        b.classList.toggle('on', i === level);
+        b.setAttribute('aria-checked', String(i === level));
+      });
+      if (unlocked && left > 0) note.textContent = `${LEVELS[level]!.name}: ${LEVELS[level]!.blurb.toLowerCase()} · ${left}/${this.content.arcade.playsPerDay} plays left · Best ${s.arcade.best[id] ?? 0}`;
+    };
+
     const play = el('button', 'ar-play');
     play.append(el('b', '', unlocked ? (left > 0 ? 'Play' : 'Come back tomorrow') : `Home Level ${g.unlockLevel}`));
-    play.append(el('small', '', unlocked ? `Plays left today ${left}/${this.content.arcade.playsPerDay} · Best ${s.arcade.best[id] ?? 0}` : 'Not unlocked yet'));
+    const note = el('small', '', unlocked ? `Plays left today ${left}/${this.content.arcade.playsPerDay} · Best ${s.arcade.best[id] ?? 0}` : 'Not unlocked yet');
+    play.append(note);
+    mark();
     play.disabled = !unlocked || left <= 0;
-    play.addEventListener('click', () => this.startRound(id));
-    side.append(talk, prizes, play);
+    play.addEventListener('click', () => this.startRound(id, level));
+    side.append(talk, prizes, picker, play);
     root.append(back, pic, side);
   }
 
@@ -227,8 +255,9 @@ export class Arcade {
     this.clock = null;
   }
 
-  private startRound(id: ArcadeGameId): void {
+  private startRound(id: ArcadeGameId, level: Level = prefs().arcadeLevel?.[id] ?? 1): void {
     const g = this.game(id);
+    const mult = LEVELS[level]!.mult;
     const s = this.h.getState();
     if (arcadePlaysLeft(s, this.content, id, Date.now()) <= 0) return;
     if (id === 'hide') this.h.showRoomForHide();
@@ -252,9 +281,13 @@ export class Arcade {
 
     const clock = new Clock();
     this.clock = clock;
+    // Kept unrounded so a ×1.25 round adds up fairly; shown and sent rounded down.
+    let raw = 0;
     let score = 0;
     let ended = false;
     const ctx: GameContext = {
+      level,
+      tune: (values) => values[level],
       field,
       clock,
       reduced: this.reduced,
@@ -266,8 +299,11 @@ export class Arcade {
       },
       addScore: (points, at) => {
         if (ended || points === 0) return;
-        score = Math.max(0, Math.min(g.maxScore, score + points));
+        const before = score;
+        raw = Math.max(0, Math.min(g.maxScore, raw + points * (points > 0 ? mult : 1)));
+        score = Math.floor(raw);
         scoreEl.textContent = String(score);
+        points = points > 0 ? Math.max(1, score - before) : points;
         let pos: { x: number; y: number } | null = null;
         if (at instanceof Element) {
           const f = field.getBoundingClientRect();

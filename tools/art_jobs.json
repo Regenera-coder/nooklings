@@ -2976,5 +2976,93 @@
    "03 ART INBOX — Milestone B/icon_tab_tasks_v2.png"
   ],
   "prompt": "A square app icon for a cosy mobile game called Momolumi, in exactly the same handmade felt-and-stitch style, colours, outline softness and lighting as the reference images (icons from the same game). Use them only for the style; do not copy their objects. The icon: a small round cottage shaped like a soft peach, made of peach-pink and cream felt with fine visible stitching, a little green felt leaf on top like a peach stem, a rounded wooden door, and one round window glowing with warm golden light, with a few tiny stitched sparkles around it. The cottage sits in the centre on a little mound of moss-green felt and fills about 70 percent of the frame. Background: a smooth, plain deep plum colour (#3b2a40) filling the whole square edge to edge, with a very soft warm glow behind the cottage. Simple, chunky shapes that read clearly when shown very small. Nothing touches the edges; keep a margin all round because the corners will be rounded. No text, no letters, no numbers, no logo, no watermark, no characters."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_09.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a little brown acorn with a stitched cap, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_10.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a red-capped mushroom with cream spots, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_11.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a round pink teapot with a white flower, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_12.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a smiling snail with a swirly lilac shell, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_13.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a fluffy white cloud with a tiny rainbow, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_14.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: two red cherries joined at the stem with one green leaf, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_15.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a small golden bell with a ribbon bow, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+ },
+ {
+  "stage": "memory_faces",
+  "out": "03 ART INBOX — Milestone F/game_memory_face_16.png",
+  "size": "1024x1536",
+  "refs": [
+   "03 ART INBOX — Milestone D/game_memory_face_01.png",
+   "03 ART INBOX — Milestone D/game_memory_face_03.png",
+   "03 ART INBOX — Milestone D/game_memory_face_06.png"
+  ],
+  "prompt": "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour, border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling the whole image. In the middle of the card, one object: a soft blue feather with stitched lines, the same size on the card as the objects on the reference cards. Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
  }
 ]

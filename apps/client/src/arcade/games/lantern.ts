@@ -1,4 +1,4 @@
-import { art, el, sparkle, centreIn, type GameFactory } from '../engine';
+import { art, el, shuffle, sparkle, centreIn, type GameFactory } from '../engine';
 
 /** Each lantern differs by shape as well as colour (heart, moon, star, leaf) for colour-blind players. */
 const LANTERNS = [
@@ -7,7 +7,16 @@ const LANTERNS = [
   { colour: 'yellow', shape: 'star' },
   { colour: 'green', shape: 'leaf' },
 ];
-const START_LENGTH = 2;
+/**
+ * Easy: the sequence grows by one each time (the same start), and a mistake replays it.
+ * Normal: longer and quicker, and every sequence is brand new.
+ * Hard: quicker still, and the lanterns change places before each new sequence.
+ */
+const TUNE = [
+  { start: 2, on: 650, gap: 280, fresh: false, moveLanterns: false },
+  { start: 3, on: 480, gap: 200, fresh: true, moveLanterns: false },
+  { start: 4, on: 380, gap: 150, fresh: true, moveLanterns: true },
+] as const;
 
 /**
  * Lantern Lights (Glim): watch the lanterns glow in order, then tap them in the same order.
@@ -16,6 +25,7 @@ const START_LENGTH = 2;
  */
 export const lantern: GameFactory = (ctx) => {
   const { field, clock, reduced } = ctx;
+  const t = TUNE[ctx.level];
   field.classList.add('g-lantern');
   field.append(art('game_lantern_backdrop', 'lantern-bg'));
   const row = el('div', 'lantern-row');
@@ -48,8 +58,8 @@ export const lantern: GameFactory = (ctx) => {
     listening = false;
     input = 0;
     ctx.say('Watch the lanterns…');
-    const on = reduced ? 700 : 550;
-    const gap = 250;
+    const on = reduced ? Math.max(t.on, 600) : t.on;
+    const gap = t.gap;
     sequence.forEach((i, k) => clock.after(600 + k * (on + gap), () => glow(i, on)));
     clock.after(600 + sequence.length * (on + gap), () => {
       listening = true;
@@ -57,9 +67,18 @@ export const lantern: GameFactory = (ctx) => {
     });
   };
 
+  const random = (n: number) => Array.from({ length: n }, () => Math.floor(Math.random() * LANTERNS.length));
+  /** Hard: the lanterns trade places (each keeps its own colour and shape). */
+  const reorder = () => {
+    if (!t.moveLanterns) return;
+    row.replaceChildren(...shuffle(buttons));
+    ctx.say('The lanterns moved!');
+  };
   const grow = () => {
-    sequence.push(Math.floor(Math.random() * LANTERNS.length));
-    play();
+    if (t.fresh) sequence = random(sequence.length + 1);
+    else sequence.push(Math.floor(Math.random() * LANTERNS.length));
+    reorder();
+    clock.after(t.moveLanterns ? 500 : 0, play);
   };
 
   const press = (i: number) => {
@@ -77,12 +96,16 @@ export const lantern: GameFactory = (ctx) => {
       }
     } else {
       listening = false;
-      ctx.say('Almost! Watch again.');
+      if (t.fresh) {
+        // A new sequence, one shorter (never below the starting length).
+        sequence = random(Math.max(t.start, sequence.length - 1));
+        ctx.say('Almost! Here is a new one.');
+      } else ctx.say('Almost! Watch again.');
       clock.after(700, play);
     }
   };
 
-  sequence = Array.from({ length: START_LENGTH }, () => Math.floor(Math.random() * LANTERNS.length));
+  sequence = random(t.start);
   play();
   return {};
 };

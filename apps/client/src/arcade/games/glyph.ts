@@ -15,17 +15,26 @@ interface Puzzle {
 /** Repeating patterns, easiest first. Letters are slots in the repeating unit. */
 const PATTERNS = ['AB', 'ABC', 'AAB', 'ABB', 'AABB', 'ABCD', 'ABAC'];
 
-function makePuzzle(level: number): Puzzle {
-  const optionCount = level < 3 ? 3 : 4;
-  // From the fourth puzzle on, every third one is a "decode with the key" puzzle.
-  if (level >= 3 && level % 3 === 0) {
+/** Easy, Normal, Hard: where the puzzles start, how many choices, how often a key puzzle comes. */
+const TUNE = [
+  { start: 0, extraOptions: 0, keyEvery: 3, laterPoints: 5 },
+  { start: 2, extraOptions: 1, keyEvery: 3, laterPoints: 3 },
+  { start: 4, extraOptions: 2, keyEvery: 2, laterPoints: 0 },
+];
+
+export function makePuzzle(level: number, extraOptions = 0, keyEvery = 3): Puzzle {
+  const optionCount = (level < 3 ? 3 : 4) + extraOptions;
+  // From the fourth puzzle on, some are "decode with the key" puzzles.
+  if (level >= 3 && level % keyEvery === 0) {
     const syms = shuffle([...SYMBOLS.keys()]).slice(0, 6);
     const key: Array<[number, number]> = [[syms[0]!, syms[1]!], [syms[2]!, syms[3]!], [syms[4]!, syms[5]!]];
     const [ask, answer] = pick(key);
     const others = shuffle(syms.filter((s) => s !== answer && s !== ask)).slice(0, optionCount - 1);
     return { row: [ask, null], answer, key, options: shuffle([answer, ...others]) };
   }
-  const pattern = PATTERNS[Math.min(PATTERNS.length - 1, Math.floor(level / 2))]!;
+  // Later puzzles pick from the harder patterns at random, so the order is never the same.
+  const top = Math.min(PATTERNS.length - 1, Math.floor(level / 2));
+  const pattern = PATTERNS[level < 4 ? top : Math.max(0, top - Math.floor(Math.random() * 3))]!;
   const letters = [...new Set(pattern)];
   const syms = shuffle([...SYMBOLS.keys()]).slice(0, letters.length);
   const map = new Map(letters.map((l, i) => [l, syms[i]!]));
@@ -49,6 +58,7 @@ function makePuzzle(level: number): Puzzle {
  */
 export const glyph: GameFactory = (ctx) => {
   const { field, clock, reduced } = ctx;
+  const t = TUNE[ctx.level]!;
   field.classList.add('g-glyph');
   const scroll = el('div', 'glyph-scroll');
   scroll.append(art('game_glyph_scroll', 'glyph-scroll-bg'));
@@ -56,7 +66,7 @@ export const glyph: GameFactory = (ctx) => {
   scroll.append(rowEl);
   const options = el('div', 'glyph-options');
   field.append(scroll, options);
-  let level = 0;
+  let level = t.start;
   let tries = 0;
   let locked = false;
 
@@ -72,7 +82,7 @@ export const glyph: GameFactory = (ctx) => {
   };
 
   const show = () => {
-    const p = makePuzzle(level);
+    const p = makePuzzle(level, t.extraOptions, t.keyEvery);
     tries = 0;
     locked = false;
     rowEl.replaceChildren();
@@ -105,7 +115,7 @@ export const glyph: GameFactory = (ctx) => {
           if (gap) {
             gap.replaceWith(tile(s, 'glyph-tile filled'));
           }
-          ctx.addScore(tries === 0 ? 10 : 5, b);
+          if (tries === 0 || t.laterPoints) ctx.addScore(tries === 0 ? 10 : t.laterPoints, b);
           sparkle(field, centreIn(field, b), 80, reduced);
           level += 1;
           clock.after(reduced ? 500 : 750, show);

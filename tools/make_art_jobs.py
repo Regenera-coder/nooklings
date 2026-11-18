@@ -476,5 +476,30 @@ jobs.append({
     ),
 })
 
+# Memory Match needs more card faces for its harder boards (owner, 18 Nov: Arcade games felt too easy and repetitive).
+MEMORY_REFS = [f"{D}/game_memory_face_01.png", f"{D}/game_memory_face_03.png", f"{D}/game_memory_face_06.png"]
+for n, what in enumerate([
+    "a little brown acorn with a stitched cap",
+    "a red-capped mushroom with cream spots",
+    "a round pink teapot with a white flower",
+    "a smiling snail with a swirly lilac shell",
+    "a fluffy white cloud with a tiny rainbow",
+    "two red cherries joined at the stem with one green leaf",
+    "a small golden bell with a ribbon bow",
+    "a soft blue feather with stitched lines",
+], start=9):
+    jobs.append({
+        "stage": "memory_faces",
+        "out": f"{F}/game_memory_face_{n:02d}.png",
+        "size": "1024x1536",
+        "refs": MEMORY_REFS,
+        "prompt": (
+            "A card face for a memory-match card game, in exactly the same handmade felt-and-stitch style, card frame, cream card colour,"
+            " border, proportions and lighting as the reference cards (they are from the same deck). Keep the same portrait card shape filling"
+            f" the whole image. In the middle of the card, one object: {what}, the same size on the card as the objects on the reference cards."
+            " Use the references only for style and the card; do not copy their objects. No text, no letters, no numbers, no watermark."
+        ),
+    })
+
 Path(__file__).with_name("art_jobs.json").write_text(json.dumps(jobs, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 print(len(jobs), "jobs:", {s: sum(j["stage"] == s for j in jobs) for s in ("masters", "poses", "redraws", "items", "costumes", "arcade")})

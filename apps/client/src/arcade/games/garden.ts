@@ -12,6 +12,17 @@ interface Pot {
 }
 
 const BLOOMS = ['game_garden_bloom_01', 'game_garden_bloom_02', 'game_garden_bloom_03'];
+
+/**
+ * Easy: nothing is ever lost. Normal and Hard: the garden is busier, a droopy sprout left too long
+ * withers, a flower left too long fades, and on Hard a weed left alone spreads to an empty pot.
+ * Things also come up a little faster as the round goes on.
+ */
+const TUNE = [
+  { every: 1300, weeds: 0.15, droopAfter: 6000, witherAfter: 0, fadeAfter: 0, grow: 2200, spread: 0 },
+  { every: 950, weeds: 0.25, droopAfter: 4000, witherAfter: 4500, fadeAfter: 4500, grow: 2000, spread: 0 },
+  { every: 750, weeds: 0.32, droopAfter: 3000, witherAfter: 3000, fadeAfter: 3200, grow: 1700, spread: 4000 },
+];
 const LABEL: Record<Stage, string> = {
   empty: 'Empty pot',
   thirsty: 'Thirsty sprout: tap to water',
@@ -29,6 +40,7 @@ const LABEL: Record<Stage, string> = {
  */
 export const garden: GameFactory = (ctx) => {
   const { field, clock, reduced } = ctx;
+  const t = TUNE[ctx.level]!;
   field.classList.add('g-garden');
   field.append(art('game_garden_bed', 'garden-bg'));
   const beds = el('div', 'garden-pots');
@@ -62,8 +74,31 @@ export const garden: GameFactory = (ctx) => {
     if (stage === 'thirsty' || stage === 'droop') pot.badge.textContent = '💧';
     if (stage === 'bloom') pot.badge.textContent = '✂';
     if (stage === 'weed') pot.badge.textContent = '✋';
-    if (stage === 'thirsty') pot.timer = clock.after(5000, () => setStage(pot, 'droop'));
-    if (stage === 'growing') pot.timer = clock.after(2200, () => setStage(pot, 'bloom'));
+    if (stage === 'thirsty') pot.timer = clock.after(t.droopAfter, () => setStage(pot, 'droop'));
+    if (stage === 'droop' && t.witherAfter) pot.timer = clock.after(t.witherAfter, () => lose(pot, 'A sprout withered'));
+    if (stage === 'growing') pot.timer = clock.after(t.grow, () => setStage(pot, 'bloom'));
+    if (stage === 'bloom' && t.fadeAfter) pot.timer = clock.after(t.fadeAfter, () => lose(pot, 'A flower faded'));
+    if (stage === 'weed' && t.spread) pot.timer = clock.after(t.spread, () => spread(pot));
+  };
+
+  /** Normal and Hard: something left too long is gone (no points taken, just a missed chance). */
+  const lose = (pot: Pot, why: string) => {
+    pot.node.classList.remove('lost');
+    void pot.node.offsetWidth;
+    if (!reduced) pot.node.classList.add('lost');
+    setStage(pot, 'empty');
+    ctx.say(`${why}. Be quick!`);
+  };
+
+  /** Hard: a weed left alone seeds another weed in an empty pot. */
+  const spread = (pot: Pot) => {
+    if (pot.stage !== 'weed') return;
+    const empty = pots.filter((p) => p.stage === 'empty');
+    if (empty.length) {
+      setStage(pick(empty), 'weed');
+      ctx.say('The weeds are spreading!');
+    }
+    pot.timer = clock.after(t.spread, () => spread(pot));
   };
 
   const tap = (pot: Pot) => {
@@ -101,10 +136,14 @@ export const garden: GameFactory = (ctx) => {
     const empty = pots.filter((p) => p.stage === 'empty');
     if (!empty.length) return;
     const pot = pick(empty);
-    setStage(pot, Math.random() < 0.22 ? 'weed' : 'thirsty');
+    setStage(pot, Math.random() < t.weeds ? 'weed' : 'thirsty');
   };
   tick();
   tick();
-  clock.every(1100, tick);
+  const loop = () => {
+    tick();
+    clock.after(t.every / (1 + 0.3 * Math.min(1, clock.now() / 40_000)), loop);
+  };
+  clock.after(t.every, loop);
   return {};
 };

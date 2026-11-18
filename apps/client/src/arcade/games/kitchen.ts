@@ -16,38 +16,70 @@ interface Recipe {
   steps: Step[];
 }
 
-const RECIPES: Recipe[] = [
-  {
-    id: 'tart', name: 'Berry Tart', dish: 'game_kitchen_dish_tart',
-    steps: [
-      { kind: 'add', item: 'flour', to: 'bowl' },
-      { kind: 'add', item: 'butter', to: 'bowl' },
-      { kind: 'stir', on: 'bowl', ms: 1200 },
-      { kind: 'add', item: 'berry', to: 'bowl', count: 3 },
-    ],
-  },
-  {
-    id: 'soup', name: 'Vegetable Soup', dish: 'game_kitchen_dish_soup',
-    steps: [
-      { kind: 'add', item: 'carrot', to: 'board' },
-      { kind: 'chop', on: 'board', taps: 4 },
-      { kind: 'add', item: 'potato', to: 'board' },
-      { kind: 'chop', on: 'board', taps: 4 },
-      { kind: 'add', item: 'board', to: 'pot' },
-      { kind: 'stir', on: 'pot', ms: 1500 },
-    ],
-  },
-  {
-    id: 'pancakes', name: 'Pancakes', dish: 'game_kitchen_dish_pancakes',
-    steps: [
-      { kind: 'add', item: 'flour', to: 'bowl' },
-      { kind: 'add', item: 'egg', to: 'bowl' },
-      { kind: 'stir', on: 'bowl', ms: 1200 },
-      { kind: 'add', item: 'bowl', to: 'pan' },
-      { kind: 'flip', on: 'pan', times: 2 },
-      { kind: 'add', item: 'butter', to: 'pan' },
-    ],
-  },
+const INGREDIENTS: Ingredient[] = ['berry', 'flour', 'egg', 'carrot', 'potato', 'butter'];
+
+function rnd(a: number, b: number): number {
+  return Math.floor(a + Math.random() * (b - a + 1));
+}
+function maybeSwap<T>(a: T, b: T): [T, T] {
+  return Math.random() < 0.5 ? [a, b] : [b, a];
+}
+
+/**
+ * A fresh version of a dish: the order of some steps, how many berries, chops, flips and how long to
+ * stir change every time, and harder levels ask for more. `level` is 0 Easy, 1 Normal, 2 Hard.
+ */
+export function makeRecipe(id: Recipe['id'], level: number): Recipe {
+  const more = (easy: [number, number], hard: [number, number]) => rnd(easy[0] + (hard[0] - easy[0]) * (level / 2), easy[1] + (hard[1] - easy[1]) * (level / 2));
+  const stirMs = 1000 + level * 400 + rnd(0, 400);
+  if (id === 'tart') {
+    const [a, b] = maybeSwap<Ingredient>('flour', 'butter');
+    return {
+      id, name: 'Berry Tart', dish: 'game_kitchen_dish_tart',
+      steps: [
+        { kind: 'add', item: a, to: 'bowl' },
+        { kind: 'add', item: b, to: 'bowl' },
+        { kind: 'stir', on: 'bowl', ms: stirMs },
+        { kind: 'add', item: 'berry', to: 'bowl', count: more([2, 3], [4, 6]) },
+      ],
+    };
+  }
+  if (id === 'soup') {
+    const [a, b] = maybeSwap<Ingredient>('carrot', 'potato');
+    return {
+      id, name: 'Vegetable Soup', dish: 'game_kitchen_dish_soup',
+      steps: [
+        { kind: 'add', item: a, to: 'board' },
+        { kind: 'chop', on: 'board', taps: more([3, 4], [5, 7]) },
+        { kind: 'add', item: b, to: 'board' },
+        { kind: 'chop', on: 'board', taps: more([3, 4], [5, 7]) },
+        { kind: 'add', item: 'board', to: 'pot' },
+        { kind: 'stir', on: 'pot', ms: stirMs + 300 },
+      ],
+    };
+  }
+  const [a, b] = maybeSwap<Ingredient>('flour', 'egg');
+  const steps: Step[] = [
+    { kind: 'add', item: a, to: 'bowl' },
+    { kind: 'add', item: b, to: 'bowl' },
+    { kind: 'stir', on: 'bowl', ms: stirMs },
+    { kind: 'add', item: 'bowl', to: 'pan' },
+    { kind: 'flip', on: 'pan', times: more([1, 2], [3, 4]) },
+  ];
+  // Butter goes on top, or first in the pan, or not at all.
+  const butter = Math.random();
+  if (butter < 0.4) steps.push({ kind: 'add', item: 'butter', to: 'pan' });
+  else if (butter < 0.75) steps.splice(3, 0, { kind: 'add', item: 'butter', to: 'pan' });
+  return { id, name: 'Pancakes', dish: 'game_kitchen_dish_pancakes', steps };
+}
+
+const DISHES: Array<Recipe['id']> = ['tart', 'soup', 'pancakes'];
+
+/** Easy, Normal, Hard: extra ingredients on the shelf that are not needed, steps shown ahead, and what a wrong drop costs. */
+const TUNE = [
+  { decoys: 0, showAhead: 99, wrong: 0 },
+  { decoys: 2, showAhead: 99, wrong: 1 },
+  { decoys: 6, showAhead: 1, wrong: 2 },
 ];
 
 const NAMES: Record<Ingredient | Tool, string> = {
@@ -76,11 +108,13 @@ const DISH_POINTS = 10;
 /**
  * Cosy Kitchen (Bloomi): follow the recipe card. Drag ingredients to the right tool, tap the
  * board to chop, hold to stir, swipe up to flip. Every step is 5 points, every dish 10 more.
- * Recipes come round in turn (Berry Tart, Vegetable Soup, Pancakes) until time runs out.
+ * Each dish is made a new way every time (step order, berries, chops, flips, stirring), and dishes
+ * come in a random order. Normal and Hard put unneeded ingredients on the shelf; Hard hides later steps.
  * Ingredients can also be moved by tapping them, then tapping the tool.
  */
 export const kitchen: GameFactory = (ctx) => {
   const { field, clock, reduced } = ctx;
+  const cfg = TUNE[ctx.level]!;
   field.classList.add('g-kitchen');
   field.append(art('game_kitchen_counter', 'kitchen-bg'));
   const card = el('div', 'kitchen-card');
@@ -131,11 +165,12 @@ export const kitchen: GameFactory = (ctx) => {
     drawContents(t);
   };
 
-  let recipeIndex = 0;
+  let dishId: Recipe['id'] = DISHES[Math.floor(Math.random() * DISHES.length)]!;
   let stepIndex = 0;
   let progress = 0;
   let selected: HTMLElement | null = null;
-  let recipe = RECIPES[0]!;
+  let recipe = makeRecipe(dishId, ctx.level);
+  let decoys: Ingredient[] = [];
   let between = false;
 
   const step = () => recipe.steps[stepIndex];
@@ -144,7 +179,9 @@ export const kitchen: GameFactory = (ctx) => {
     card.replaceChildren(el('h4', '', recipe.name));
     const list = el('ol');
     recipe.steps.forEach((s, i) => {
-      const li = el('li', i < stepIndex ? 'done' : i === stepIndex ? 'now' : '', stepText(s));
+      // Hard: later steps stay hidden until they come.
+      const hidden = i > stepIndex + cfg.showAhead;
+      const li = el('li', i < stepIndex ? 'done' : i === stepIndex ? 'now' : hidden ? 'later' : '', hidden ? '…' : stepText(s));
       if (i < stepIndex) li.prepend(el('span', 'tick', '✓ '));
       list.append(li);
     });
@@ -162,7 +199,9 @@ export const kitchen: GameFactory = (ctx) => {
     recipe.steps.slice(stepIndex).forEach((x) => {
       if (x.kind === 'add' && !(['board', 'bowl', 'pot', 'pan'] as string[]).includes(x.item)) needed.add(x.item as Ingredient);
     });
-    for (const ing of needed) {
+    // Normal and Hard: some ingredients this dish does not need are on the shelf too.
+    const shown = INGREDIENTS.filter((i) => needed.has(i) || decoys.includes(i));
+    for (const ing of shown) {
       const item = el('button', 'kitchen-ing');
       item.dataset.item = ing;
       item.setAttribute('aria-label', NAMES[ing]);
@@ -190,6 +229,7 @@ export const kitchen: GameFactory = (ctx) => {
     const s = step();
     if (between || !s || s.kind !== 'add' || s.item !== item || s.to !== to) {
       if (node) nudge(node, reduced);
+      if (cfg.wrong && !between && s) ctx.addScore(-cfg.wrong, toolEls.get(to) ?? undefined);
       return false;
     }
     progress += 1;
@@ -224,7 +264,8 @@ export const kitchen: GameFactory = (ctx) => {
       sparkle(field, centreIn(field, dish), 140, reduced);
       clock.after(reduced ? 900 : 1300, () => {
         dish.remove();
-        recipeIndex = (recipeIndex + 1) % RECIPES.length;
+        // A different dish next time, made a new way.
+        dishId = DISHES.filter((d) => d !== dishId)[Math.floor(Math.random() * 2)]!;
         startRecipe();
       });
       return;
@@ -235,7 +276,9 @@ export const kitchen: GameFactory = (ctx) => {
   };
 
   const startRecipe = () => {
-    recipe = RECIPES[recipeIndex]!;
+    recipe = makeRecipe(dishId, ctx.level);
+    const needed = new Set(recipe.steps.flatMap((x) => (x.kind === 'add' && INGREDIENTS.includes(x.item as Ingredient) ? [x.item as Ingredient] : [])));
+    decoys = INGREDIENTS.filter((i) => !needed.has(i)).sort(() => Math.random() - 0.5).slice(0, cfg.decoys);
     stepIndex = 0;
     progress = 0;
     between = false;

@@ -927,3 +927,30 @@ p.hint .happy-line, .panel .happy-line { margin: 2px 0 6px; }
 
 /* A friend not found yet: their own portrait as a soft dark shape. */
 img.silhouette, .ncard.missing img.silhouette { filter: brightness(0) opacity(0.5); background: none !important; }
+
+/* ---------- Arcade difficulty (18 Nov) ---------- */
+.ar-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0 6px; }
+.ar-level { min-height: 44px; border-radius: 12px; border: 2px solid #e6c49a; background: #fffaf0; color: var(--plum); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 4px; line-height: 1.1; }
+.ar-level b { font-size: 14px; }
+.ar-level small { font-size: 10px; color: #8a6a7a; }
+.ar-level.on { background: var(--plum-2); border-color: var(--gold); color: #fff4e2; box-shadow: 0 0 0 2px var(--gold); }
+.ar-level.on small { color: #f6dcae; }
+.ar-level:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.ar-play { min-height: 46px; }
+.spot-pane .spot-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.spot-item { position: absolute; display: block; pointer-events: none; }
+.spot-pane .spot-item img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 2px 2px #0003); }
+.spot-ring { border-radius: 40%; }
+.ar-intro .ar-slot { max-height: 28vh; max-width: calc(28vh * 245 / 256); }
+.ar-intro-side { gap: 6px; }
+@media (max-height: 340px) { .ar-level { min-height: 40px; } .ar-level small { display: none; } }
+.ar-intro .ar-slot-name { font-size: 9.5px; }
+.mem-card.swapped { animation: mem-swap .5s ease-out; }
+@keyframes mem-swap { 0% { transform: scale(.85) rotate(-6deg); } 60% { transform: scale(1.06) rotate(3deg); } 100% { transform: none; } }
+.garden-pot.lost { animation: garden-lost .5s ease-out; }
+@keyframes garden-lost { 0% { opacity: .4; transform: scale(.94); } 100% { opacity: 1; transform: none; } }
+.glyph-options { flex-wrap: wrap; justify-content: center; gap: 10px; }
+.parcel-basket { width: clamp(70px, 26vh, 116px); }
+.stitch-dot.far { opacity: 0; }
+.stitch-done { transform-origin: 50% 50%; }
+.kitchen-card li.later { opacity: .55; }

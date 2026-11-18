@@ -10,6 +10,8 @@ export interface UiPrefs {
   shopTab?: 'furniture' | 'gardening' | 'costumes';
   readyOpen?: boolean;
   reducedMotion?: boolean;
+  /** Arcade difficulty chosen for each game (0 Easy, 1 Normal, 2 Hard). */
+  arcadeLevel?: Record<string, 0 | 1 | 2>;
 }
 
 let cache: UiPrefs | null = null;

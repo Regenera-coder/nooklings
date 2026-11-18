@@ -2,6 +2,25 @@
 
 Labels: **Implemented** (in the code and tested) · **Placeholder** (works, but stands in for final content) · **Planned** (not built).
 
+## 0.18.0 — Arcade: difficulty and fresh rounds (18 Nov 2026)
+
+Owner: the Arcade felt too easy, every round played the same, and Spot the Difference always had the same changes.
+
+### Added
+- **Easy / Normal / Hard** on every game's intro screen, remembered for each game. Points are ×1 on Easy, ×1.25 on Normal and ×1.5 on Hard (shown on the Play button), so harder rounds reach prizes and Ribbons sooner. The daily Ribbon and Button limits are unchanged.
+
+### Changed (every game is different each time, and harder on Normal and Hard)
+- **Spot the Difference:** every picture is built fresh from a random room and random furniture in random places, with random changes (missing, added, swapped, recoloured, bigger, moved, mirrored). Easy 4 changes in 7 pieces, Normal 5 in 9, Hard 6 in 11 with subtler changes, later hints and a longer pause after a wrong tap. A new picture follows each finished one. The three hand-drawn scenes are no longer used.
+- **Memory Match:** each board draws a random set from 16 card faces (8 new faces to be drawn). Easy 6 then 8 pairs with a quick look first; Normal 8 then 10; Hard 10 then 12, and two hidden cards swap places after wrong pairs.
+- **Stitch-a-Pattern:** on Normal and Hard each motif is turned and sometimes mirrored, and starts at a random dot in a random direction; Hard has more, smaller dots and shows only the next few.
+- **Cosy Kitchen:** dishes come in a random order and are made a new way each time (step order, berries, chops, flips, stirring time). Normal and Hard put unneeded ingredients on the shelf and a wrong ingredient costs points; Hard shows only the next step of the recipe.
+- **Button Catch:** faster falls, more red buttons (costing 1, 2 or 3 points), buttons sway on Hard, and the pace rises during the round.
+- **Lantern Lights:** Normal and Hard start longer, glow faster and give a brand-new sequence each time; on Hard the lanterns change places.
+- **Garden Tending:** busier on Normal and Hard; droopy sprouts wither and flowers fade if left; on Hard weeds spread.
+- **Glyph Garden:** harder levels start further in, offer more choices, mix the patterns, and give fewer points for a second try.
+- **Parcel Sorting:** more baskets and a faster belt on Normal and Hard; a wrong basket costs points; on Hard the baskets change places. Only friends with a drawn stamp are used.
+- **Hide and Seek:** more friends hide on harder levels, peeks are shorter and rarer, hiders sneak to new spots, and on Hard an empty spot costs a point.
+
 ## 0.17.1 — New name: Momolumi: Little Worlds (17 Nov 2026)
 
 ### Changed
