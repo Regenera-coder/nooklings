@@ -11,7 +11,7 @@ Owner: the Arcade felt too easy, every round played the same, and Spot the Diffe
 
 ### Changed (every game is different each time, and harder on Normal and Hard)
 - **Spot the Difference:** every picture is built fresh from a random room and random furniture in random places, with random changes (missing, added, swapped, recoloured, bigger, moved, mirrored). Easy 4 changes in 7 pieces, Normal 5 in 9, Hard 6 in 11 with subtler changes, later hints and a longer pause after a wrong tap. A new picture follows each finished one. The three hand-drawn scenes are no longer used.
-- **Memory Match:** each board draws a random set from 16 card faces (8 new faces to be drawn). Easy 6 then 8 pairs with a quick look first; Normal 8 then 10; Hard 10 then 12, and two hidden cards swap places after wrong pairs.
+- **Memory Match:** each board draws a random set from 16 card faces (8 new faces: acorn, mushroom, teapot, snail, cloud, cherries, bell, feather). Easy 6 then 8 pairs with a quick look first; Normal 8 then 10; Hard 10 then 12, and two hidden cards swap places after wrong pairs.
 - **Stitch-a-Pattern:** on Normal and Hard each motif is turned and sometimes mirrored, and starts at a random dot in a random direction; Hard has more, smaller dots and shows only the next few.
 - **Cosy Kitchen:** dishes come in a random order and are made a new way each time (step order, berries, chops, flips, stirring time). Normal and Hard put unneeded ingredients on the shelf and a wrong ingredient costs points; Hard shows only the next step of the recipe.
 - **Button Catch:** faster falls, more red buttons (costing 1, 2 or 3 points), buttons sway on Hard, and the pace rises during the round.
